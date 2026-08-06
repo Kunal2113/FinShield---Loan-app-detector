@@ -477,9 +477,16 @@ st.markdown(f"""
         color: {t['text']};
     }}
 
+    h1 {{
+        font-size: 2.6rem !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+        letter-spacing: -0.5px !important;
+    }}
+
     @media (max-width: 640px) {{
         .block-container {{ padding-top: 1rem; padding-left: 0.5rem; padding-right: 0.5rem; }}
-        h1 {{ font-size: 1.35rem !important; }}
+        h1 {{ font-size: 1.8rem !important; }}
         .stat-box {{ padding: 4px; border-radius: 8px; }}
         .stat-label {{ font-size: 0.60rem !important; margin-bottom: 2px !important; line-height: 1.1 !important; }}
         .stat-value {{ font-size: 0.88rem !important; }}
