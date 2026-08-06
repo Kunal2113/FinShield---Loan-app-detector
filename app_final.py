@@ -380,7 +380,7 @@ def render_rbi_riskometer_card(score: float, rbi_category: str, rbi_desc: str, r
     )
 
     card_html = (
-        f'<div style="border:1px solid {card_border}; border-radius:12px; padding:8px 10px; background-color:{card_bg}; max-width:230px; margin-left:auto; margin-top:18px;">'
+        f'<div style="border:1px solid {card_border}; border-radius:12px; padding:8px 10px; background-color:{card_bg}; max-width:230px; margin-left:auto;">'
         f'{svg_str}'
         f'</div>'
     )
@@ -489,13 +489,14 @@ st.markdown(f"""
 
 main = st.container(border=True)
 with main:
-    header_l, header_r = st.columns([3.2, 2.2], vertical_alignment="top")
-    with header_l:
-        st.title("FINSHIELD-Loan App Risk Scorer")
-        st.caption("Check a Play Store lending app's predatory risk — before you install it, not after.")
+    st.title("FINSHIELD-Loan App Risk Scorer")
+    st.caption("Check a Play Store lending app's predatory risk — before you install it, not after.")
+
+    bar_l, bar_r = st.columns([1, 1], vertical_alignment="center")
+    with bar_l:
         st.toggle("🌙 Dark", key="dark_mode")
 
-    riskometer_ph = header_r.empty()
+    riskometer_ph = bar_r.empty()
 
     if USE_FAKE_MODEL:
         st.info(
