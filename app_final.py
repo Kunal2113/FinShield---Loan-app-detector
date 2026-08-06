@@ -218,7 +218,12 @@ def lookup_app_features(identifier: str):
         return None
 
     row = match.iloc[0]
-    return {col: row[col] for col in FEATURE_COLUMNS if col in row}
+    res = {col: row[col] for col in FEATURE_COLUMNS if col in row}
+    if "app_id" in row:
+        res["app_id"] = str(row["app_id"]).strip()
+    if "app_name" in row:
+        res["app_name"] = str(row["app_name"]).strip()
+    return res
 
 #model loading
 import os
@@ -231,7 +236,14 @@ def load_model():
     the first time the app runs, instead of reloading it from disk on
     every single click — makes the demo feel instant.
     """
-    return joblib.load("predatory_loan_detector.pkl")
+    model = joblib.load("predatory_loan_detector.pkl")
+    if hasattr(model, "named_steps") and "classifier" in model.named_steps:
+        clf = model.named_steps["classifier"]
+        if not hasattr(clf, "multi_class"):
+            clf.multi_class = "auto"
+    elif not hasattr(model, "multi_class"):
+        model.multi_class = "auto"
+    return model
 
 def _fake_predict(features: dict):
     """
@@ -306,8 +318,80 @@ def score_app(identifier: str):
 
 st.set_page_config(page_title="FINSHIELD-Loan App Risk Scorer", page_icon="🛡️", layout="centered")
 
+import math
+import textwrap
+
+def render_rbi_riskometer_card(score: float, rbi_category: str, rbi_desc: str, rbi_color: str, rbi_bg: str, card_border: str, card_bg: str, text_muted: str, dark_mode: bool) -> str:
+    s = min(max(score, 0.0), 1.0)
+    angle = s * 180.0
+
+    slices = [
+        (0, 30, "#388E3C", "LOW", "", "#000000"),
+        (30, 60, "#7CB342", "LOW to", "MODERATE", "#000000"),
+        (60, 90, "#FDD835", "MODERATE", "", "#000000"),
+        (90, 120, "#FB8C00", "MODERATELY", "HIGH", "#000000"),
+        (120, 150, "#F4511E", "HIGH", "", "#000000"),
+        (150, 180, "#D32F2F", "VERY HIGH", "", "#000000"),
+    ]
+
+    def get_pt(deg_val, r=140, cx=160, cy=160):
+        rad = math.radians(180 - deg_val)
+        return cx + r * math.cos(rad), cy - r * math.sin(rad)
+
+    paths = []
+    texts = []
+
+    for start_a, end_a, color, label1, label2, fg_color in slices:
+        x1, y1 = get_pt(start_a)
+        x2, y2 = get_pt(end_a)
+        path_d = f"M 160 160 L {x1:.2f} {y1:.2f} A 140 140 0 0 1 {x2:.2f} {y2:.2f} Z"
+        paths.append(f'<path d="{path_d}" fill="{color}" stroke="#FFFFFF" stroke-width="2.5" />')
+
+        mid_a = (start_a + end_a) / 2
+        tx, ty = get_pt(mid_a, r=94)
+        if label2:
+            texts.append(f'<text x="{tx:.2f}" y="{ty-3:.2f}" fill="{fg_color}" font-size="6.5" font-weight="900" text-anchor="middle" letter-spacing="-0.2px" font-family="sans-serif">{label1}</text>')
+            texts.append(f'<text x="{tx:.2f}" y="{ty+6:.2f}" fill="{fg_color}" font-size="6.5" font-weight="900" text-anchor="middle" letter-spacing="-0.2px" font-family="sans-serif">{label2}</text>')
+        else:
+            texts.append(f'<text x="{tx:.2f}" y="{ty+2:.2f}" fill="{fg_color}" font-size="8" font-weight="900" text-anchor="middle" font-family="sans-serif">{label1}</text>')
+
+    title_fill = "#F8FAFC" if dark_mode else "#0F172A"
+    needle_fill = "#000000"
+
+    needle_svg = (
+        f'<g transform="rotate({angle:.1f}, 160, 160)">'
+        f'<polygon points="160,154 42,160 160,166" fill="{needle_fill}" stroke="#FFFFFF" stroke-width="0.8" />'
+        f'<circle cx="160" cy="160" r="10" fill="{needle_fill}" stroke="#FFFFFF" stroke-width="1.5" />'
+        f'<circle cx="160" cy="160" r="4" fill="#FFFFFF" />'
+        f'</g>'
+    )
+
+    paths_str = "".join(paths)
+    texts_str = "".join(texts)
+
+    svg_str = (
+        f'<div style="text-align: center; margin: 0 auto;">'
+        f'<svg viewBox="0 15 320 155" width="100%" style="max-width: 220px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));">'
+        f'{paths_str}'
+        f'{texts_str}'
+        f'{needle_svg}'
+        f'</svg>'
+        f'</div>'
+    )
+
+    card_html = (
+        f'<div style="border:1px solid {card_border}; border-radius:12px; padding:8px 10px; background-color:{card_bg}; max-width:230px; margin-left:auto; margin-top:18px;">'
+        f'{svg_str}'
+        f'</div>'
+    )
+    return card_html
+
+
 if "dark_mode" not in st.session_state:
     st.session_state.dark_mode = False
+
+if "active_package" not in st.session_state:
+    st.session_state.active_package = None
 
 
 def theme_colors(dark: bool) -> dict:
@@ -364,12 +448,15 @@ st.markdown(f"""
     .stButton > button:hover {{ opacity: 0.9; }}
 
     .stat-box {{
-        border-radius: 10px; padding: 12px 14px; text-align: left;
+        border-radius: 12px; aspect-ratio: 1 / 1;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        text-align: center; padding: 10px; box-sizing: border-box;
     }}
-    .stat-label {{ font-size: 0.78rem; margin-bottom: 2px; opacity: 0.85; }}
-    .stat-value {{ font-size: 1.25rem; font-weight: 600; }}
+    .stat-label {{ font-size: 0.75rem; margin-bottom: 6px; opacity: 0.9; font-weight: 500; }}
+    .stat-value {{ font-size: 1.2rem; font-weight: 700; }}
     .verdict-card {{
-        border-radius: 12px; padding: 18px 20px; margin-bottom: 14px;
+        border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; text-align: center;
     }}
     .summary-box {{
         background-color: {t['app_bg']}; border: 1px solid {t['card_border']};
@@ -381,12 +468,13 @@ st.markdown(f"""
 
 main = st.container(border=True)
 with main:
-    top_l, top_r = st.columns([5, 1])
-    with top_l:
+    header_l, header_r = st.columns([3.2, 2.2], vertical_alignment="top")
+    with header_l:
         st.title("FINSHIELD-Loan App Risk Scorer")
         st.caption("Check a Play Store lending app's predatory risk — before you install it, not after.")
-    with top_r:
         st.toggle("🌙 Dark", key="dark_mode")
+
+    riskometer_ph = header_r.empty()
 
     if USE_FAKE_MODEL:
         st.info(
@@ -414,8 +502,12 @@ with main:
         if not package_name:
             st.warning("Enter a package name first.")
         else:
-            with st.spinner("Scoring app..."):
-                score, reasons, used_fallback, features = score_app(package_name)
+            st.session_state.active_package = package_name
+
+    if st.session_state.active_package:
+        package_name = st.session_state.active_package
+        with st.spinner("Scoring app..."):
+            score, reasons, used_fallback, features = score_app(package_name)
 
             if score is not None:
                 st.write("")
@@ -427,10 +519,57 @@ with main:
                 else:
                     verdict, bg, fg = "Looks Legitimate", t["green_bg"], t["green_text"]
 
+                rbi_score = score
+                if rbi_score < 0.166:
+                    rbi_category = "🟢 Low Risk / RBI Compliant Profile"
+                    rbi_desc = "Appears aligned with RBI Digital Lending Guidelines on transparent disclosures and data privacy."
+                    rbi_color = t["green_text"]
+                    rbi_bg = t["green_bg"]
+                elif rbi_score < 0.333:
+                    rbi_category = "Low to Moderate Risk"
+                    rbi_desc = "Generally compliant, but shows minor permission or disclosure caveats."
+                    rbi_color = t["green_text"]
+                    rbi_bg = t["green_bg"]
+                elif rbi_score < 0.500:
+                    rbi_category = "🟡 Moderate Compliance Risk"
+                    rbi_desc = "Partially meets RBI transparency norms. Caution advised: double-check NBFC registration before borrowing."
+                    rbi_color = t["orange_text"]
+                    rbi_bg = t["orange_bg"]
+                elif rbi_score < 0.666:
+                    rbi_category = "🟧 Moderately High Risk"
+                    rbi_desc = "Exhibits multiple compliance concerns or elevated negative feedback."
+                    rbi_color = t["orange_text"]
+                    rbi_bg = t["orange_bg"]
+                elif rbi_score < 0.833:
+                    rbi_category = "High Risk / Severe Violations"
+                    rbi_desc = "Violates core RBI Digital Lending Directives (prohibited data access or harassment complaints)."
+                    rbi_color = t["red_text"]
+                    rbi_bg = t["red_bg"]
+                else:
+                    rbi_category = "🔴 Very High Risk / Potential Unregulated App"
+                    rbi_desc = "Severe non-compliance and widespread predatory red flags detected."
+                    rbi_color = t["red_text"]
+                    rbi_bg = t["red_bg"]
+
+                card_html = render_rbi_riskometer_card(
+                    score=rbi_score,
+                    rbi_category=rbi_category,
+                    rbi_desc=rbi_desc,
+                    rbi_color=rbi_color,
+                    rbi_bg=rbi_bg,
+                    card_border=t["card_border"],
+                    card_bg=t["card_bg"],
+                    text_muted=t["muted"],
+                    dark_mode=st.session_state.dark_mode,
+                )
+
+                # Render Riskometer Card at top right star position
+                riskometer_ph.markdown(card_html, unsafe_allow_html=True)
+
                 st.markdown(
-                    f'<div class="verdict-card" style="background-color:{bg}; color:{fg};">'
+                    f'<div class="verdict-card" style="background-color:{bg}; color:{fg}; text-align:center;">'
                     f'<div style="font-size:1.3rem; font-weight:700;">{verdict}</div>'
-                    f'<div style="font-size:2rem; font-weight:700;">{score*100:.0f}% risk</div>'
+                    f'<div style="font-size:2rem; font-weight:800;">{score*100:.0f}% risk</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
@@ -449,6 +588,8 @@ with main:
                     neg_pct = (features.get("pct_strongly_negative_reviews", 0) or 0) * 100
                     sentiment = features.get("avg_review_sentiment", 0)
                     length = features.get("avg_review_length", 0)
+                    has_contacts = (features.get("contacts", 0) == 1)
+                    has_sms = (features.get("sms", 0) == 1)
 
                     def tier_color(level):
                         return {
@@ -477,7 +618,27 @@ with main:
                     def length_tier(v):
                         return "red" if v >= 20 else "orange" if v >= 10 else "green"
 
+                    KNOWN_BANKS = [
+                        "hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb",
+                        "canara", "union", "idfc", "indusind", "yes bank", "bajaj",
+                        "tata capital", "muthoot", "manappuram", "creditsaison", "groww",
+                        "paytm", "phonepe", "navi", "fibe", "kreditbee"
+                    ]
+
+                    def rbi_approval_status(score_val, disc_score, contacts_flag, sms_flag, redflag_pct_val, pkg_name):
+                        name_lower = str(pkg_name).lower()
+                        is_known_bank = any(b in name_lower for b in KNOWN_BANKS)
+
+                        if score_val >= 0.60 or redflag_pct_val >= 15 or (contacts_flag and sms_flag and disc_score <= 2):
+                            return "Unregulated", "red"
+                        if is_known_bank or (score_val < 0.30 and redflag_pct_val < 5 and not contacts_flag) or (disc_score >= 3 and not contacts_flag and score_val < 0.35):
+                            return "Regulated", "green"
+                        return "Partially Regulated", "orange"
+
+                    rbi_val, rbi_lvl = rbi_approval_status(score, disclosure, has_contacts, has_sms, redflag_pct, package_name)
+
                     stats = [
+                        ("🏛️ RBI Status", rbi_val, rbi_lvl),
                         ("📦 Installs", f"{installs:,}" if installs is not None else "—", installs_tier(installs)),
                         ("📝 Terms disclosed", f"{disclosure} / 5", disclosure_tier(disclosure)),
                         ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", redflag_tier(redflag_pct)),
@@ -485,10 +646,11 @@ with main:
                         ("🙂 Avg. review tone", f"{sentiment:+.2f}", sentiment_tier(sentiment)),
                         ("📏 Avg. review length", f"{length:.0f} words", length_tier(length)),
                     ]
-                    b1, b2, b3 = st.columns(3)
-                    for box, (label, value, level) in zip([b1, b2, b3, b1, b2, b3], stats):
+                    cols = st.columns(3)
+                    for i, (label, value, level) in enumerate(stats):
                         bg_c, fg_c = tier_color(level)
-                        with box:
+                        target_col = 1 if (i == 6 and len(stats) == 7) else (i % 3)
+                        with cols[target_col]:
                             st.markdown(
                                 f'<div class="stat-box" style="background-color:{bg_c}; color:{fg_c};">'
                                 f'<div class="stat-label">{label}</div>'
@@ -499,47 +661,88 @@ with main:
 
                     st.caption(
                         "🟢 fine · 🟡 minor concern · 🔴 risky  —  "
+                        "**RBI Approved**: whether app discloses legitimate RBI/NBFC registration & follows key norms. "
                         "**Terms disclosed**: how clearly the app states interest rate, tenure & registration (out of 5). "
                         "**Harassment mentions**: % of reviews describing threats or abusive recovery tactics. "
                         "**Strongly negative reviews**: % of reviews that are clearly unhappy. "
                         "**Avg. review tone**: how positive (+1) or negative (−1) reviews are overall. "
                         "**Avg. review length**: how detailed reviews tend to be, in words."
                     )
-                #App summary
-                st.write("")
-                st.markdown("**App summary**")
 
-                concerns = [s for s, flag in reasons if flag]
-                positives = [s for s, flag in reasons if not flag]
+                    app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
+                    play_store_url = f"https://play.google.com/store/apps/details?id={app_id_str}"
+                    LANDING_URLS = {
+                        "com.hdfcbank.android.now": "https://www.hdfcbank.com",
+                        "com.csam.icici.bank.imobile": "https://www.icicibank.com",
+                        "com.sbi.lotusintouch": "https://www.sbi.co.in",
+                        "com.axis.mobile": "https://www.axisbank.com",
+                        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://www.kotak.com",
+                        "com.bankofbaroda.mconnect": "https://www.bankofbaroda.in",
+                        "com.canarabank.mobility": "https://www.canarabank.com",
+                        "com.fedmobile": "https://www.federalbank.co.in",
+                        "money.jupiter": "https://jupiter.money",
+                        "com.dreamplug.androidapp": "https://cred.club",
+                        "in.amazon.mShop.android.shopping": "https://www.amazon.in",
+                        "com.google.android.apps.nbu.paisa.user": "https://pay.google.com",
+                        "com.piramal.app.pchf": "https://www.piramalfinance.com",
+                        "com.muthootfinance.imuthoot": "https://www.muthootfinance.com",
+                        "in.groww.dash": "https://groww.in",
+                        "com.nextbillion.groww": "https://groww.in",
+                        "com.pocketly": "https://pocketly.in",
+                        "com.innofinsolutions.instamoney": "https://www.instamoney.in",
+                        "com.privo.creditsaison": "https://www.creditsaison.in",
+                        "com.fastbanking": "https://kissht.com",
+                        "com.earlysalary.android": "https://www.fibe.in",
+                        "com.balancehero.truebalance": "https://www.truebalance.io",
+                        "com.kreditbee.android": "https://www.kreditbee.in",
+                        "com.whizdm.moneyview.loans": "https://moneyview.in",
+                        "co.tslc.cashe.android": "https://www.cashe.co.in",
+                        "com.mpokket.app": "https://mpokket.in",
+                        "com.phonepe.app": "https://www.phonepe.com",
+                        "com.indialends.android": "https://indialends.com",
+                        "com.stashfin.android": "https://www.stashfin.com",
+                        "com.citrus.citruspay": "https://lazypay.in",
+                        "com.moneytap.bnpl.app": "https://freo.money",
+                        "com.myairtelapp": "https://www.airtel.in",
+                        "tech.fplabs.score": "https://onescore.app",
+                        "com.naviapp": "https://navi.com",
+                        "com.mobikwik_new": "https://www.mobikwik.com",
+                        "com.branch_international.branch.branch_demo_android": "https://branch.co/india",
+                        "com.lendingplate": "https://lendingplate.com",
+                        "com.fintech.lenditt": "https://lenditt.com",
+                        "com.smfgindia.mconnect": "https://www.smfgindiacredit.com",
+                        "com.nobroker.loans": "https://www.nobroker.in/pay-rent-earn-rewards",
+                        "com.rupeeredee.app": "https://www.rupeeredee.com",
+                        "rapidrupee.app": "https://www.rapidrupee.in",
+                    }
 
-                if score >= 0.6:
-                    opener = "This app shows strong signs of predatory behavior and should be approached with real caution."
-                elif score >= 0.3:
-                    opener = "This app shows a few concerning signs — it's worth being cautious before using it."
-                else:
-                    opener = "This app looks largely legitimate based on the information available."
+                    website_url = LANDING_URLS.get(app_id_str, LANDING_URLS.get(package_name, play_store_url))
 
-                summary_sentences = [opener]
-                summary_sentences += [f"{s}." for s in concerns]
-                if positives:
-                    summary_sentences.append("On the positive side: " + " ".join(f"{p}." for p in positives))
-
-                if score >= 0.6:
-                    summary_sentences.append(
-                        "If you're considering a loan, it's strongly recommended to look for a more "
-                        "established, RBI-registered alternative instead."
+                    st.markdown(
+                        f"""
+                        <div style="background-color:{t['card_bg']}; border:1px solid {t['card_border']}; border-radius:10px; padding:12px 16px; margin:14px 0 10px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.1rem;">🌐</span>
+                                <div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:{t['text']};">Official Landing Website</div>
+                                    <div style="font-size:0.8rem; color:{t['muted']};">{website_url}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="{website_url}" target="_blank" style="background-color:{accent}; color:white; padding:6px 14px; border-radius:6px; font-weight:600; font-size:0.82rem; text-decoration:none; display:inline-block;">Visit Website ↗</a>
+                                <a href="{play_store_url}" target="_blank" style="background-color:{t['app_bg']}; color:{t['text']}; border:1px solid {t['card_border']}; padding:6px 14px; border-radius:6px; font-weight:600; font-size:0.82rem; text-decoration:none; display:inline-block;">Play Store ↗</a>
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
                     )
-                elif score >= 0.3:
-                    summary_sentences.append(
-                        "Proceed carefully, and double-check the lender's registration and terms before borrowing."
-                    )
-                else:
-                    summary_sentences.append(
-                        "No major red flags were found, but always confirm the lender's registration and "
-                        "read the loan terms carefully before borrowing."
-                    )
 
-                st.markdown(
-                    f'<div class="summary-box">{" ".join(summary_sentences)}</div>',
-                    unsafe_allow_html=True,
-                )
+                with st.expander("ℹ️ How to verify if a loan app is genuine & RBI registered"):
+                    st.markdown(
+                        """
+                        1. **Check the RBI Sachet Portal**: Visit [sachet.rbi.org.in](https://sachet.rbi.org.in) to check if the lender or NBFC is registered with RBI.
+                        2. **Look for Key Fact Statement (KFS)**: Legitimate apps must provide a standardized Key Fact Statement detailing APR, processing fees, and loan terms before agreement.
+                        3. **Verify Bank Account Name**: Reputable apps disburse loans directly from an RBI-regulated bank or NBFC account, not personal individual accounts.
+                        4. **Report Illegal Apps**: File complaints against unauthorized digital lending apps on the RBI Sachet portal or Cyber Crime portal (`cybercrime.gov.in`).
+                        """
+                    )
