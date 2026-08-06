@@ -447,6 +447,19 @@ st.markdown(f"""
     }}
     .stButton > button:hover {{ opacity: 0.9; }}
 
+    /* Prevent Streamlit from collapsing columns into vertical stacks on mobile */
+    [data-testid="stHorizontalBlock"] {{
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        align-items: flex-start !important;
+    }}
+    [data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
+        width: auto !important;
+        min-width: 0 !important;
+        flex: 1 1 0% !important;
+    }}
+
     .stat-box {{
         border-radius: 12px; aspect-ratio: 1 / 1;
         display: flex; flex-direction: column;
@@ -462,6 +475,14 @@ st.markdown(f"""
         background-color: {t['app_bg']}; border: 1px solid {t['card_border']};
         border-radius: 10px; padding: 16px 18px; font-size: 0.96rem; line-height: 1.6;
         color: {t['text']};
+    }}
+
+    @media (max-width: 640px) {{
+        .block-container {{ padding-top: 1rem; padding-left: 0.5rem; padding-right: 0.5rem; }}
+        h1 {{ font-size: 1.35rem !important; }}
+        .stat-box {{ padding: 4px; border-radius: 8px; }}
+        .stat-label {{ font-size: 0.60rem !important; margin-bottom: 2px !important; line-height: 1.1 !important; }}
+        .stat-value {{ font-size: 0.88rem !important; }}
     }}
 </style>
 """, unsafe_allow_html=True)
