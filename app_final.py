@@ -773,7 +773,7 @@ with tab_scorer:
     )
 
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
-    with st.form("audit_app_form", border=True):
+    with st.container(border=True):
         st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
         st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
 
@@ -786,7 +786,8 @@ with tab_scorer:
             "Audit Mode",
             options=["📋 Select Pre-Analyzed App", "🔗 Audit Unlisted App via Play Store Link"],
             horizontal=True,
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="audit_input_mode_radio"
         )
 
         c_input, c_btn = st.columns([3.8, 1.2], vertical_alignment="bottom")
@@ -795,16 +796,17 @@ with tab_scorer:
             with c_input:
                 package_name = st.selectbox("Select a Play Store Lending App to Audit", options=app_choices)
             with c_btn:
-                check_clicked = st.form_submit_button("Check App Risk ➔", use_container_width=True)
+                check_clicked = st.button("Check App Risk ➔", key="btn_dropdown", use_container_width=True)
         else:
             with c_input:
                 package_name = st.text_input(
                     "Paste Play Store Link or Android Package ID",
                     placeholder="e.g. https://play.google.com/store/apps/details?id=com.kreditbee.android or com.fastcash.loan",
-                    help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app."
+                    help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app.",
+                    key="unlisted_app_link_input"
                 )
             with c_btn:
-                check_clicked = st.form_submit_button("Audit Custom App ➔", use_container_width=True)
+                check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
 
     if check_clicked and package_name:
         st.session_state.active_package = package_name
