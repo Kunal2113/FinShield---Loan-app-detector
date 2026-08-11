@@ -329,37 +329,26 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
-    @keyframes geminiAuraLeft {{
-        0% {{
-            transform: translate(-10%, -15%) scale(1);
-            background: radial-gradient(circle, {"rgba(30, 64, 175, 0.55)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.45)"} 0%, {"rgba(107, 33, 168, 0.35)" if st.session_state.dark_mode else "rgba(192, 132, 252, 0.3)"} 50%, transparent 75%);
-        }}
-        50% {{
-            transform: translate(15%, 10%) scale(1.25);
-            background: radial-gradient(circle, {"rgba(190, 24, 93, 0.45)" if st.session_state.dark_mode else "rgba(244, 114, 182, 0.35)"} 0%, {"rgba(147, 51, 234, 0.4)" if st.session_state.dark_mode else "rgba(216, 180, 254, 0.3)"} 50%, transparent 75%);
-        }}
-        100% {{
-            transform: translate(-5%, 20%) scale(0.95);
-            background: radial-gradient(circle, {"rgba(2, 132, 199, 0.5)" if st.session_state.dark_mode else "rgba(125, 211, 252, 0.4)"} 0%, {"rgba(30, 64, 175, 0.35)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.3)"} 50%, transparent 75%);
-        }}
+    @keyframes liquidAura1 {{
+        0% {{ transform: translate(-10%, -10%) rotate(0deg) scale(1); opacity: 0.75; }}
+        33% {{ transform: translate(18%, 14%) rotate(120deg) scale(1.3); opacity: 0.45; }}
+        66% {{ transform: translate(-12%, 22%) rotate(240deg) scale(0.9); opacity: 0.85; }}
+        100% {{ transform: translate(-10%, -10%) rotate(360deg) scale(1); opacity: 0.75; }}
     }}
-    @keyframes geminiAuraRight {{
-        0% {{
-            transform: translate(10%, -10%) scale(1);
-            background: radial-gradient(circle, {"rgba(217, 119, 6, 0.45)" if st.session_state.dark_mode else "rgba(253, 224, 71, 0.4)"} 0%, {"rgba(234, 179, 8, 0.3)" if st.session_state.dark_mode else "rgba(251, 146, 60, 0.25)"} 50%, transparent 75%);
-        }}
-        50% {{
-            transform: translate(-15%, 15%) scale(1.2);
-            background: radial-gradient(circle, {"rgba(13, 148, 136, 0.4)" if st.session_state.dark_mode else "rgba(110, 231, 183, 0.35)"} 0%, {"rgba(2, 132, 199, 0.35)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.3)"} 50%, transparent 75%);
-        }}
-        100% {{
-            transform: translate(5%, -15%) scale(0.9);
-            background: radial-gradient(circle, {"rgba(190, 24, 93, 0.4)" if st.session_state.dark_mode else "rgba(244, 114, 182, 0.3)"} 0%, {"rgba(217, 119, 6, 0.35)" if st.session_state.dark_mode else "rgba(253, 224, 71, 0.3)"} 50%, transparent 75%);
-        }}
+    @keyframes liquidAura2 {{
+        0% {{ transform: translate(10%, -5%) rotate(0deg) scale(1); opacity: 0.65; }}
+        33% {{ transform: translate(-18%, 18%) rotate(-120deg) scale(0.85); opacity: 0.85; }}
+        66% {{ transform: translate(14%, -14%) rotate(-240deg) scale(1.25); opacity: 0.4; }}
+        100% {{ transform: translate(10%, -5%) rotate(-360deg) scale(1); opacity: 0.65; }}
+    }}
+    @keyframes liquidAura3 {{
+        0% {{ transform: translate(0%, 12%) scale(1); opacity: 0.35; }}
+        50% {{ transform: translate(-10%, -18%) scale(1.35); opacity: 0.8; }}
+        100% {{ transform: translate(0%, 12%) scale(1); opacity: 0.35; }}
     }}
 
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
-        background: {"#07090E" if st.session_state.dark_mode else "#FAF9F6"} !important;
+        background-color: {"#06080D" if st.session_state.dark_mode else "#FAF9F6"} !important;
         font-family: 'Inter', sans-serif;
     }}
 
@@ -368,34 +357,37 @@ st.markdown(f"""
         position: fixed;
         top: -150px;
         left: -150px;
-        width: 650px;
-        height: 650px;
+        width: 750px;
+        height: 750px;
         border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.85;
+        background: {"radial-gradient(circle, rgba(37, 99, 235, 0.6) 0%, rgba(147, 51, 234, 0.45) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147, 197, 253, 0.65) 0%, rgba(216, 180, 254, 0.45) 45%, transparent 70%)"};
+        filter: blur(140px);
         pointer-events: none;
         z-index: 0;
-        animation: geminiAuraLeft 14s ease-in-out infinite alternate;
+        animation: liquidAura1 26s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        will-change: transform, opacity;
     }}
     .stApp::after {{
         content: "";
         position: fixed;
         top: -120px;
         right: -150px;
-        width: 600px;
-        height: 600px;
+        width: 700px;
+        height: 700px;
         border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.8;
+        background: {"radial-gradient(circle, rgba(217, 119, 6, 0.55) 0%, rgba(234, 179, 8, 0.4) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253, 224, 71, 0.6) 0%, rgba(251, 146, 60, 0.45) 45%, transparent 70%)"};
+        filter: blur(140px);
         pointer-events: none;
         z-index: 0;
-        animation: geminiAuraRight 16s ease-in-out infinite alternate;
+        animation: liquidAura2 30s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        will-change: transform, opacity;
     }}
+
     .block-container {{
         padding-top: 0.5rem !important;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        max-width: 920px !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 1350px !important;
         margin: 0 auto !important;
     }}
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
@@ -787,7 +779,7 @@ with col_n2:
     st.toggle("🌙 Dark Mode", key="dark_mode")
 
 # 3. FIRST: Top Tabs Navigation Toggle Bar
-st.markdown('<div style="max-width:1150px; margin: 12px auto 0; padding: 0 16px;">', unsafe_allow_html=True)
+st.markdown('<div style="max-width:1350px; margin: 12px auto 0; padding: 0 16px;">', unsafe_allow_html=True)
 tab_scorer, tab_profiler, tab_rankings, tab_calculators, tab_rbi = st.tabs([
     "🛡️ App Risk Scorer",
     "💳 Borrower Safety Profiler",
