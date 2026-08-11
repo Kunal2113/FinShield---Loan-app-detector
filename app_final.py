@@ -616,20 +616,25 @@ st.markdown(f"""
     }}
 
     /* Audit Input Container Box */
+    form[data-testid="stForm"],
+    div[data-testid="stForm"],
+    .stForm,
     [data-testid="stVerticalBlockBorderWrapper"],
     div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background: {"rgba(18, 24, 38, 0.88)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        border: {"2px solid rgba(247, 201, 72, 0.45)" if st.session_state.dark_mode else "2px solid #D97706"} !important;
+        background-color: {"rgba(18, 24, 38, 0.92)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: {"2.5px solid #F7C948" if st.session_state.dark_mode else "2.5px solid #1E293B"} !important;
         border-radius: 20px !important;
-        padding: 22px 20px !important;
-        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.5)" if st.session_state.dark_mode else "0 10px 30px rgba(217, 119, 6, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08)"} !important;
+        padding: 24px 20px !important;
+        box-shadow: {"0 12px 35px rgba(0, 0, 0, 0.5)" if st.session_state.dark_mode else "0 12px 30px rgba(0, 0, 0, 0.12)"} !important;
         margin-top: 14px !important;
         margin-bottom: 24px !important;
     }}
+    form[data-testid="stForm"] label,
+    form[data-testid="stForm"] p,
+    form[data-testid="stForm"] span,
     div[data-testid="stVerticalBlockBorderWrapper"] label,
     div[data-testid="stVerticalBlockBorderWrapper"] p,
-    div[data-testid="stVerticalBlockBorderWrapper"] span,
-    div[data-testid="stVerticalBlockBorderWrapper"] small {{
+    div[data-testid="stVerticalBlockBorderWrapper"] span {{
         color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
         font-weight: 600 !important;
     }}
@@ -757,7 +762,7 @@ with tab_scorer:
     )
 
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
-    with st.container(border=True):
+    with st.form("audit_app_form", border=True):
         st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
         st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
 
@@ -779,7 +784,7 @@ with tab_scorer:
             with c_input:
                 package_name = st.selectbox("Select a Play Store Lending App to Audit", options=app_choices)
             with c_btn:
-                check_clicked = st.button("Check App Risk ➔", key="btn_dropdown", use_container_width=True)
+                check_clicked = st.form_submit_button("Check App Risk ➔", use_container_width=True)
         else:
             with c_input:
                 package_name = st.text_input(
@@ -788,7 +793,7 @@ with tab_scorer:
                     help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app."
                 )
             with c_btn:
-                check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
+                check_clicked = st.form_submit_button("Audit Custom App ➔", use_container_width=True)
 
     if check_clicked and package_name:
         st.session_state.active_package = package_name
