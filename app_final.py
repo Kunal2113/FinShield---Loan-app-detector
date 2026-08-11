@@ -922,7 +922,7 @@ with tab_scorer:
             score, reasons, used_fallback, features = score_app(package_name)
 
             if used_fallback:
-                st.info(f"✨ **Unlisted App Audit Active** — Performing real-time risk assessment for `{extract_package_id(package_name)}`.", icon="✨")
+                st.info(f"**Unlisted App Audit Active** — Performing real-time risk assessment for `{extract_package_id(package_name)}`.", icon="✨")
 
             if score is not None:
                 st.write("")
