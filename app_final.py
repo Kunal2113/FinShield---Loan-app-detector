@@ -265,9 +265,16 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         if parts:
             display_name = " ".join(parts).replace("_", " ").replace("-", " ").title()
 
-    is_web = False
-    if "://" in pkg_id or ("." in pkg_id and not re.search(r'^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_\.]+$', pkg_id)):
-        is_web = True
+    # True web domain: detect from raw input (pkg_id is already extracted)
+    # is_web if original input was a real website URL (not play.google.com) or bare domain (not android package)
+    is_android_pkg = bool(
+        re.search(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+){1,}$', pkg_id)
+        and any(pkg_id.startswith(p) for p in ["com.", "in.", "org.", "net.", "io.", "co."])
+    )
+    is_playstore = "play.google.com" in pkg_id
+    # A web domain is something like "chatgpt.com", "www.ltfinance.com" or "https://somesite.com"
+    # NOT an android package like "com.example.app"
+    is_web = not is_android_pkg and not is_playstore and "." in pkg_id
 
     return {
         "app_id": pkg_id,
@@ -1009,10 +1016,13 @@ with tab_scorer:
                                     "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
                                 }[level]
 
-                        is_web_target = bool(
-                            features.get("is_web_domain") or
-                            "://" in str(package_name) or
-                            ("." in str(package_name) and not features.get("app_id", "").startswith("com.") and not features.get("app_id", "").startswith("in.") and not features.get("app_id", "").startswith("org."))
+                        _pkg_raw = str(package_name)
+                        _is_playstore_input = "play.google.com" in _pkg_raw
+                        _feat_app_id = features.get("app_id", "")
+                        _is_android_pkg = any(_feat_app_id.startswith(p) for p in ["com.", "in.", "org.", "net.", "io.", "co."])
+                        is_web_target = (
+                            not _is_playstore_input and
+                            features.get("is_web_domain", False)
                         )
 
                         installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange")
