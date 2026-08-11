@@ -531,7 +531,7 @@ st.markdown(f"""
         color: #000000 !important;
         font-weight: 800 !important;
     }}
-    /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & lines completely */
+    /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & red lines completely */
     div[data-baseweb="tab-highlight"],
     div[data-baseweb="tab-border"],
     [data-baseweb="tab-highlight"],
@@ -539,7 +539,8 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab-highlight"],
     .stTabs [data-baseweb="tab-border"],
     [data-baseweb="tab-list"] [data-baseweb="tab-highlight"],
-    [data-baseweb="tab-list"] [data-baseweb="tab-border"] {{
+    [data-baseweb="tab-list"] [data-baseweb="tab-border"],
+    [data-baseweb="tab-list"] > div[style*="position: absolute"] {{
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -550,6 +551,9 @@ st.markdown(f"""
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
     }}
 
     /* 3-Column Square Grid Layout (App at a glance) */
@@ -768,15 +772,15 @@ with tab_scorer:
                         def tier_style(level):
                             if st.session_state.dark_mode:
                                 return {
-                                    "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
-                                    "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
-                                    "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
+                                    "red": ("#3F1618", "#F56565", "1.5px solid #EF4444"),
+                                    "orange": ("#3C2F0E", "#ECC94B", "1.5px solid #F59E0B"),
+                                    "green": ("#0E3321", "#48BB78", "1.5px solid #10B981"),
                                 }[level]
                             else:
                                 return {
-                                    "red": ("rgba(254, 226, 226, 0.95)", "#DC2626", "1px solid rgba(239, 68, 68, 0.3)"),
-                                    "orange": ("rgba(254, 243, 199, 0.95)", "#D97706", "1px solid rgba(245, 158, 11, 0.3)"),
-                                    "green": ("rgba(209, 250, 229, 0.95)", "#059669", "1px solid rgba(16, 185, 129, 0.3)"),
+                                    "red": ("rgba(254, 226, 226, 0.95)", "#DC2626", "1.5px solid #EF4444"),
+                                    "orange": ("rgba(254, 243, 199, 0.95)", "#D97706", "1.5px solid #F59E0B"),
+                                    "green": ("rgba(209, 250, 229, 0.95)", "#059669", "1.5px solid #10B981"),
                                 }[level]
 
                         stats = [
