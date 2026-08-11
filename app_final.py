@@ -417,9 +417,22 @@ st.markdown(f"""
         50% {{
             background-position: 100% 50%;
         }}
-        100% {{
-            background-position: 0% 50%;
-        }}
+    @keyframes typing {{
+        from {{ width: 0; }}
+        to {{ width: 100%; }}
+    }}
+    @keyframes blinkCaret {{
+        from, to {{ border-color: transparent; }}
+        50% {{ border-color: #F7C948; }}
+    }}
+    .typewriter-text {{
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3.5px solid #F7C948;
+        width: 0;
+        animation: typing 2.2s steps(27, end) forwards, blinkCaret 0.75s 4;
+        vertical-align: bottom;
     }}
     .hero-main-title {{
         font-family: 'League Spartan', 'Inter', sans-serif;
@@ -428,7 +441,6 @@ st.markdown(f"""
         line-height: 1.15;
         color: {t['text']};
         margin-bottom: 12px;
-        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }}
     .hero-gold-text {{
         background: linear-gradient(120deg, #F7C948 0%, #FBBF24 25%, #FFFFFF 50%, #D97706 75%, #F7C948 100%);
@@ -760,7 +772,7 @@ with tab_scorer:
         f"""
         <div class="hero-container-light" style="padding: 20px 20px 20px;">
             <h1 class="hero-main-title">
-                Detect Predatory Loan Apps. <br><span class="hero-gold-text">Protect Your Personal Privacy.</span>
+                <span class="typewriter-text">Detect Predatory Loan Apps.</span><br><span class="hero-gold-text">Protect Your Personal Privacy.</span>
             </h1>
             <div style="text-align: center; display: flex; justify-content: center; width: 100%;">
                 <p class="hero-subtitle">
