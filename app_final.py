@@ -616,14 +616,14 @@ st.markdown(f"""
     }}
 
     /* Audit Input Container Box */
-    .audit-input-card {{
-        background: {"rgba(18, 24, 38, 0.75)" if st.session_state.dark_mode else "#FFFFFF"};
-        border: 1.5px solid {"rgba(247, 201, 72, 0.3)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.12)"};
-        border-radius: 24px;
-        padding: 24px 22px;
-        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.4)" if st.session_state.dark_mode else "0 8px 24px rgba(0, 0, 0, 0.06)"};
-        margin-top: 14px;
-        margin-bottom: 24px;
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        background: {"rgba(18, 24, 38, 0.75)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: 1.5px solid {"rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.15)"} !important;
+        border-radius: 22px !important;
+        padding: 22px 20px !important;
+        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.4)" if st.session_state.dark_mode else "0 8px 24px rgba(0, 0, 0, 0.06)"} !important;
+        margin-top: 14px !important;
+        margin-bottom: 24px !important;
     }}
 
     /* 3-Column Square Grid Layout (App at a glance) */
@@ -749,40 +749,38 @@ with tab_scorer:
     )
 
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
-    st.markdown('<div class="audit-input-card">', unsafe_allow_html=True)
-    st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
-    st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
+    with st.container(border=True):
+        st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
+        st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
 
-    if USE_FAKE_MODEL:
-        st.info("🔧 Running with formula scoring mode (predatory_loan_detector.pkl not found). Good for UI testing.", icon="🔧")
+        if USE_FAKE_MODEL:
+            st.info("🔧 Running with formula scoring mode (predatory_loan_detector.pkl not found). Good for UI testing.", icon="🔧")
 
-    app_choices = get_app_choices()
+        app_choices = get_app_choices()
 
-    input_mode = st.radio(
-        "Audit Mode",
-        options=["📋 Select Pre-Analyzed App", "🔗 Audit Unlisted App via Play Store Link"],
-        horizontal=True,
-        label_visibility="collapsed"
-    )
+        input_mode = st.radio(
+            "Audit Mode",
+            options=["📋 Select Pre-Analyzed App", "🔗 Audit Unlisted App via Play Store Link"],
+            horizontal=True,
+            label_visibility="collapsed"
+        )
 
-    c_input, c_btn = st.columns([3.8, 1.2], vertical_alignment="bottom")
+        c_input, c_btn = st.columns([3.8, 1.2], vertical_alignment="bottom")
 
-    if "Pre-Analyzed" in input_mode and app_choices:
-        with c_input:
-            package_name = st.selectbox("Select a Play Store Lending App to Audit", options=app_choices)
-        with c_btn:
-            check_clicked = st.button("Check App Risk ➔", key="btn_dropdown", use_container_width=True)
-    else:
-        with c_input:
-            package_name = st.text_input(
-                "Paste Play Store Link or Android Package ID",
-                placeholder="e.g. https://play.google.com/store/apps/details?id=com.kreditbee.android or com.fastcash.loan",
-                help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app."
-            )
-        with c_btn:
-            check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        if "Pre-Analyzed" in input_mode and app_choices:
+            with c_input:
+                package_name = st.selectbox("Select a Play Store Lending App to Audit", options=app_choices)
+            with c_btn:
+                check_clicked = st.button("Check App Risk ➔", key="btn_dropdown", use_container_width=True)
+        else:
+            with c_input:
+                package_name = st.text_input(
+                    "Paste Play Store Link or Android Package ID",
+                    placeholder="e.g. https://play.google.com/store/apps/details?id=com.kreditbee.android or com.fastcash.loan",
+                    help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app."
+                )
+            with c_btn:
+                check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
 
     if check_clicked and package_name:
         st.session_state.active_package = package_name
