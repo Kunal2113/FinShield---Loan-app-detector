@@ -1062,7 +1062,7 @@ with tab_rankings:
             df_filtered = df_all
 
         st.dataframe(
-            df_filtered[["app_name", "app_id", "disclosure_score", "review_redflag_score", "install_count", "contacts", "sms"]],
+            df_filtered[["app_name", "app_id"]].rename(columns={"app_name": "App Name", "app_id": "Package ID / App ID"}),
             use_container_width=True,
             hide_index=True
         )
