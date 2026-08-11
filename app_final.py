@@ -351,16 +351,16 @@ st.markdown(f"""
         display: none !important;
     }}
     @keyframes liquidAura1 {{
-        0% {{ transform: translate(-10%, -10%) rotate(0deg) scale(1); opacity: 0.35; }}
-        33% {{ transform: translate(18%, 14%) rotate(120deg) scale(1.25); opacity: 0.22; }}
-        66% {{ transform: translate(-12%, 22%) rotate(240deg) scale(0.9); opacity: 0.38; }}
-        100% {{ transform: translate(-10%, -10%) rotate(360deg) scale(1); opacity: 0.35; }}
+        0% {{ transform: translate(-10%, -10%) rotate(0deg) scale(1); opacity: 0.62; }}
+        33% {{ transform: translate(18%, 14%) rotate(120deg) scale(1.25); opacity: 0.42; }}
+        66% {{ transform: translate(-12%, 22%) rotate(240deg) scale(0.9); opacity: 0.68; }}
+        100% {{ transform: translate(-10%, -10%) rotate(360deg) scale(1); opacity: 0.62; }}
     }}
     @keyframes liquidAura2 {{
-        0% {{ transform: translate(10%, -5%) rotate(0deg) scale(1); opacity: 0.32; }}
-        33% {{ transform: translate(-18%, 18%) rotate(-120deg) scale(0.85); opacity: 0.4; }}
-        66% {{ transform: translate(14%, -14%) rotate(-240deg) scale(1.2); opacity: 0.2; }}
-        100% {{ transform: translate(10%, -5%) rotate(-360deg) scale(1); opacity: 0.32; }}
+        0% {{ transform: translate(10%, -5%) rotate(0deg) scale(1); opacity: 0.58; }}
+        33% {{ transform: translate(-18%, 18%) rotate(-120deg) scale(0.85); opacity: 0.68; }}
+        66% {{ transform: translate(14%, -14%) rotate(-240deg) scale(1.2); opacity: 0.38; }}
+        100% {{ transform: translate(10%, -5%) rotate(-360deg) scale(1); opacity: 0.58; }}
     }}
 
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
@@ -376,8 +376,8 @@ st.markdown(f"""
         width: 750px;
         height: 750px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(147, 51, 234, 0.15) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, rgba(216, 180, 254, 0.2) 45%, transparent 70%)"};
-        filter: blur(160px);
+        background: {"radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(147, 51, 234, 0.3) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147, 197, 253, 0.5) 0%, rgba(216, 180, 254, 0.35) 45%, transparent 70%)"};
+        filter: blur(130px);
         pointer-events: none;
         z-index: 0;
         animation: liquidAura1 26s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -391,8 +391,8 @@ st.markdown(f"""
         width: 700px;
         height: 700px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(234, 179, 8, 0.14) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253, 224, 71, 0.3) 0%, rgba(251, 146, 60, 0.2) 45%, transparent 70%)"};
-        filter: blur(160px);
+        background: {"radial-gradient(circle, rgba(217, 119, 6, 0.42) 0%, rgba(234, 179, 8, 0.28) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253, 224, 71, 0.48) 0%, rgba(251, 146, 60, 0.32) 45%, transparent 70%)"};
+        filter: blur(130px);
         pointer-events: none;
         z-index: 0;
         animation: liquidAura2 30s cubic-bezier(0.4, 0, 0.2, 1) infinite;
