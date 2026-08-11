@@ -329,8 +329,15 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
-    html, body, .stApp, [data-testid="stAppViewContainer"] {{
-        background-color: {t['app_bg']} !important;
+    @keyframes geminiBackgroundFlow {{
+        0% {{ background-position: 0% 50%; }}
+        50% {{ background-position: 100% 50%; }}
+        100% {{ background-position: 0% 50%; }}
+    }}
+    html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+        background: {"linear-gradient(-45deg, #0B0F19, #171E30, #1E1B4B, #2E1065, #1E1B4B, #0F172A)" if st.session_state.dark_mode else "linear-gradient(-45deg, #F8FAFC, #EEF2FF, #F3E8FF, #FDF2F8, #FEF3C7, #FAF9F6)"} !important;
+        background-size: 400% 400% !important;
+        animation: geminiBackgroundFlow 18s ease infinite !important;
         font-family: 'Inter', sans-serif;
     }}
     .block-container {{
@@ -375,9 +382,7 @@ st.markdown(f"""
 
     /* FinShield Hero Section */
     .hero-container-light {{
-        background-color: {"#0A0D14" if st.session_state.dark_mode else "#FAF9F6"};
-        background-image: {"radial-gradient(rgba(247, 201, 72, 0.08) 1px, transparent 1px)" if st.session_state.dark_mode else "radial-gradient(#E5E7EB 1px, transparent 1px)"};
-        background-size: 24px 24px;
+        background: transparent !important;
         padding: 45px 20px 30px;
         text-align: center;
     }}
