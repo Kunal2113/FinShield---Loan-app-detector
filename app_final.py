@@ -650,11 +650,16 @@ col_n1, col_n2 = st.columns([3, 1], vertical_alignment="center")
 with col_n1:
     st.markdown(
         f"""
-        <div style="display:flex; align-items:center; gap:14px; padding:12px 16px;">
-            <div class="nav-logo-icon">FS</div>
+        <div style="display:flex; align-items:center; gap:14px; padding:10px 8px;">
+            <div style="width:42px; height:42px; border-radius:50%; background:#2C3854; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="5" r="2.2" fill="#E05638" />
+                    <path d="M4 17L10 11L14 15L20 9" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
             <div>
-                <div class="nav-logo-text" style="color:{t['text']};">FINSHIELD</div>
-                <div style="font-size:0.78rem; color:{t['muted']}; font-weight:600;">Digital Lending Risk Intelligence & Safety Hub</div>
+                <div style="font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size:1.85rem; font-weight:700; color:{t['text']}; letter-spacing:-0.6px; line-height:1.1;">FinShield</div>
+                <div style="font-size:0.75rem; color:{t['muted']}; font-weight:500; margin-top:2px;">Digital Lending Risk Intelligence & Safety Hub</div>
             </div>
         </div>
         """,
