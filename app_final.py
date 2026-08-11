@@ -787,22 +787,18 @@ with tab_scorer:
                             bg_c, fg_c, bdr_c = tier_style(lvl)
                             grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
                             cards_html.append(
-                                f"""
-                                <div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">
-                                    <div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>
-                                    <div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>
-                                </div>
-                                """
+                                f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
+                                f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
+                                f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
+                                f'</div>'
                             )
 
                         st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
 
                         st.markdown(
-                            f"""
-                            <div style="font-size:0.78rem; color:{t['muted']}; line-height:1.55; margin-top:14px; text-align:left;">
-                                <span style="color:#34D399; font-weight:700;">🟢 fine</span> • <span style="color:#FBBF24; font-weight:700;">🟡 minor concern</span> • <span style="color:#F87171; font-weight:700;">🔴 risky</span> — <strong>RBI Approved:</strong> whether app discloses legitimate RBI/NBFC registration & follows key norms. <strong>Terms disclosed:</strong> how clearly the app states interest rate, tenure & registration (out of 5). <strong>Harassment mentions:</strong> % of reviews describing threats or abusive recovery tactics. <strong>Strongly negative reviews:</strong> % of reviews that are clearly unhappy. <strong>Avg. review tone:</strong> how positive (+1) or negative (-1) reviews are overall. <strong>Avg. review length:</strong> average words per review.
-                            </div>
-                            """,
+                            f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
+                            f'<span style="color:#34D399; font-weight:700;">🟢 fine</span> • <span style="color:#FBBF24; font-weight:700;">🟡 minor concern</span> • <span style="color:#F87171; font-weight:700;">🔴 risky</span> — <strong>RBI Approved:</strong> whether app discloses legitimate RBI/NBFC registration & follows key norms. <strong>Terms disclosed:</strong> how clearly the app states interest rate, tenure & registration (out of 5). <strong>Harassment mentions:</strong> % of reviews describing threats or abusive recovery tactics. <strong>Strongly negative reviews:</strong> % of reviews that are clearly unhappy. <strong>Avg. review tone:</strong> how positive (+1) or negative (-1) reviews are overall. <strong>Avg. review length:</strong> average words per review.'
+                            f'</div>',
                             unsafe_allow_html=True
                         )
 
