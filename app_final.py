@@ -1070,6 +1070,7 @@ with tab_scorer:
                     unsafe_allow_html=True
                 )
 
+                st.write("")
                 with st.expander("🔍 Key Risk Drivers & Explanation Breakdown"):
                     if reasons:
                         for item in reasons:
