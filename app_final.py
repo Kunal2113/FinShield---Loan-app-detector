@@ -165,7 +165,7 @@ def predict(features: dict):
     if USE_FAKE_MODEL:
         return _fake_predict(features)
     model = load_model()
-    row = pd.DataFrame([features], columns=FEATURE_COLUMNS)
+    row = pd.DataFrame([features], columns=FEATURE_COLUMNS).fillna(0)
     proba = model.predict_proba(row)[0][1]  
     classifier = model.named_steps["classifier"]
     feature_names = model.named_steps["preprocessor"].get_feature_names_out()
@@ -174,7 +174,7 @@ def predict(features: dict):
     reasons = []
     for name, _coef in top:
         clean_name = name.replace("num__", "")
-        reasons.append(explain_feature(clean_name, features.get(clean_name)))
+        reasons.append(explain_feature(clean_name, features.get(clean_name, 0)))
     return proba, reasons
 
 def extract_package_id(input_str: str) -> str:
@@ -189,18 +189,18 @@ def extract_package_id(input_str: str) -> str:
 
 def build_unlisted_app_features(pkg_id: str) -> dict:
     pkg_clean = pkg_id.lower().strip()
-    KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm", "slice", "onecard"]
+    KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm", "slice", "onecard", "fatakpay"]
     HIGH_RISK_TERMS = ["fast", "quick", "instant", "7day", "urgent", "pocket", "rupee", "cash", "loan", "wallet", "easy"]
     
     is_known = any(b in pkg_clean for b in KNOWN_BANKS)
     has_risk_terms = any(t in pkg_clean for t in HIGH_RISK_TERMS)
     
     if is_known:
-        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms = 10000000, 5, 0.02, 0.08, 0.45, 18.0, 0, 0
+        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000000, 5, 0.02, 0.08, 0.45, 18.0, 0, 0, 0, 0, 0
     elif has_risk_terms:
-        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms = 50000, 1, 0.28, 0.42, -0.38, 45.0, 1, 1
+        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 50000, 1, 0.28, 0.42, -0.38, 45.0, 1, 1, 1, 1, 1
     else:
-        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms = 100000, 3, 0.12, 0.22, 0.05, 25.0, 1, 0
+        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 100000, 3, 0.12, 0.22, 0.05, 25.0, 1, 0, 0, 1, 0
 
     return {
         "app_id": pkg_id,
@@ -213,6 +213,9 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         "avg_review_length": length,
         "contacts": contacts,
         "sms": sms,
+        "microphone": mic,
+        "location": loc,
+        "photos_media_storage": storage,
         "is_custom_unlisted": True
     }
 
