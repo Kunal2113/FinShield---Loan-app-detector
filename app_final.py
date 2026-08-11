@@ -766,11 +766,18 @@ with tab_scorer:
                             rbi_val, rbi_lvl = "Partially Regulated", "orange"
 
                         def tier_style(level):
-                            return {
-                                "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
-                                "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
-                                "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
-                            }[level]
+                            if st.session_state.dark_mode:
+                                return {
+                                    "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
+                                    "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
+                                    "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
+                                }[level]
+                            else:
+                                return {
+                                    "red": ("rgba(254, 226, 226, 0.95)", "#DC2626", "1px solid rgba(239, 68, 68, 0.3)"),
+                                    "orange": ("rgba(254, 243, 199, 0.95)", "#D97706", "1px solid rgba(245, 158, 11, 0.3)"),
+                                    "green": ("rgba(209, 250, 229, 0.95)", "#059669", "1px solid rgba(16, 185, 129, 0.3)"),
+                                }[level]
 
                         stats = [
                             ("🏛️ RBI Status", rbi_val, rbi_lvl),
