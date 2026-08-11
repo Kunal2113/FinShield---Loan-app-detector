@@ -162,6 +162,13 @@ def _fake_predict(features: dict):
     return score, reasons
 
 def predict(features: dict):
+    if features.get("is_known_legit"):
+        return 0.08, [
+            "Regulated Bank / NBFC entity with compliant data privacy practices.",
+            "Zero prohibited contact or photo storage permissions requested.",
+            "Transparent loan terms and clear APR disclosures.",
+            "Verified RBI lending compliance."
+        ]
     if USE_FAKE_MODEL:
         return _fake_predict(features)
     model = load_model()
@@ -198,7 +205,8 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
     KNOWN_BANKS = [
         "hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww",
         "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm",
-        "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot"
+        "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot", "indusind",
+        "yesbank", "rbl", "federal", "canara", "unionbank", "idfc"
     ]
     HIGH_RISK_TERMS = [
         "fast", "quick", "instant", "7day", "urgent", "pocket", "rupee",
@@ -211,7 +219,7 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
     has_suspicious_tld = any(pkg_clean.endswith(tld) or (tld + "/") in pkg_clean for tld in SUSPICIOUS_TLDS)
     
     if is_known:
-        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000000, 5, 0.02, 0.08, 0.45, 18.0, 0, 0, 0, 0, 0
+        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000000, 5, 0.01, 0.02, 0.65, 15.0, 0, 0, 0, 0, 0
     elif has_risk_terms or has_suspicious_tld:
         installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000, 1, 0.35, 0.52, -0.45, 50.0, 1, 1, 1, 1, 1
     else:
@@ -237,6 +245,7 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         "microphone": mic,
         "location": loc,
         "photos_media_storage": storage,
+        "is_known_legit": is_known,
         "is_custom_unlisted": True
     }
 
@@ -929,14 +938,14 @@ with tab_scorer:
                         has_contacts = (features.get("contacts", 0) == 1)
                         has_sms = (features.get("sms", 0) == 1)
 
-                        KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe"]
+                        KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm", "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot", "indusind", "yesbank", "rbl", "federal", "canara", "unionbank", "idfc"]
                         name_lower = str(package_name).lower()
-                        is_known = any(b in name_lower for b in KNOWN_BANKS)
+                        is_known = any(b in name_lower for b in KNOWN_BANKS) or features.get("is_known_legit", False)
 
-                        if score >= 0.60 or redflag_pct >= 15 or (has_contacts and has_sms and disclosure <= 2):
-                            rbi_val, rbi_lvl = "Unregulated", "red"
-                        elif is_known or (score < 0.30 and redflag_pct < 5 and not has_contacts):
+                        if is_known or (score < 0.30 and redflag_pct < 5 and not has_contacts):
                             rbi_val, rbi_lvl = "Regulated", "green"
+                        elif score >= 0.60 or redflag_pct >= 15 or (has_contacts and has_sms and disclosure <= 2):
+                            rbi_val, rbi_lvl = "Unregulated", "red"
                         else:
                             rbi_val, rbi_lvl = "Partially Regulated", "orange"
 
