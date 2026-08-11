@@ -182,6 +182,7 @@ def predict(features: dict):
     for name, _coef in top:
         clean_name = name.replace("num__", "")
         reasons.append(explain_feature(clean_name, features.get(clean_name, 0)))
+    return proba, reasons
 def is_valid_unlisted_input(input_str: str) -> bool:
     if not input_str or len(input_str.strip()) < 3:
         return False
