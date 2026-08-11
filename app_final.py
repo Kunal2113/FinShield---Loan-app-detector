@@ -525,16 +525,27 @@ st.markdown(f"""
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
     }}
 
-    .stButton > button {{
+    .stButton > button,
+    div[data-testid="stFormSubmitButton"] > button,
+    div[data-testid="stFormSubmitButton"] button {{
         background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
-        color: #000 !important; border: none !important; border-radius: 30px !important;
+        color: #000000 !important; border: none !important; border-radius: 30px !important;
         font-weight: 800 !important; font-size: 0.95rem !important; padding: 0.6rem 1.4rem !important;
         box-shadow: 0 4px 20px rgba(247, 201, 72, 0.3) !important;
         transition: transform 0.2s ease, box-shadow 0.2s ease !important;
     }}
-    .stButton > button:hover {{
+    .stButton > button:hover,
+    div[data-testid="stFormSubmitButton"] > button:hover,
+    div[data-testid="stFormSubmitButton"] button:hover {{
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 25px rgba(247, 201, 72, 0.45) !important;
+        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
+        color: #000000 !important;
+    }}
+    .stButton > button *,
+    div[data-testid="stFormSubmitButton"] > button * {{
+        color: #000000 !important;
+        font-weight: 800 !important;
     }}
 
     /* Ultra-Modern Glassmorphic Floating Pill Tabs */
