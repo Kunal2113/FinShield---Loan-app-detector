@@ -280,6 +280,9 @@ def score_app(identifier: str):
         used_fallback = False
         
         if features is None:
+            features = lookup_app_features(identifier)
+
+        if features is None:
             features = build_unlisted_app_features(clean_id)
             used_fallback = True
             
@@ -1039,9 +1042,13 @@ with tab_scorer:
 
                 with st.expander("🔍 Key Risk Drivers & Explanation Breakdown"):
                     if reasons:
-                        for reason_text, is_bad in reasons:
-                            icon = "🔴" if is_bad else "🟢"
-                            st.write(f"{icon} {reason_text}")
+                        for item in reasons:
+                            if isinstance(item, (tuple, list)) and len(item) == 2:
+                                reason_text, is_bad = item
+                                icon = "🔴" if is_bad else "🟢"
+                                st.write(f"{icon} {reason_text}")
+                            elif isinstance(item, str):
+                                st.write(f"🟢 {item}")
 
 # ==========================================
 # TAB 2: SAFETY PROFILER
