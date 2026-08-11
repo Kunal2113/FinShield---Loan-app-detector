@@ -182,29 +182,50 @@ def extract_package_id(input_str: str) -> str:
     match = re.search(r'id=([a-zA-Z0-9_\.]+)', input_str)
     if match:
         return match.group(1)
-    match_pkg = re.search(r'([a-zA-Z0-9_]+\.[a-zA-Z0-9_\.]+[a-zA-Z0-9_])', input_str)
+    match_pkg = re.search(r'([a-zA-Z0-9_]+\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_\.]+)', input_str)
     if match_pkg:
         return match_pkg.group(1)
-    return input_str
+    match_pkg2 = re.search(r'([a-zA-Z0-9_]+\.[a-zA-Z0-9_]+)', input_str)
+    if match_pkg2 and not input_str.startswith("http"):
+        return match_pkg2.group(1)
+    if "://" in input_str:
+        domain = input_str.split("://")[1].split("/")[0].split("?")[0].lower()
+        return domain
+    return input_str.lower()
 
 def build_unlisted_app_features(pkg_id: str) -> dict:
     pkg_clean = pkg_id.lower().strip()
-    KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm", "slice", "onecard", "fatakpay"]
-    HIGH_RISK_TERMS = ["fast", "quick", "instant", "7day", "urgent", "pocket", "rupee", "cash", "loan", "wallet", "easy"]
+    KNOWN_BANKS = [
+        "hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww",
+        "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm",
+        "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot"
+    ]
+    HIGH_RISK_TERMS = [
+        "fast", "quick", "instant", "7day", "urgent", "pocket", "rupee",
+        "cash", "loan", "wallet", "easy", "credit", "money", "express", "apk"
+    ]
+    SUSPICIOUS_TLDS = [".xyz", ".top", ".online", ".site", ".vip", ".cc", ".tech", ".link", ".win", ".club"]
     
     is_known = any(b in pkg_clean for b in KNOWN_BANKS)
     has_risk_terms = any(t in pkg_clean for t in HIGH_RISK_TERMS)
+    has_suspicious_tld = any(pkg_clean.endswith(tld) or (tld + "/") in pkg_clean for tld in SUSPICIOUS_TLDS)
     
     if is_known:
         installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000000, 5, 0.02, 0.08, 0.45, 18.0, 0, 0, 0, 0, 0
-    elif has_risk_terms:
-        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 50000, 1, 0.28, 0.42, -0.38, 45.0, 1, 1, 1, 1, 1
+    elif has_risk_terms or has_suspicious_tld:
+        installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 10000, 1, 0.35, 0.52, -0.45, 50.0, 1, 1, 1, 1, 1
     else:
         installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 100000, 3, 0.12, 0.22, 0.05, 25.0, 1, 0, 0, 1, 0
 
+    display_name = pkg_id
+    if "." in pkg_id:
+        parts = [p for p in pkg_id.split(".") if p not in ["com", "in", "org", "net", "co", "io", "xyz", "site", "online", "http", "https", "www"]]
+        if parts:
+            display_name = " ".join(parts).replace("_", " ").replace("-", " ").title()
+
     return {
         "app_id": pkg_id,
-        "app_name": pkg_id.split(".")[-1].replace("_", " ").title() if "." in pkg_id else pkg_id.title(),
+        "app_name": display_name,
         "install_count": installs,
         "disclosure_score": disclosure,
         "review_redflag_score": redflag,
@@ -823,7 +844,7 @@ with tab_scorer:
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
     with st.container(border=True):
         st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
-        st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
+        st.caption("Select a pre-analyzed app or paste any custom Play Store link, website URL, or package name to audit unlisted apps.")
 
         if USE_FAKE_MODEL:
             st.info("🔧 Running with formula scoring mode (predatory_loan_detector.pkl not found). Good for UI testing.", icon="🔧")
@@ -832,7 +853,7 @@ with tab_scorer:
 
         input_mode = st.radio(
             "Audit Mode",
-            options=["📋 Select Pre-Analyzed App", "🔗 Audit Unlisted App via Play Store Link"],
+            options=["📋 Select Pre-Analyzed App", "🔗 Audit Unlisted App, APK or Website Link"],
             horizontal=True,
             label_visibility="collapsed",
             key="audit_input_mode_radio"
@@ -848,9 +869,9 @@ with tab_scorer:
         else:
             with c_input:
                 package_name = st.text_input(
-                    "Paste Play Store Link or Android Package ID",
-                    placeholder="e.g. https://play.google.com/store/apps/details?id=com.kreditbee.android or com.fastcash.loan",
-                    help="Paste any Google Play Store URL or Android Package ID to audit an unlisted app.",
+                    "Paste Play Store Link, Website URL, or Android Package ID",
+                    placeholder="e.g. https://play.google.com/store/apps/details?id=com.fatakpay or https://quick-7day-loan.xyz or com.fastcash.loan",
+                    help="Paste any Google Play Store URL, website domain, or Android package ID to audit.",
                     key="unlisted_app_link_input"
                 )
             with c_btn:
