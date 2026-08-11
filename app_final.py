@@ -784,6 +784,7 @@ st.markdown(f"""
         min-height: 105px !important;
         box-sizing: border-box !important;
         transition: transform 0.2s ease !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
     }}
     .glance-card:hover {{
         transform: translateY(-2px) !important;
@@ -1003,9 +1004,9 @@ with tab_scorer:
                                 }[level]
                             else:
                                 return {
-                                    "red": ("rgba(254, 226, 226, 0.95)", "#DC2626", "1px solid rgba(239, 68, 68, 0.3)"),
-                                    "orange": ("rgba(254, 243, 199, 0.95)", "#D97706", "1px solid rgba(245, 158, 11, 0.3)"),
-                                    "green": ("rgba(209, 250, 229, 0.95)", "#059669", "1px solid rgba(16, 185, 129, 0.3)"),
+                                    "red": ("#FEE2E2", "#B91C1C", "1.5px solid rgba(220, 38, 38, 0.45)"),
+                                    "orange": ("#FEF3C7", "#B45309", "1.5px solid rgba(217, 119, 6, 0.45)"),
+                                    "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
                                 }[level]
 
                         is_web_target = bool(
