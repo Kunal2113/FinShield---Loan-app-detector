@@ -552,6 +552,30 @@ st.markdown(f"""
         box-shadow: none !important;
     }}
 
+    /* 3-Column Square Grid Layout (App at a glance) */
+    .glance-grid-3col {{
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+        margin: 14px 0 !important;
+    }}
+    .glance-card {{
+        border-radius: 18px !important;
+        padding: 16px 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        min-height: 105px !important;
+        box-sizing: border-box !important;
+        transition: transform 0.2s ease !important;
+    }}
+    .glance-card:hover {{
+        transform: translateY(-2px) !important;
+    }}
+
     .stat-box {{
         border-radius: 20px !important;
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
@@ -719,7 +743,7 @@ with tab_scorer:
                     )
 
                 with col_metrics:
-                    st.markdown("#### 📊 App Diagnostic Breakdown")
+                    st.markdown("#### App at a glance")
                     if features:
                         installs = features.get("install_count")
                         disclosure = features.get("disclosure_score", 0)
@@ -741,40 +765,46 @@ with tab_scorer:
                         else:
                             rbi_val, rbi_lvl = "Partially Regulated", "orange"
 
-                        perm_str = "Contacts & SMS" if (has_contacts and has_sms) else ("Contacts" if has_contacts else ("SMS" if has_sms else "Minimal"))
-                        perm_lvl = "red" if (has_contacts and has_sms) else ("orange" if (has_contacts or has_sms) else "green")
-
                         def tier_style(level):
                             return {
-                                "red": ("linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(127, 29, 29, 0.3) 100%)", t["red_text"], "rgba(239, 68, 68, 0.35)"),
-                                "orange": ("linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(120, 53, 15, 0.3) 100%)", t["orange_text"], "rgba(245, 158, 11, 0.35)"),
-                                "green": ("linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(6, 78, 59, 0.3) 100%)", t["green_text"], "rgba(16, 185, 129, 0.35)"),
+                                "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
+                                "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
+                                "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
                             }[level]
 
                         stats = [
                             ("🏛️ RBI Status", rbi_val, rbi_lvl),
                             ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange"),
-                            ("📝 Disclosures", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
-                            ("🔒 Sensitive Perms", perm_str, perm_lvl),
-                            ("🚩 Harassment Mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
-                            ("😠 Negative Reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
-                            ("🙂 Review Tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
-                            ("📏 Detail Level", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
+                            ("📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
+                            ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
+                            ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
+                            ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
+                            ("✏️ Avg. review length", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
                         ]
 
-                        m_cols = st.columns(2)
+                        cards_html = []
                         for i, (lbl, val, lvl) in enumerate(stats):
                             bg_c, fg_c, bdr_c = tier_style(lvl)
-                            with m_cols[i % 2]:
-                                st.markdown(
-                                    f"""
-                                    <div class="stat-box" style="background:{bg_c}; color:{fg_c}; border:1px solid {bdr_c}; border-radius:18px; padding:14px 12px; margin-bottom:12px; text-align:center;">
-                                        <div class="stat-label" style="opacity:0.88; font-size:0.78rem; font-weight:600;">{lbl}</div>
-                                        <div class="stat-value" style="font-size:1.15rem; font-weight:800; margin-top:2px;">{val}</div>
-                                    </div>
-                                    """,
-                                    unsafe_allow_html=True
-                                )
+                            grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
+                            cards_html.append(
+                                f"""
+                                <div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">
+                                    <div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>
+                                    <div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>
+                                </div>
+                                """
+                            )
+
+                        st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+
+                        st.markdown(
+                            f"""
+                            <div style="font-size:0.78rem; color:{t['muted']}; line-height:1.55; margin-top:14px; text-align:left;">
+                                <span style="color:#34D399; font-weight:700;">🟢 fine</span> • <span style="color:#FBBF24; font-weight:700;">🟡 minor concern</span> • <span style="color:#F87171; font-weight:700;">🔴 risky</span> — <strong>RBI Approved:</strong> whether app discloses legitimate RBI/NBFC registration & follows key norms. <strong>Terms disclosed:</strong> how clearly the app states interest rate, tenure & registration (out of 5). <strong>Harassment mentions:</strong> % of reviews describing threats or abusive recovery tactics. <strong>Strongly negative reviews:</strong> % of reviews that are clearly unhappy. <strong>Avg. review tone:</strong> how positive (+1) or negative (-1) reviews are overall. <strong>Avg. review length:</strong> average words per review.
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
                 # Full-Width Play Store App Package Link Banner
                 app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
