@@ -265,6 +265,10 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         if parts:
             display_name = " ".join(parts).replace("_", " ").replace("-", " ").title()
 
+    is_web = False
+    if "://" in pkg_id or ("." in pkg_id and not re.search(r'^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+\.[a-zA-Z0-9_\.]+$', pkg_id)):
+        is_web = True
+
     return {
         "app_id": pkg_id,
         "app_name": display_name,
@@ -280,6 +284,7 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         "location": loc,
         "photos_media_storage": storage,
         "is_known_legit": is_known,
+        "is_web_domain": is_web,
         "is_custom_unlisted": True
     }
 
@@ -1003,9 +1008,17 @@ with tab_scorer:
                                     "green": ("rgba(209, 250, 229, 0.95)", "#059669", "1px solid rgba(16, 185, 129, 0.3)"),
                                 }[level]
 
+                        is_web_target = bool(
+                            features.get("is_web_domain") or
+                            "://" in str(package_name) or
+                            ("." in str(package_name) and not features.get("app_id", "").startswith("com.") and not features.get("app_id", "").startswith("in.") and not features.get("app_id", "").startswith("org."))
+                        )
+
+                        installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange")
+
                         stats = [
                             ("🏛️ RBI Status", rbi_val, rbi_lvl),
-                            ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange"),
+                            installs_card,
                             ("📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
                             ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
                             ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
@@ -1033,17 +1046,25 @@ with tab_scorer:
                             unsafe_allow_html=True
                         )
 
-                # Full-Width Play Store App Package Link Banner
+                # Full-Width App / Web Link Banner
                 app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
-                play_store_url = f"https://play.google.com/store/apps/details?id={app_id_str}"
+                if is_web_target:
+                    banner_title = "Verified Official Web Domain"
+                    target_url = app_id_str if app_id_str.startswith("http") else f"https://{app_id_str}"
+                    button_label = "Visit Website ↗"
+                else:
+                    banner_title = "Play Store Verified App Package"
+                    target_url = f"https://play.google.com/store/apps/details?id={app_id_str}"
+                    button_label = "View on Play Store ↗"
+
                 st.markdown(
                     f"""
                     <div style="background:{t['card_bg']}; border:1.5px solid rgba(247, 201, 72, 0.25); border-radius:20px; padding:16px 22px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; width:100%; box-shadow:0 8px 25px rgba(0, 0, 0, 0.3);">
                         <div>
-                            <div style="font-weight:800; font-size:0.92rem; color:{t['text']};">Play Store Verified App Package</div>
+                            <div style="font-weight:800; font-size:0.92rem; color:{t['text']};">{banner_title}</div>
                             <div style="font-size:0.82rem; color:{t['muted']}; font-family:monospace; margin-top:2px;">{app_id_str}</div>
                         </div>
-                        <a href="{play_store_url}" target="_blank" style="background:linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%); color:#000; padding:10px 22px; border-radius:30px; font-weight:800; font-size:0.85rem; text-decoration:none; box-shadow:0 4px 18px rgba(247, 201, 72, 0.35); transition:transform 0.2s;">View on Play Store ↗</a>
+                        <a href="{target_url}" target="_blank" style="background:linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%); color:#000; padding:10px 22px; border-radius:30px; font-weight:800; font-size:0.85rem; text-decoration:none; box-shadow:0 4px 18px rgba(247, 201, 72, 0.35); transition:transform 0.2s;">{button_label}</a>
                     </div>
                     """,
                     unsafe_allow_html=True
