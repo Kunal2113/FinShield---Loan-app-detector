@@ -907,7 +907,7 @@ with tab_scorer:
 
     if check_clicked and package_name:
         if "Pre-Analyzed" not in input_mode and not is_valid_unlisted_input(package_name):
-            st.warning("⚠️ **Invalid App Name or Link!** Please enter a valid Play Store URL (e.g., `https://play.google.com/store/apps/details?id=...`), a website domain (e.g., `https://fastloan.com`), or an Android Package ID (e.g., `com.example.app`).", icon="⚠️")
+            st.warning("Invalid link or app name. Please enter a valid Play Store URL, website domain, or Package ID.", icon="⚠️")
             st.session_state.active_package = None
         else:
             st.session_state.active_package = package_name
