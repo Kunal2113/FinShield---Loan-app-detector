@@ -182,7 +182,31 @@ def predict(features: dict):
     for name, _coef in top:
         clean_name = name.replace("num__", "")
         reasons.append(explain_feature(clean_name, features.get(clean_name, 0)))
-    return proba, reasons
+def is_valid_unlisted_input(input_str: str) -> bool:
+    if not input_str or len(input_str.strip()) < 3:
+        return False
+    s = input_str.strip().lower()
+    if s.startswith("http://") or s.startswith("https://") or "play.google.com" in s:
+        return True
+    if re.search(r'^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*$', s):
+        return True
+    VALID_TLDS = [
+        ".com", ".in", ".org", ".net", ".io", ".co", ".xyz", ".app", ".site",
+        ".online", ".top", ".vip", ".cc", ".tech", ".link", ".win", ".club",
+        ".gov", ".edu", ".ai", ".me", ".store", ".info"
+    ]
+    if any(s.endswith(tld) or (tld + "/") in s for tld in VALID_TLDS) and "." in s:
+        return True
+    KNOWN_KEYWORDS = [
+        "hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww",
+        "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm",
+        "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot", "indusind",
+        "yesbank", "rbl", "federal", "canara", "unionbank", "idfc",
+        "kredit", "rupee", "cash", "loan", "wallet", "fastcash"
+    ]
+    if any(k in s for k in KNOWN_KEYWORDS):
+        return True
+    return False
 
 def extract_package_id(input_str: str) -> str:
     input_str = input_str.strip()
@@ -882,7 +906,11 @@ with tab_scorer:
                 check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
 
     if check_clicked and package_name:
-        st.session_state.active_package = package_name
+        if "Pre-Analyzed" not in input_mode and not is_valid_unlisted_input(package_name):
+            st.warning("⚠️ **Invalid App Name or Link!** Please enter a valid Play Store URL (e.g., `https://play.google.com/store/apps/details?id=...`), a website domain (e.g., `https://fastloan.com`), or an Android Package ID (e.g., `com.example.app`).", icon="⚠️")
+            st.session_state.active_package = None
+        else:
+            st.session_state.active_package = package_name
 
     if st.session_state.active_package:
         package_name = st.session_state.active_package
