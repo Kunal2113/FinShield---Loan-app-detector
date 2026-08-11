@@ -616,12 +616,13 @@ st.markdown(f"""
     }}
 
     /* Audit Input Container Box */
+    [data-testid="stVerticalBlockBorderWrapper"],
     div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background: {"rgba(18, 24, 38, 0.85)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        border: 1.5px solid {"rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "rgba(217, 119, 6, 0.25)"} !important;
-        border-radius: 22px !important;
+        background: {"rgba(18, 24, 38, 0.88)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: {"2px solid rgba(247, 201, 72, 0.45)" if st.session_state.dark_mode else "2px solid #D97706"} !important;
+        border-radius: 20px !important;
         padding: 22px 20px !important;
-        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.4)" if st.session_state.dark_mode else "0 10px 28px rgba(0, 0, 0, 0.07)"} !important;
+        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.5)" if st.session_state.dark_mode else "0 10px 30px rgba(217, 119, 6, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08)"} !important;
         margin-top: 14px !important;
         margin-bottom: 24px !important;
     }}
