@@ -400,6 +400,27 @@ st.markdown(f"""
         align-items: center;
         gap: 6px;
     }}
+    @keyframes fadeInUp {{
+        0% {{
+            opacity: 0;
+            transform: translateY(18px);
+        }}
+        100% {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
+    }}
+    @keyframes shimmerGradient {{
+        0% {{
+            background-position: 0% 50%;
+        }}
+        50% {{
+            background-position: 100% 50%;
+        }}
+        100% {{
+            background-position: 0% 50%;
+        }}
+    }}
     .hero-main-title {{
         font-family: 'League Spartan', 'Inter', sans-serif;
         font-size: 3rem;
@@ -407,11 +428,15 @@ st.markdown(f"""
         line-height: 1.15;
         color: {t['text']};
         margin-bottom: 12px;
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }}
     .hero-gold-text {{
-        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%);
+        background: linear-gradient(120deg, #F7C948 0%, #FBBF24 25%, #FFFFFF 50%, #D97706 75%, #F7C948 100%);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        animation: shimmerGradient 4s ease infinite;
+        display: inline-block;
     }}
     .hero-subtitle {{
         font-size: 1.1rem;
@@ -421,6 +446,8 @@ st.markdown(f"""
         text-align: center !important;
         line-height: 1.5;
         display: block;
+        animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        opacity: 0;
     }}
 
     /* Top Navigation Ribbon Bar Styling */
