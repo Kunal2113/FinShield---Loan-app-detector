@@ -342,18 +342,6 @@ st.markdown(f"""
     }}
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
 
-    /* Top Announcement Bar */
-    .top-announcement-bar {{
-        background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-        color: #E0E7FF;
-        text-align: center;
-        padding: 9px 16px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }}
-
     /* Top Navigation Navbar */
     .top-nav-bar {{
         background: #0F172A;
@@ -657,17 +645,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# 1. Top Announcement Bar
-st.markdown(
-    """
-    <div class="top-announcement-bar">
-        🛡️ FinShield Digital Lending Risk Engine • RBI Directives 2026 Audit Active
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# 2. Navigation Navbar Header
+# 1. Navigation Navbar Header
 col_n1, col_n2 = st.columns([3, 1], vertical_alignment="center")
 with col_n1:
     st.markdown(
