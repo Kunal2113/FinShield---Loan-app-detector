@@ -329,16 +329,67 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
-    @keyframes geminiBackgroundFlow {{
-        0% {{ background-position: 0% 50%; }}
-        50% {{ background-position: 100% 50%; }}
-        100% {{ background-position: 0% 50%; }}
+    @keyframes geminiAuraLeft {{
+        0% {{
+            transform: translate(-10%, -15%) scale(1);
+            background: radial-gradient(circle, {"rgba(30, 64, 175, 0.55)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.45)"} 0%, {"rgba(107, 33, 168, 0.35)" if st.session_state.dark_mode else "rgba(192, 132, 252, 0.3)"} 50%, transparent 75%);
+        }}
+        50% {{
+            transform: translate(15%, 10%) scale(1.25);
+            background: radial-gradient(circle, {"rgba(190, 24, 93, 0.45)" if st.session_state.dark_mode else "rgba(244, 114, 182, 0.35)"} 0%, {"rgba(147, 51, 234, 0.4)" if st.session_state.dark_mode else "rgba(216, 180, 254, 0.3)"} 50%, transparent 75%);
+        }}
+        100% {{
+            transform: translate(-5%, 20%) scale(0.95);
+            background: radial-gradient(circle, {"rgba(2, 132, 199, 0.5)" if st.session_state.dark_mode else "rgba(125, 211, 252, 0.4)"} 0%, {"rgba(30, 64, 175, 0.35)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.3)"} 50%, transparent 75%);
+        }}
     }}
+    @keyframes geminiAuraRight {{
+        0% {{
+            transform: translate(10%, -10%) scale(1);
+            background: radial-gradient(circle, {"rgba(217, 119, 6, 0.45)" if st.session_state.dark_mode else "rgba(253, 224, 71, 0.4)"} 0%, {"rgba(234, 179, 8, 0.3)" if st.session_state.dark_mode else "rgba(251, 146, 60, 0.25)"} 50%, transparent 75%);
+        }}
+        50% {{
+            transform: translate(-15%, 15%) scale(1.2);
+            background: radial-gradient(circle, {"rgba(13, 148, 136, 0.4)" if st.session_state.dark_mode else "rgba(110, 231, 183, 0.35)"} 0%, {"rgba(2, 132, 199, 0.35)" if st.session_state.dark_mode else "rgba(147, 197, 253, 0.3)"} 50%, transparent 75%);
+        }}
+        100% {{
+            transform: translate(5%, -15%) scale(0.9);
+            background: radial-gradient(circle, {"rgba(190, 24, 93, 0.4)" if st.session_state.dark_mode else "rgba(244, 114, 182, 0.3)"} 0%, {"rgba(217, 119, 6, 0.35)" if st.session_state.dark_mode else "rgba(253, 224, 71, 0.3)"} 50%, transparent 75%);
+        }}
+    }}
+
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
-        background: {"linear-gradient(-45deg, #0B0F19, #171E30, #1E1B4B, #2E1065, #1E1B4B, #0F172A)" if st.session_state.dark_mode else "linear-gradient(-45deg, #F8FAFC, #EEF2FF, #F3E8FF, #FDF2F8, #FEF3C7, #FAF9F6)"} !important;
-        background-size: 400% 400% !important;
-        animation: geminiBackgroundFlow 18s ease infinite !important;
+        background: {"#07090E" if st.session_state.dark_mode else "#FAF9F6"} !important;
         font-family: 'Inter', sans-serif;
+    }}
+
+    .stApp::before {{
+        content: "";
+        position: fixed;
+        top: -150px;
+        left: -150px;
+        width: 650px;
+        height: 650px;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.85;
+        pointer-events: none;
+        z-index: 0;
+        animation: geminiAuraLeft 14s ease-in-out infinite alternate;
+    }}
+    .stApp::after {{
+        content: "";
+        position: fixed;
+        top: -120px;
+        right: -150px;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.8;
+        pointer-events: none;
+        z-index: 0;
+        animation: geminiAuraRight 16s ease-in-out infinite alternate;
     }}
     .block-container {{
         padding-top: 0.5rem !important;
