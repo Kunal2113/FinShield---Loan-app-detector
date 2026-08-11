@@ -615,6 +615,17 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
+    /* Audit Input Container Box */
+    .audit-input-card {{
+        background: {"rgba(18, 24, 38, 0.75)" if st.session_state.dark_mode else "#FFFFFF"};
+        border: 1.5px solid {"rgba(247, 201, 72, 0.3)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.12)"};
+        border-radius: 24px;
+        padding: 24px 22px;
+        box-shadow: {"0 10px 30px rgba(0, 0, 0, 0.4)" if st.session_state.dark_mode else "0 8px 24px rgba(0, 0, 0, 0.06)"};
+        margin-top: 14px;
+        margin-bottom: 24px;
+    }}
+
     /* 3-Column Square Grid Layout (App at a glance) */
     .glance-grid-3col {{
         display: grid !important;
@@ -737,8 +748,9 @@ with tab_scorer:
         unsafe_allow_html=True
     )
 
-    # LASTLY: App Audit & Prediction Tool Section
-    st.markdown("### 🔍 Evaluate Digital Loan App Safety")
+    # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
+    st.markdown('<div class="audit-input-card">', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
     st.caption("Select a pre-analyzed app or paste any custom Play Store link / package name to audit unlisted apps.")
 
     if USE_FAKE_MODEL:
@@ -769,6 +781,8 @@ with tab_scorer:
             )
         with c_btn:
             check_clicked = st.button("Audit Custom App ➔", key="btn_custom_link", use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if check_clicked and package_name:
         st.session_state.active_package = package_name
