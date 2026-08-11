@@ -24,6 +24,21 @@ REDFLAG_PATTERN = re.compile('|'.join(re.escape(k) for k in REDFLAG_KEYWORDS), r
 FEATURES_CSV_PATH = "app_features_final.csv"
 MIN_REVIEWS_REQUIRED = 10
 
+KNOWN_BANKS = [
+    "hdfc", "icici", "sbi", "statebank", "axis", "kotak", "baroda", "bob", "pnb",
+    "canara", "unionbank", "idfc", "indusind", "yesbank", "rbl", "federal", "centralbank",
+    "indianbank", "uco", "bankofindia", "iob", "psb", "dbs", "hsbc", "citi", "standardchartered",
+    "bandhan", "au", "aubank", "equitas", "ujjivan", "jana", "survodaya",
+    "ltfinance", "ltfs", "lntfinance", "lt-finance", "bajaj", "bajajfinserv", "bajajfinance",
+    "tata", "tatacapital", "tataneu", "piramal", "adityabirla", "abfl", "godrej", "godrejcapital",
+    "mahindra", "mmfsl", "shriram", "stfc", "muthoot", "muthootfinance", "manappuram",
+    "cholamandalam", "chola", "sundaram", "iifl", "hero", "herofincorp", "tvssundaram", "tvscredit",
+    "lendingkart", "creditsaison", "homecredit", "paytm", "groww", "kreditbee", "navi", "fibe",
+    "earlysalary", "moneyview", "cashe", "kissht", "stashfin", "faircent", "mpokket", "slice",
+    "onecard", "fatakpay", "cred", "jupiter", "freo", "lazypay", "branch", "nira", "flexiloans",
+    "zest", "zestmoney", "dhanvarsha", "indialends", "rupeeredee"
+]
+
 analyzer = SentimentIntensityAnalyzer()
 
 def explain_feature(name: str, value) -> tuple[str, bool]:
@@ -227,12 +242,6 @@ def extract_package_id(input_str: str) -> str:
 
 def build_unlisted_app_features(pkg_id: str) -> dict:
     pkg_clean = pkg_id.lower().strip()
-    KNOWN_BANKS = [
-        "hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww",
-        "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm",
-        "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot", "indusind",
-        "yesbank", "rbl", "federal", "canara", "unionbank", "idfc"
-    ]
     HIGH_RISK_TERMS = [
         "fast", "quick", "instant", "7day", "urgent", "pocket", "rupee",
         "cash", "loan", "wallet", "easy", "credit", "money", "express", "apk"
@@ -970,7 +979,6 @@ with tab_scorer:
                         has_contacts = (features.get("contacts", 0) == 1)
                         has_sms = (features.get("sms", 0) == 1)
 
-                        KNOWN_BANKS = ["hdfc", "icici", "sbi", "axis", "kotak", "baroda", "pnb", "groww", "creditsaison", "kreditbee", "navi", "fibe", "tataneu", "paytm", "slice", "onecard", "fatakpay", "bajaj", "hero", "muthoot", "indusind", "yesbank", "rbl", "federal", "canara", "unionbank", "idfc"]
                         name_lower = str(package_name).lower()
                         is_known = any(b in name_lower for b in KNOWN_BANKS) or features.get("is_known_legit", False)
 
