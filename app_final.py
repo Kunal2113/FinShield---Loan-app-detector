@@ -164,10 +164,10 @@ def _fake_predict(features: dict):
 def predict(features: dict):
     if features.get("is_known_legit"):
         return 0.08, [
-            "Regulated Bank / NBFC entity with compliant data privacy practices.",
-            "Zero prohibited contact or photo storage permissions requested.",
-            "Transparent loan terms and clear APR disclosures.",
-            "Verified RBI lending compliance."
+            ("Regulated Bank / NBFC entity with compliant data privacy practices.", False),
+            ("Zero prohibited contact or photo storage permissions requested.", False),
+            ("Transparent loan terms and clear APR disclosures.", False),
+            ("Verified RBI lending compliance.", False)
         ]
     if USE_FAKE_MODEL:
         return _fake_predict(features)
