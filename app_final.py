@@ -1323,18 +1323,99 @@ with tab_rankings:
         else: # Highest First
             filtered_df = filtered_df.sort_values(by="safety_score", ascending=False)
 
+        # Side-by-Side App Comparison Tool Box
+        c_dark = st.session_state.dark_mode
+        card_bg = "#111622" if c_dark else "#FFFFFF"
+        card_bdr = "1px solid rgba(255, 255, 255, 0.08)" if c_dark else "1px solid #E2E8F0"
+        text_color = "#F8FAFC" if c_dark else "#0F172A"
+        muted_color = "#94A3B8" if c_dark else "#64748B"
+
+        all_app_names = list(df_ranked["app_name"].values)
+        all_app_ids = list(df_ranked["app_id"].values)
+        
+        is_cmp_active = bool(st.session_state.get("compare_app_1"))
+        
+        with st.expander("⚖️ Side-by-Side Lending App Safety Comparison Tool", expanded=is_cmp_active):
+            st.caption("Select any 2 loan apps to compare their safety score, RBI compliance, permissions access, and harassment review risks side-by-side.")
+            
+            cmp_sel1, cmp_sel2 = st.columns(2, gap="medium")
+            
+            idx1 = 0
+            if st.session_state.get("compare_app_1") in all_app_ids:
+                idx1 = all_app_ids.index(st.session_state.get("compare_app_1"))
+                
+            idx2 = 1 if len(all_app_names) > 1 else 0
+            if st.session_state.get("compare_app_2") in all_app_ids:
+                idx2 = all_app_ids.index(st.session_state.get("compare_app_2"))
+                
+            with cmp_sel1:
+                app1_name = st.selectbox("Select App 1", options=all_app_names, index=idx1, key="select_cmp_app_1")
+            with cmp_sel2:
+                app2_name = st.selectbox("Select App 2", options=all_app_names, index=idx2, key="select_cmp_app_2")
+                
+            app1_data = df_ranked[df_ranked["app_name"] == app1_name].iloc[0]
+            app2_data = df_ranked[df_ranked["app_name"] == app2_name].iloc[0]
+            
+            sc1, sc2 = app1_data["safety_score"], app2_data["safety_score"]
+            n1_short = app1_name.split(':')[0]
+            n2_short = app2_name.split(':')[0]
+            
+            if sc1 > sc2:
+                w_msg = f"🏆 **{n1_short}** is safer with a FinShield Score of **{sc1}/100** vs **{sc2}/100** (+{sc1 - sc2} pts)."
+                w_clr = "#10B981"
+            elif sc2 > sc1:
+                w_msg = f"🏆 **{n2_short}** is safer with a FinShield Score of **{sc2}/100** vs **{sc1}/100** (+{sc2 - sc1} pts)."
+                w_clr = "#10B981"
+            else:
+                w_msg = f"⚖️ Both **{n1_short}** and **{n2_short}** share the same FinShield Safety Score of **{sc1}/100**."
+                w_clr = "#F59E0B"
+                
+            st.markdown(
+                f"""
+                <div style="background:{'rgba(16, 185, 129, 0.12)' if sc1 != sc2 else 'rgba(245, 158, 11, 0.12)'}; border:1.5px solid {w_clr}; padding:10px 16px; border-radius:12px; text-align:center; font-size:0.98rem; font-weight:800; color:{w_clr}; margin: 8px 0 16px;">
+                    {w_msg}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            cmp_col1, cmp_col2 = st.columns(2, gap="medium")
+            
+            for col, a_data in [(cmp_col1, app1_data), (cmp_col2, app2_data)]:
+                with col:
+                    a_sc = a_data["safety_score"]
+                    a_rk = a_data["rank"]
+                    a_nm = a_data["app_name"]
+                    
+                    s_bg = "rgba(16, 185, 129, 0.18)" if a_sc >= 80 else ("rgba(245, 158, 11, 0.18)" if a_sc >= 50 else "rgba(239, 68, 68, 0.18)")
+                    s_fg = "#34D399" if a_sc >= 80 else ("#FBBF24" if a_sc >= 50 else "#F87171")
+                    
+                    st.markdown(
+                        f"""
+                        <div style="background:{'rgba(255,255,255,0.03)' if c_dark else '#F8FAFC'}; border:1px solid {'rgba(255,255,255,0.1)' if c_dark else '#E2E8F0'}; border-radius:12px; padding:14px; margin-bottom:12px;">
+                            <div style="font-size:1.05rem; font-weight:800; color:{text_color}; margin-bottom:6px;">{a_nm.split(':')[0]}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.8rem; font-weight:700; color:{muted_color};">FinShield Rank: <strong>🌿 {a_rk:02d}</strong></span>
+                                <span style="background:{s_bg}; color:{s_fg}; padding:2px 8px; border-radius:10px; font-weight:900; font-size:0.88rem;">{a_sc}/100</span>
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    
+                    st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if a_data['is_known'] else '⚠️ Unverified Partner'}")
+                    st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if a_data['contacts'] else '🟢 No Contacts'}")
+                    st.write(f"**SMS Reading:** {'🔴 Asks SMS' if a_data['sms'] else '🟢 No SMS'}")
+                    st.write(f"**Photos/Media:** {'🔴 Asks Photos' if a_data['photos'] else '🟢 No Photos'}")
+                    st.write(f"**Terms Disclosed:** `{a_data['disclosure_score']} / 5`")
+                    st.write(f"**Harassment Mentions:** `{a_data['redflag_pct']:.1f}%`")
+                    st.write(f"**Installs Base:** `{a_data['installs_str']}`")
+
         st.markdown("<div style='margin-bottom:12px;'></div>", unsafe_allow_html=True)
         
         if filtered_df.empty:
             st.info("🔍 No lending apps found matching your search and filter criteria.", icon="ℹ️")
         else:
-            # Card View matching 1Finance Reference UI
-            c_dark = st.session_state.dark_mode
-            card_bg = "#111622" if c_dark else "#FFFFFF"
-            card_bdr = "1px solid rgba(255, 255, 255, 0.08)" if c_dark else "1px solid #E2E8F0"
-            text_color = "#F8FAFC" if c_dark else "#0F172A"
-            muted_color = "#94A3B8" if c_dark else "#64748B"
-            
             rows = list(filtered_df.iterrows())
             for i in range(0, len(rows), 2):
                 col_a, col_b = st.columns(2, gap="medium")
@@ -1406,7 +1487,7 @@ with tab_rankings:
                         """
                         st.markdown(card_html, unsafe_allow_html=True)
                         
-                        with st.expander(f"🔍 View Details & Permissions for {app_name.split(':')[0]}"):
+                        with st.expander(f"🔍 View Details & Actions for {app_name.split(':')[0]}"):
                             c1, c2 = st.columns(2)
                             with c1:
                                 st.write(f"**Package ID:** `{app_id}`")
@@ -1417,10 +1498,16 @@ with tab_rankings:
                                 st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
                                 st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
                             
-                            if st.button("Run Live Riskometer Audit ➔", key=f"btn_audit_app_{idx}", use_container_width=True):
-                                st.session_state.active_package = app_id
-                                st.session_state.show_inline_audit = app_id
-                                st.rerun()
+                            act_col1, act_col2 = st.columns(2, gap="small")
+                            with act_col1:
+                                if st.button("⚖️ Compare App", key=f"btn_cmp_app_{idx}", use_container_width=True):
+                                    st.session_state.compare_app_1 = app_id
+                                    st.rerun()
+                            with act_col2:
+                                if st.button("Run Live Audit ➔", key=f"btn_audit_app_{idx}", use_container_width=True):
+                                    st.session_state.active_package = app_id
+                                    st.session_state.show_inline_audit = app_id
+                                    st.rerun()
                                 
                             if st.session_state.get("show_inline_audit") == app_id:
                                 st.markdown("---")
