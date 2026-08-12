@@ -608,6 +608,10 @@ st.markdown(f"""
         align-items: center;
         gap: 6px;
     }}
+    div[data-testid="stExpander"] {{
+        margin-top: 6px !important;
+        margin-bottom: 6px !important;
+    }}
     @keyframes fadeInUp {{
         0% {{
             opacity: 0;
@@ -1197,7 +1201,7 @@ with tab_scorer:
 
                 st.markdown(
                     f"""
-                    <div style="background:{t['card_bg']}; border:1.5px solid rgba(247, 201, 72, 0.25); border-radius:20px; padding:16px 22px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; width:100%; box-shadow:0 8px 25px rgba(0, 0, 0, 0.3);">
+                    <div style="background:{t['card_bg']}; border:1.5px solid rgba(247, 201, 72, 0.25); border-radius:20px; padding:16px 22px; display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:4px; width:100%; box-shadow:0 8px 25px rgba(0, 0, 0, 0.3);">
                         <div>
                             <div style="font-weight:800; font-size:0.92rem; color:{t['text']};">{banner_title}</div>
                             <div style="font-size:0.82rem; color:{t['muted']}; font-family:monospace; margin-top:2px;">{app_id_str}</div>
