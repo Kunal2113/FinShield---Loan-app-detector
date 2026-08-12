@@ -1559,8 +1559,9 @@ with tab_rankings:
                     """
                     st.markdown(conclusion_card_html, unsafe_allow_html=True)
                 
-                # Generous vertical spacing between card rows
-                st.markdown("<div style='margin-bottom: 56px;'></div>", unsafe_allow_html=True)
+                # Sleek separation line between app card rows
+                div_bdr = "rgba(255, 255, 255, 0.12)" if c_dark else "rgba(0, 0, 0, 0.1)"
+                st.markdown(f"<div style='margin: 28px 0 36px; border-bottom: 1.5px solid {div_bdr};'></div>", unsafe_allow_html=True)
 
     except FileNotFoundError:
         st.warning(f"File {FEATURES_CSV_PATH} not found.")
