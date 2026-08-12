@@ -611,6 +611,28 @@ st.markdown(f"""
     div[data-testid="stExpander"] {{
         margin-top: 6px !important;
         margin-bottom: 6px !important;
+        border: 1px solid {"rgba(255, 255, 255, 0.1)" if st.session_state.dark_mode else "#E2E8F0"} !important;
+        border-radius: 12px !important;
+        background: {"#0F141C" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        overflow: hidden !important;
+    }}
+    div[data-testid="stExpander"] > details {{
+        border: none !important;
+        background: transparent !important;
+    }}
+    div[data-testid="stExpander"] summary {{
+        border-radius: 0px !important;
+        border: none !important;
+        margin: 0px !important;
+        padding: 10px 16px !important;
+        background: transparent !important;
+    }}
+    div[data-testid="stExpander"] summary:hover {{
+        background: {"rgba(255, 255, 255, 0.04)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.02)"} !important;
+    }}
+    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {{
+        border-top: 1px solid {"rgba(255, 255, 255, 0.08)" if st.session_state.dark_mode else "#E2E8F0"} !important;
+        padding: 12px 16px !important;
     }}
     @keyframes fadeInUp {{
         0% {{
