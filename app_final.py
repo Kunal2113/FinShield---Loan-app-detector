@@ -1366,7 +1366,7 @@ with tab_rankings:
                     status_text = "High Risk"
 
                 card_header_html = f"""
-                <div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:12px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+                <div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <span style="font-size:0.74rem; font-weight:700; color:{muted_color}; text-transform:uppercase; letter-spacing:0.5px;">{cat_tag}</span>
                         <span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
@@ -1560,7 +1560,7 @@ with tab_rankings:
                     st.markdown(conclusion_card_html, unsafe_allow_html=True)
                 
                 # Generous vertical spacing between card rows
-                st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-bottom: 56px;'></div>", unsafe_allow_html=True)
 
     except FileNotFoundError:
         st.warning(f"File {FEATURES_CSV_PATH} not found.")
