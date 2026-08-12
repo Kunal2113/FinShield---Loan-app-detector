@@ -1572,26 +1572,6 @@ with tab_rankings:
                             </div>
                             """
                             st.markdown(conclusion_card_html, unsafe_allow_html=True)
-                            
-                            # Side-by-Side Comparison Columns
-                            c_cmp1, c_cmp2 = st.columns(2, gap="medium")
-                            for c_col, a_info in [(c_cmp1, app1_info), (c_cmp2, app2_info)]:
-                                with c_col:
-                                    st.markdown(
-                                        f"""
-                                        <div style="background:{'rgba(255,255,255,0.03)' if c_dark else '#F8FAFC'}; border:1px solid {'rgba(255,255,255,0.1)' if c_dark else '#E2E8F0'}; border-radius:12px; padding:12px 14px; margin-bottom:10px;">
-                                            <div style="font-size:1.02rem; font-weight:800; color:{text_color};">{a_info['app_name'].split(':')[0]}</div>
-                                            <div style="font-size:0.85rem; font-weight:800; color:#F7C948;">Safety Score: {a_info['safety_score']} / 100</div>
-                                        </div>
-                                        """,
-                                        unsafe_allow_html=True
-                                    )
-                                    st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if a_info['is_known'] else '⚠️ Unverified Partner'}")
-                                    st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if a_info['contacts'] else '🟢 No Contacts'}")
-                                    st.write(f"**SMS Reading:** {'🔴 Asks SMS' if a_info['sms'] else '🟢 No SMS'}")
-                                    st.write(f"**Photos Access:** {'🔴 Asks Photos' if a_info['photos'] else '🟢 No Photos'}")
-                                    st.write(f"**Terms Disclosed:** `{a_info['disclosure_score']} / 5`")
-                                    st.write(f"**Harassment Mentions:** `{a_info['redflag_pct']:.1f}%`")
 
     except FileNotFoundError:
         st.warning(f"File {FEATURES_CSV_PATH} not found.")
