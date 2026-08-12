@@ -797,8 +797,16 @@ st.markdown(f"""
         font-weight: 800 !important;
     }}
 
-    /* Ultra-Modern Glassmorphic Floating Pill Tabs */
-    .stTabs [data-baseweb="tab-list"], [data-baseweb="tab-list"] {{
+    /* Ultra-Modern Glassmorphic Floating Pill Tabs (Radio Navigation) */
+    div[data-testid="stRadio"] {{
+        display: flex !important;
+        justify-content: center !important;
+        margin-bottom: 24px !important;
+    }}
+    div[data-testid="stRadio"] > label {{
+        display: none !important;
+    }}
+    div[data-testid="stRadio"] > div {{
         gap: 10px !important;
         border-bottom: none !important;
         border: 1.5px solid rgba(247, 201, 72, 0.3) !important;
@@ -807,11 +815,13 @@ st.markdown(f"""
         -webkit-backdrop-filter: blur(16px) !important;
         padding: 8px 14px !important;
         border-radius: 40px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        box-shadow: {"0 8px 32px rgba(0, 0, 0, 0.5)" if st.session_state.dark_mode else "0 8px 25px rgba(0, 0, 0, 0.08)"} !important;
         justify-content: center !important;
-        margin-bottom: 24px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
     }}
-    .stTabs [data-baseweb="tab"], [data-baseweb="tab"], button[role="tab"], div[role="tab"] {{
+    div[data-testid="stRadio"] label[data-baseweb="radio"] {{
         background-color: transparent !important;
         border-radius: 30px !important;
         color: {"#F8FAFC" if st.session_state.dark_mode else "#334155"} !important;
@@ -823,20 +833,14 @@ st.markdown(f"""
         transition: all 0.25s ease !important;
         margin: 0 !important;
         white-space: nowrap !important;
-        overflow: visible !important;
-        width: auto !important;
+        cursor: pointer !important;
     }}
-    .stTabs [data-baseweb="tab"] *, button[role="tab"] * {{
-        color: {"#F8FAFC" if st.session_state.dark_mode else "#334155"} !important;
-    }}
-    .stTabs [data-baseweb="tab"]:hover, button[role="tab"]:hover {{
+    div[data-testid="stRadio"] label[data-baseweb="radio"]:hover {{
         color: #F7C948 !important;
         background: rgba(247, 201, 72, 0.15) !important;
     }}
-    .stTabs [aria-selected="true"],
-    [data-baseweb="tab"][aria-selected="true"],
-    button[role="tab"][aria-selected="true"],
-    div[role="tab"][aria-selected="true"] {{
+    div[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked),
+    div[data-testid="stRadio"] label[data-baseweb="radio"][aria-checked="true"] {{
         background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
         color: #000000 !important;
         font-weight: 800 !important;
@@ -844,35 +848,21 @@ st.markdown(f"""
         border-radius: 30px !important;
         box-shadow: 0 4px 20px rgba(247, 201, 72, 0.45) !important;
     }}
-    .stTabs [aria-selected="true"] *,
-    [data-baseweb="tab"][aria-selected="true"] *,
-    button[role="tab"][aria-selected="true"] * {{
+    div[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) *,
+    div[data-testid="stRadio"] label[data-baseweb="radio"][aria-checked="true"] * {{
         color: #000000 !important;
         font-weight: 800 !important;
     }}
-    /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & red lines completely */
-    div[data-baseweb="tab-highlight"],
-    div[data-baseweb="tab-border"],
-    [data-baseweb="tab-highlight"],
-    [data-baseweb="tab-border"],
-    .stTabs [data-baseweb="tab-highlight"],
-    .stTabs [data-baseweb="tab-border"],
-    [data-baseweb="tab-list"] [data-baseweb="tab-highlight"],
-    [data-baseweb="tab-list"] [data-baseweb="tab-border"],
-    [data-baseweb="tab-list"] > div[style*="position: absolute"] {{
+    div[data-testid="stRadio"] label[data-baseweb="radio"] > div:first-child {{
         display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        height: 0px !important;
-        max-height: 0px !important;
-        width: 0px !important;
-        background: transparent !important;
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        position: absolute !important;
-        top: -9999px !important;
-        left: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+    }}
+    div[data-testid="stRadio"] label[data-baseweb="radio"] p,
+    div[data-testid="stRadio"] label[data-baseweb="radio"] span {{
+        color: inherit !important;
+        font-weight: inherit !important;
+        font-size: inherit !important;
     }}
 
     /* Audit Input Container Box */
@@ -980,34 +970,29 @@ with col_n1:
 with col_n2:
     st.toggle("🌙 Dark Mode", key="dark_mode")
 
-# 3. FIRST: Top Tabs Navigation Toggle Bar
-st.markdown('<div style="max-width:1350px; margin: 12px auto 0; padding: 0 16px;">', unsafe_allow_html=True)
-tab_scorer, tab_profiler, tab_rankings, tab_calculators, tab_rbi = st.tabs([
+NAV_TABS = [
     "🛡️ App Risk Scorer",
     "💳 Borrower Safety Profiler",
     "📊 Product Rankings",
     "🧮 Advisory Calculators",
     "📜 RBI Guidelines"
-])
-st.markdown('</div>', unsafe_allow_html=True)
+]
 
-if st.session_state.get("switch_to_scorer"):
-    st.session_state.switch_to_scorer = False
-    import streamlit.components.v1 as components
-    components.html(
-        """
-        <script>
-            setTimeout(function() {
-                var tabButtons = window.parent.document.querySelectorAll('button[role="tab"]');
-                if (tabButtons && tabButtons.length > 0) {
-                    tabButtons[0].click();
-                }
-            }, 150);
-        </script>
-        """,
-        height=0,
-        width=0
-    )
+if "active_tab" not in st.session_state or st.session_state.active_tab not in NAV_TABS:
+    st.session_state.active_tab = NAV_TABS[0]
+
+# 3. FIRST: Top Tabs Navigation Toggle Bar
+st.markdown('<div style="max-width:1350px; margin: 12px auto 0; padding: 0 16px;">', unsafe_allow_html=True)
+active_tab = st.radio(
+    "Navigation Bar",
+    options=NAV_TABS,
+    index=NAV_TABS.index(st.session_state.active_tab),
+    horizontal=True,
+    label_visibility="collapsed",
+    key="nav_radio_bar"
+)
+st.session_state.active_tab = active_tab
+st.markdown('</div>', unsafe_allow_html=True)
 
 # 4. Floating RBI Portal Badge
 st.markdown(
@@ -1022,7 +1007,7 @@ st.markdown(
 # ==========================================
 # TAB 1: APP RISK SCORER & GAUGE
 # ==========================================
-with tab_scorer:
+if active_tab == "🛡️ App Risk Scorer":
     # SECOND: Hero Headline Text & Centered Subtitle
     st.markdown(
         f"""
@@ -1240,7 +1225,7 @@ with tab_scorer:
 # ==========================================
 # TAB 2: SAFETY PROFILER
 # ==========================================
-with tab_profiler:
+elif active_tab == "💳 Borrower Safety Profiler":
     st.markdown("### 💳 Borrower Safety Assessment")
     st.caption("Understand your personal borrowing psychology and data privacy safety profile.")
 
@@ -1292,7 +1277,7 @@ with tab_profiler:
 # ==========================================
 # TAB 3: APP RANKINGS HUB
 # ==========================================
-with tab_rankings:
+elif active_tab == "📊 Product Rankings":
     st.markdown("### 🏆 FinShield Digital Lending App Safety Rankings")
     st.caption("Evaluated database of popular lending apps on the Google Play Store, ranked by privacy safety, RBI compliance, and review harassment risk.")
 
@@ -1437,7 +1422,7 @@ with tab_rankings:
                             
                             if st.button("Run Live Riskometer Audit ➔", key=f"btn_audit_app_{idx}", use_container_width=True):
                                 st.session_state.active_package = app_id
-                                st.session_state.switch_to_scorer = True
+                                st.session_state.active_tab = "🛡️ App Risk Scorer"
                                 st.rerun()
 
     except FileNotFoundError:
@@ -1446,7 +1431,7 @@ with tab_rankings:
 # ==========================================
 # TAB 4: LOAN CALCULATORS
 # ==========================================
-with tab_calculators:
+elif active_tab == "🧮 Advisory Calculators":
     st.markdown("### 🧮 Financial Advisory Calculators")
 
     c_left, c_right = st.columns([1, 1], gap="large")
@@ -1502,7 +1487,7 @@ with tab_calculators:
 # ==========================================
 # TAB 5: RBI GUIDELINES
 # ==========================================
-with tab_rbi:
+elif active_tab == "📜 RBI Guidelines":
     st.markdown("### 📜 RBI Digital Lending Guidelines 2026 Checklist")
     st.markdown(
         """
