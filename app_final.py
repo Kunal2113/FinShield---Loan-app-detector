@@ -1208,16 +1208,15 @@ with tab_scorer:
                     unsafe_allow_html=True
                 )
 
-                st.write("")
-                with st.expander("🔍 Key Risk Drivers & Explanation Breakdown"):
-                    if reasons:
-                        for item in reasons:
-                            if isinstance(item, (tuple, list)) and len(item) == 2:
-                                reason_text, is_bad = item
-                                icon = "🔴" if is_bad else "🟢"
-                                st.write(f"{icon} {reason_text}")
-                            elif isinstance(item, str):
-                                st.write(f"🟢 {item}")
+                st.markdown("#### 🔍 Key Risk Drivers & Explanation Breakdown")
+                if reasons:
+                    for item in reasons:
+                        if isinstance(item, (tuple, list)) and len(item) == 2:
+                            reason_text, is_bad = item
+                            icon = "🔴" if is_bad else "🟢"
+                            st.write(f"{icon} {reason_text}")
+                        elif isinstance(item, str):
+                            st.write(f"🟢 {item}")
 
 # ==========================================
 # TAB 2: SAFETY PROFILER
@@ -1402,30 +1401,29 @@ with tab_rankings:
                 
                 if st.session_state.get("show_inline_audit") == app_id:
                     st.markdown("---")
-                    with st.container(border=True):
-                        st.markdown(f"#### 🔍 App Details & Live Riskometer Audit for {app_name.split(':')[0]}")
-                        c1, c2 = st.columns(2)
-                        with c1:
-                            st.write(f"**Package ID:** `{app_id}`")
-                            st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if row['contacts'] else '🟢 No Contacts'}")
-                            st.write(f"**SMS Reading:** {'🔴 Asks SMS' if row['sms'] else '🟢 No SMS'}")
-                        with c2:
-                            st.write(f"**Photos/Media:** {'🔴 Asks Photos' if row['photos'] else '🟢 No Photos'}")
-                            st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
-                            st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
-                        
-                        st.markdown("---")
-                        st.success(f"✅ **Live Riskometer Audit Output for {app_name.split(':')[0]}**", icon="🛡️")
-                        gauge_html = render_rbi_riskometer_card(row["risk_proba"], c_dark)
-                        st.markdown(gauge_html, unsafe_allow_html=True)
-                        
-                        if row["reasons"]:
-                            st.markdown("**Key Risk Drivers & Audit Explanation:**")
-                            for item in row["reasons"]:
-                                if isinstance(item, (tuple, list)) and len(item) == 2:
-                                    reason_text, is_bad = item
-                                    icon = "🔴" if is_bad else "🟢"
-                                    st.write(f"{icon} {reason_text}")
+                    st.markdown(f"#### 🔍 App Details & Live Riskometer Audit for {app_name.split(':')[0]}")
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.write(f"**Package ID:** `{app_id}`")
+                        st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if row['contacts'] else '🟢 No Contacts'}")
+                        st.write(f"**SMS Reading:** {'🔴 Asks SMS' if row['sms'] else '🟢 No SMS'}")
+                    with c2:
+                        st.write(f"**Photos/Media:** {'🔴 Asks Photos' if row['photos'] else '🟢 No Photos'}")
+                        st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
+                        st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
+                    
+                    st.markdown("---")
+                    st.success(f"✅ **Live Riskometer Audit Output for {app_name.split(':')[0]}**", icon="🛡️")
+                    gauge_html = render_rbi_riskometer_card(row["risk_proba"], c_dark)
+                    st.markdown(gauge_html, unsafe_allow_html=True)
+                    
+                    if row["reasons"]:
+                        st.markdown("**Key Risk Drivers & Audit Explanation:**")
+                        for item in row["reasons"]:
+                            if isinstance(item, (tuple, list)) and len(item) == 2:
+                                reason_text, is_bad = item
+                                icon = "🔴" if is_bad else "🟢"
+                                st.write(f"{icon} {reason_text}")
 
                 # Interactive Side-by-Side Comparison Drawer triggered by Compare button
                 if st.session_state.get("active_cmp_app1") == app_id:
