@@ -198,6 +198,79 @@ def predict(features: dict):
         clean_name = name.replace("num__", "")
         reasons.append(explain_feature(clean_name, features.get(clean_name, 0)))
     return proba, reasons
+
+@st.cache_data
+def get_ranked_apps_df():
+    df = load_features_table()
+    records = []
+    for idx, row in df.iterrows():
+        feat = row.to_dict()
+        name_lower = str(feat.get('app_name', '')).lower()
+        id_lower = str(feat.get('app_id', '')).lower()
+        is_known = any(b in name_lower or b in id_lower for b in KNOWN_BANKS) or bool(feat.get('is_known_legit', False))
+        if is_known:
+            feat['is_known_legit'] = True
+        
+        proba, reasons = predict(feat)
+        safety_score = max(5, min(99, int(round((1.0 - proba) * 100))))
+        
+        if safety_score >= 80:
+            tier = "🛡️ Safest Tier"
+            tier_key = "safe"
+        elif safety_score >= 50:
+            tier = "⚠️ Moderate Caution"
+            tier_key = "moderate"
+        else:
+            tier = "🚨 High Risk"
+            tier_key = "high_risk"
+            
+        installs = feat.get("install_count")
+        if installs:
+            if installs >= 10000000:
+                installs_str = f"{installs // 1000000}M+"
+            elif installs >= 1000000:
+                installs_str = f"{installs / 1000000:.1f}M+"
+            elif installs >= 1000:
+                installs_str = f"{installs // 1000}K+"
+            else:
+                installs_str = f"{installs:,}"
+        else:
+            installs_str = "—"
+            
+        disclosure = feat.get("disclosure_score", 0)
+        redflag_pct = (feat.get("review_redflag_score", 0) or 0) * 100
+        
+        if is_known:
+            cat_tag = "Personal Loan • RBI Regulated NBFC Partner"
+        elif disclosure >= 4:
+            cat_tag = "Instant Credit • Verified Disclosures"
+        else:
+            cat_tag = "Digital Lending • Play Store App"
+
+        records.append({
+            "app_name": str(feat.get("app_name", "")),
+            "app_id": str(feat.get("app_id", "")),
+            "safety_score": safety_score,
+            "risk_proba": proba,
+            "tier": tier,
+            "tier_key": tier_key,
+            "cat_tag": cat_tag,
+            "is_known": is_known,
+            "installs_str": installs_str,
+            "install_count": installs or 0,
+            "disclosure_score": disclosure,
+            "redflag_pct": redflag_pct,
+            "contacts": feat.get("contacts", 0),
+            "sms": feat.get("sms", 0),
+            "photos": feat.get("photos_media_storage", 0),
+            "features_dict": feat,
+            "reasons": reasons
+        })
+    
+    ranked_df = pd.DataFrame(records).sort_values(by=["safety_score", "install_count"], ascending=[False, False]).reset_index(drop=True)
+    ranked_df["rank"] = ranked_df.index + 1
+    return ranked_df
+
 def is_valid_unlisted_input(input_str: str) -> bool:
     if not input_str or len(input_str.strip()) < 3:
         return False
@@ -1148,26 +1221,164 @@ with tab_profiler:
 # TAB 3: APP RANKINGS HUB
 # ==========================================
 with tab_rankings:
-    st.markdown("### 📊 Digital Lending App Scoring & Ranking Hub")
-    st.caption("Complete evaluated database of popular lending apps on the Google Play Store.")
+    st.markdown("### 🏆 FinShield Digital Lending App Safety Rankings")
+    st.caption("Evaluated database of popular lending apps on the Google Play Store, ranked by privacy safety, RBI compliance, and review harassment risk.")
 
     try:
-        df_all = load_features_table()
-        search_q = st.text_input("🔍 Search app by name or package ID", placeholder="Type e.g. KreditBee, Groww, Navi...")
+        df_ranked = get_ranked_apps_df()
+        
+        # Top Controls: Search bar & Filters
+        f_col1, f_col2, f_col3, f_col4 = st.columns([2.2, 1.4, 1.4, 1.0], gap="small")
+        
+        with f_col1:
+            search_q = st.text_input("🔍 Search App", placeholder="Type e.g. KreditBee, Groww, Navi...", key="ranking_search_q")
+        with f_col2:
+            tier_filter = st.selectbox(
+                "Safety Tier Filter",
+                options=["All Safety Tiers", "🛡️ Safest Tier (80-100)", "⚠️ Moderate Caution (50-79)", "🚨 High Risk (<50)"],
+                key="ranking_tier_filter"
+            )
+        with f_col3:
+            sort_by = st.selectbox(
+                "Sort Rankings By",
+                options=["FinShield Score (Highest First)", "FinShield Score (Lowest First)", "Installs (Highest First)"],
+                key="ranking_sort_by"
+            )
+        with f_col4:
+            view_mode = st.selectbox(
+                "Layout Mode",
+                options=["📱 Card View", "📊 Data Table"],
+                key="ranking_view_mode"
+            )
+
+        # Filtering logic
+        filtered_df = df_ranked.copy()
         
         if search_q:
-            df_filtered = df_all[
-                df_all["app_name"].astype(str).str.contains(search_q, case=False, na=False) |
-                df_all["app_id"].astype(str).str.contains(search_q, case=False, na=False)
+            q = search_q.strip()
+            filtered_df = filtered_df[
+                filtered_df["app_name"].str.contains(q, case=False, na=False) |
+                filtered_df["app_id"].str.contains(q, case=False, na=False)
             ]
-        else:
-            df_filtered = df_all
+            
+        if tier_filter == "🛡️ Safest Tier (80-100)":
+            filtered_df = filtered_df[filtered_df["safety_score"] >= 80]
+        elif tier_filter == "⚠️ Moderate Caution (50-79)":
+            filtered_df = filtered_df[(filtered_df["safety_score"] >= 50) & (filtered_df["safety_score"] < 80)]
+        elif tier_filter == "🚨 High Risk (<50)":
+            filtered_df = filtered_df[filtered_df["safety_score"] < 50]
 
-        st.dataframe(
-            df_filtered[["app_name", "app_id"]].rename(columns={"app_name": "App Name", "app_id": "Package ID / App ID"}),
-            use_container_width=True,
-            hide_index=True
-        )
+        if sort_by == "FinShield Score (Lowest First)":
+            filtered_df = filtered_df.sort_values(by="safety_score", ascending=True)
+        elif sort_by == "Installs (Highest First)":
+            filtered_df = filtered_df.sort_values(by="install_count", ascending=False)
+        else: # Highest First
+            filtered_df = filtered_df.sort_values(by="safety_score", ascending=False)
+
+        st.markdown("<div style='margin-bottom:12px;'></div>", unsafe_allow_html=True)
+        
+        if filtered_df.empty:
+            st.info("🔍 No lending apps found matching your search and filter criteria.", icon="ℹ️")
+        else:
+            if "Table" in view_mode:
+                # Table View
+                table_display = filtered_df[["rank", "app_name", "safety_score", "tier", "installs_str", "disclosure_score", "app_id"]].copy()
+                table_display.columns = ["Rank", "App Name", "FinShield Safety Score", "Safety Tier", "Installs", "Terms Disclosed (out of 5)", "Package ID"]
+                st.dataframe(table_display, use_container_width=True, hide_index=True)
+            else:
+                # Card View matching 1Finance Reference UI
+                c_dark = st.session_state.dark_mode
+                card_bg = "#111622" if c_dark else "#FFFFFF"
+                card_bdr = "1px solid rgba(255, 255, 255, 0.08)" if c_dark else "1px solid #E2E8F0"
+                text_color = "#F8FAFC" if c_dark else "#0F172A"
+                muted_color = "#94A3B8" if c_dark else "#64748B"
+                
+                rows = list(filtered_df.iterrows())
+                for i in range(0, len(rows), 2):
+                    col_a, col_b = st.columns(2, gap="medium")
+                    
+                    for col, (idx, row) in zip([col_a, col_b], rows[i:i+2]):
+                        with col:
+                            rank_num = row["rank"]
+                            app_name = row["app_name"]
+                            app_id = row["app_id"]
+                            score = row["safety_score"]
+                            cat_tag = row["cat_tag"]
+                            installs_str = row["installs_str"]
+                            disclosure = row["disclosure_score"]
+                            redflag_pct = row["redflag_pct"]
+                            is_known = row["is_known"]
+                            
+                            # Score pill styling
+                            if score >= 80:
+                                score_bg = "rgba(16, 185, 129, 0.18)" if c_dark else "#DCFCE7"
+                                score_bdr = "1px solid rgba(16, 185, 129, 0.35)" if c_dark else "1px solid #86EFAC"
+                                score_fg = "#34D399" if c_dark else "#15803D"
+                                status_text = "RBI Aligned"
+                            elif score >= 50:
+                                score_bg = "rgba(245, 158, 11, 0.18)" if c_dark else "#FEF3C7"
+                                score_bdr = "1px solid rgba(245, 158, 11, 0.35)" if c_dark else "1px solid #FDE68A"
+                                score_fg = "#FBBF24" if c_dark else "#B45309"
+                                status_text = "Caution Advised"
+                            else:
+                                score_bg = "rgba(239, 68, 68, 0.18)" if c_dark else "#FEE2E2"
+                                score_bdr = "1px solid rgba(239, 68, 68, 0.35)" if c_dark else "1px solid #FCA5A5"
+                                score_fg = "#F87171" if c_dark else "#B91C1C"
+                                status_text = "High Risk"
+                                
+                            rank_bg = "#1E293B" if c_dark else "#F1F5F9"
+                            rank_bdr = "1px solid rgba(255, 255, 255, 0.1)" if c_dark else "1px solid #E2E8F0"
+                            rank_fg = "#CBD5E1" if c_dark else "#334155"
+
+                            card_html = f"""
+                            <div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px; margin-bottom:10px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="font-size:0.74rem; font-weight:700; color:{muted_color}; text-transform:uppercase; letter-spacing:0.5px;">{cat_tag}</span>
+                                    <span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
+                                </div>
+                                <div style="font-size:1.1rem; font-weight:800; color:{text_color}; margin-bottom:12px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{app_name}">
+                                    {app_name}
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; background:{'rgba(255,255,255,0.02)' if c_dark else '#F8FAFC'}; padding:8px 12px; border-radius:10px;">
+                                    <div>
+                                        <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">Installs Base</div>
+                                        <div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{installs_str}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">Terms Disclosed</div>
+                                        <div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{disclosure} / 5</div>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1.15fr; gap:10px;">
+                                    <div style="background:{rank_bg}; border:{rank_bdr}; border-radius:10px; padding:8px 10px; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px;">
+                                        <span style="font-size:0.75rem; color:{rank_fg}; font-weight:700;">FinShield Rank</span>
+                                        <span style="font-size:0.9rem; font-weight:900; color:{rank_fg};">🌿 {rank_num:02d}</span>
+                                    </div>
+                                    <div style="background:{score_bg}; border:{score_bdr}; border-radius:10px; padding:8px 10px; text-align:center; display:flex; align-items:center; justify-content:center; gap:2px;">
+                                        <span style="font-size:0.75rem; color:{score_fg}; font-weight:700;">FinShield Score: </span>
+                                        <strong style="font-size:1.05rem; font-weight:900; color:{score_fg};">{score}</strong>
+                                        <span style="font-size:0.72rem; color:{score_fg}; opacity:0.8;">/100</span>
+                                    </div>
+                                </div>
+                            </div>
+                            """
+                            st.markdown(card_html, unsafe_allow_html=True)
+                            
+                            with st.expander(f"🔍 View Details & Permissions for {app_name.split(':')[0]}"):
+                                c1, c2 = st.columns(2)
+                                with c1:
+                                    st.write(f"**Package ID:** `{app_id}`")
+                                    st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if row['contacts'] else '🟢 No Contacts'}")
+                                    st.write(f"**SMS Reading:** {'🔴 Asks SMS' if row['sms'] else '🟢 No SMS'}")
+                                with c2:
+                                    st.write(f"**Photos/Media:** {'🔴 Asks Photos' if row['photos'] else '🟢 No Photos'}")
+                                    st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
+                                    st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
+                                
+                                if st.button("Run Live Riskometer Audit ➔", key=f"btn_audit_app_{idx}", use_container_width=True):
+                                    st.session_state.active_package = app_id
+                                    st.rerun()
+
     except FileNotFoundError:
         st.warning(f"File {FEATURES_CSV_PATH} not found.")
 
