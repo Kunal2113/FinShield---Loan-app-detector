@@ -1460,50 +1460,118 @@ with tab_rankings:
                             s1, s2 = app1_info["safety_score"], app2_info["safety_score"]
                             n2_short = app2_info["app_name"].split(':')[0]
                             
-                            # Build Conclusion & Verdict
+                            # Build Comprehensive Conclusion & Verdict Breakdown
+                            n1_s = app1_info["app_name"].split(':')[0]
+                            n2_s = app2_info["app_name"].split(':')[0]
+                            s1, s2 = app1_info["safety_score"], app2_info["safety_score"]
+
+                            # Risk weights: Contacts (high=2), SMS (high=2), Photos (med=1)
+                            risk1 = (2 if app1_info["contacts"] else 0) + (2 if app1_info["sms"] else 0) + (1 if app1_info["photos"] else 0)
+                            risk2 = (2 if app2_info["contacts"] else 0) + (2 if app2_info["sms"] else 0) + (1 if app2_info["photos"] else 0)
+
                             if s1 > s2:
+                                winner = n1_s
+                                loser = n2_s
+                                winner_score, loser_score = s1, s2
                                 diff_pts = s1 - s2
-                                reasons_list = []
-                                if not app1_info["contacts"] and app2_info["contacts"]:
-                                    reasons_list.append(f"**{n1_short}** does NOT ask for Contacts list access, whereas **{n2_short}** requests full phone contacts access")
-                                if not app1_info["photos"] and app2_info["photos"]:
-                                    reasons_list.append(f"**{n1_short}** does NOT ask for Photos/Gallery access, whereas **{n2_short}** requests gallery access")
-                                if not app1_info["sms"] and app2_info["sms"]:
-                                    reasons_list.append(f"**{n1_short}** does NOT read private SMS messages")
-                                if app1_info["is_known"] and not app2_info["is_known"]:
-                                    reasons_list.append(f"**{n1_short}** is an officially verified RBI NBFC partner")
-                                    
-                                reason_str = (" (" + "; ".join(reasons_list) + ")") if reasons_list else ""
-                                verdict_msg = f"🏆 **Conclusion & Verdict**: **{n1_short}** (Score: {s1}/100) is **{diff_pts} points safer** than **{n2_short}** (Score: {s2}/100)!{reason_str}."
-                                verdict_color = "#10B981"
-                                verdict_bg = "rgba(16, 185, 129, 0.12)"
+                                winner_reason = f"has a higher FinShield Safety Index (+{diff_pts} pts)"
                             elif s2 > s1:
+                                winner = n2_s
+                                loser = n1_s
+                                winner_score, loser_score = s2, s1
                                 diff_pts = s2 - s1
-                                reasons_list = []
-                                if not app2_info["contacts"] and app1_info["contacts"]:
-                                    reasons_list.append(f"**{n2_short}** does NOT ask for Contacts list access, whereas **{n1_short}** requests full phone contacts access")
-                                if not app2_info["photos"] and app1_info["photos"]:
-                                    reasons_list.append(f"**{n2_short}** does NOT ask for Photos/Gallery access, whereas **{n1_short}** requests gallery access")
-                                if app2_info["is_known"] and not app1_info["is_known"]:
-                                    reasons_list.append(f"**{n2_short}** is an officially verified RBI NBFC partner")
-                                    
-                                reason_str = (" (" + "; ".join(reasons_list) + ")") if reasons_list else ""
-                                verdict_msg = f"🏆 **Conclusion & Verdict**: **{n2_short}** (Score: {s2}/100) is **{diff_pts} points safer** than **{n1_short}** (Score: {s1}/100)!{reason_str}."
-                                verdict_color = "#10B981"
-                                verdict_bg = "rgba(16, 185, 129, 0.12)"
+                                winner_reason = f"has a higher FinShield Safety Index (+{diff_pts} pts)"
+                            else: # Equal scores -> evaluate permissions risk
+                                if risk1 < risk2:
+                                    winner = n1_s
+                                    loser = n2_s
+                                    winner_score, loser_score = s1, s2
+                                    winner_reason = "requests fewer intrusive data permissions (Contacts / SMS)"
+                                elif risk2 < risk1:
+                                    winner = n2_s
+                                    loser = n1_s
+                                    winner_score, loser_score = s2, s1
+                                    winner_reason = "requests fewer intrusive data permissions (Contacts / SMS)"
+                                else:
+                                    winner = None
+
+                            # Detailed Takeaways List
+                            takeaways = []
+
+                            # Contacts comparison
+                            if not app1_info["contacts"] and app2_info["contacts"]:
+                                takeaways.append(f"🟢 <strong>Contacts List Privacy</strong>: <strong>{n1_s}</strong> does NOT ask for phone contacts access, whereas <strong>{n2_s}</strong> requests full contact list permissions.")
+                            elif not app2_info["contacts"] and app1_info["contacts"]:
+                                takeaways.append(f"🟢 <strong>Contacts List Privacy</strong>: <strong>{n2_s}</strong> does NOT ask for phone contacts access, whereas <strong>{n1_s}</strong> requests full contact list permissions.")
+                            elif not app1_info["contacts"] and not app2_info["contacts"]:
+                                takeaways.append("🟢 <strong>Contacts Privacy</strong>: Both apps respect user privacy by NOT requesting phone contact lists.")
                             else:
-                                verdict_msg = f"⚖️ **Conclusion & Verdict**: Both **{n1_short}** and **{n2_short}** share an identical FinShield Safety Score of **{s1}/100**."
+                                takeaways.append("⚠️ <strong>Contacts Exposure</strong>: Both apps request phone contacts access. Never grant contact permissions to instant loan apps.")
+
+                            # SMS comparison
+                            if not app1_info["sms"] and app2_info["sms"]:
+                                takeaways.append(f"🟢 <strong>SMS Reading Privacy</strong>: <strong>{n1_s}</strong> does NOT read private SMS, whereas <strong>{n2_s}</strong> requests SMS reading permissions.")
+                            elif not app2_info["sms"] and app1_info["sms"]:
+                                takeaways.append(f"🟢 <strong>SMS Reading Privacy</strong>: <strong>{n2_s}</strong> does NOT read private SMS, whereas <strong>{n1_s}</strong> requests SMS reading permissions.")
+                            elif not app1_info["sms"] and not app2_info["sms"]:
+                                takeaways.append("🟢 <strong>SMS Privacy</strong>: Neither app reads private SMS messages.")
+                            else:
+                                takeaways.append("⚠️ <strong>SMS Reading</strong>: Both apps request permission to read SMS messages.")
+
+                            # Photos comparison
+                            if not app1_info["photos"] and app2_info["photos"]:
+                                takeaways.append(f"🟢 <strong>Gallery/Photos Access</strong>: <strong>{n1_s}</strong> does NOT request photo gallery access, whereas <strong>{n2_s}</strong> requests photo access.")
+                            elif not app2_info["photos"] and app1_info["photos"]:
+                                takeaways.append(f"🟢 <strong>Gallery/Photos Access</strong>: <strong>{n2_s}</strong> does NOT request photo gallery access, whereas <strong>{n1_s}</strong> requests photo access.")
+
+                            # RBI compliance comparison
+                            if app1_info["is_known"] and not app2_info["is_known"]:
+                                takeaways.append(f"🏛️ <strong>RBI Regulatory Partner</strong>: <strong>{n1_s}</strong> is an officially verified RBI NBFC partner, while <strong>{n2_s}</strong> lacks verified RBI partner records.")
+                            elif app2_info["is_known"] and not app1_info["is_known"]:
+                                takeaways.append(f"🏛️ <strong>RBI Regulatory Partner</strong>: <strong>{n2_s}</strong> is an officially verified RBI NBFC partner, while <strong>{n1_s}</strong> lacks verified RBI partner records.")
+                            else:
+                                takeaways.append("🏛️ <strong>RBI Compliance</strong>: Both apps disclose regulated bank / NBFC lending partners.")
+
+                            # Harassment comparison
+                            r1, r2 = app1_info["redflag_pct"], app2_info["redflag_pct"]
+                            if abs(r1 - r2) >= 0.5:
+                                cleaner_app = n1_s if r1 < r2 else n2_s
+                                takeaways.append(f"🚨 <strong>Harassment Review Mentions</strong>: <strong>{cleaner_app}</strong> has lower harassment/recovery complaints in Play Store reviews ({min(r1, r2):.1f}% vs {max(r1, r2):.1f}%).")
+
+                            # Render Executive Conclusion Container
+                            if winner:
+                                banner_header = f"🏆 Overall Safety Winner: {winner}"
+                                banner_sub = f"Based on FinShield's AI evaluation, <strong>{winner}</strong> is recommended over <strong>{loser}</strong> because it {winner_reason}."
+                                verdict_color = "#10B981"
+                                verdict_bg = "rgba(16, 185, 129, 0.12)" if c_dark else "#ECFDF5"
+                            else:
+                                banner_header = "⚖️ Neutral Comparison: Equal Safety Index"
+                                banner_sub = f"Both <strong>{n1_s}</strong> and <strong>{n2_s}</strong> share an identical Safety Score of <strong>{s1}/100</strong> and similar permission access profiles."
                                 verdict_color = "#F59E0B"
-                                verdict_bg = "rgba(245, 158, 11, 0.12)"
-                                
-                            st.markdown(
-                                f"""
-                                <div style="background:{verdict_bg}; border:1.5px solid {verdict_color}; padding:12px 18px; border-radius:14px; text-align:left; font-size:0.95rem; font-weight:700; color:{verdict_color}; margin: 12px 0 16px;">
-                                    {verdict_msg}
+                                verdict_bg = "rgba(245, 158, 11, 0.12)" if c_dark else "#FFFBEB"
+
+                            takeaways_html = "".join([f"<li style='margin-bottom:6px;'>{t}</li>" for t in takeaways])
+
+                            conclusion_card_html = f"""
+                            <div style="background:{verdict_bg}; border:1.5px solid {verdict_color}; border-radius:14px; padding:16px 20px; margin: 12px 0 18px;">
+                                <div style="font-size:1.1rem; font-weight:900; color:{verdict_color}; margin-bottom:4px;">
+                                    {banner_header}
                                 </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
+                                <div style="font-size:0.92rem; font-weight:700; color:{text_color}; margin-bottom:12px; line-height:1.4;">
+                                    {banner_sub}
+                                </div>
+                                <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; color:{muted_color}; letter-spacing:0.5px; margin-bottom:6px;">
+                                    📌 KEY SAFETY COMPARISON TAKEAWAYS:
+                                </div>
+                                <ul style="margin:0; padding-left:18px; font-size:0.88rem; color:{text_color}; line-height:1.5;">
+                                    {takeaways_html}
+                                </ul>
+                                <div style="margin-top:10px; padding-top:8px; border-top:1px dashed {'rgba(255,255,255,0.1)' if c_dark else '#CBD5E1'}; font-size:0.82rem; font-weight:700; color:{muted_color};">
+                                    💡 <strong>FinShield Advisory Tip:</strong> Always verify Key Fact Statements (KFS) and deny unnecessary phone contacts access before accepting loan agreements.
+                                </div>
+                            </div>
+                            """
+                            st.markdown(conclusion_card_html, unsafe_allow_html=True)
                             
                             # Side-by-Side Comparison Columns
                             c_cmp1, c_cmp2 = st.columns(2, gap="medium")
