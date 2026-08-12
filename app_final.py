@@ -202,8 +202,21 @@ def predict(features: dict):
 @st.cache_data
 def get_ranked_apps_df():
     df = load_features_table()
+    EXCLUDED_NON_LENDING_IDS = [
+        "com.google.android.apps.nbu.paisa.user",  # Google Pay
+        "in.amazon.mshop.android.shopping",        # Amazon India
+        "com.nextbillion.groww",                   # Groww Stocks (in.groww.dash is Groww Credit)
+        "tech.fplabs.score",                       # OneScore
+        "com.moneymanager.personal.finance.planner",# Loan Master Plan
+        "com.analytics.finance.manager.money.app",  # Daily Loan - Money Tracker
+        "com.strong.primecash",                    # PrimeCash - Earn Rewards
+        "com.nayarupee",                           # NayaRupee Spin & Earn
+    ]
     records = []
     for idx, row in df.iterrows():
+        app_id_clean = str(row.get("app_id", "")).lower().strip()
+        if any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS):
+            continue
         feat = row.to_dict()
         name_lower = str(feat.get('app_name', '')).lower()
         id_lower = str(feat.get('app_id', '')).lower()
