@@ -1385,49 +1385,40 @@ with tab_rankings:
                                     <div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{installs_str}</div>
                                 </div>
                                 <div>
-                                    <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">Terms Disclosed</div>
-                                    <div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{disclosure} / 5</div>
+                                    <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">FinShield Score</div>
+                                    <div style="font-weight:900; color:{score_fg}; font-size:0.96rem;">{score} <span style="font-size:0.72rem; opacity:0.8;">/ 100</span></div>
                                 </div>
                             </div>
                         </div>
                         """
                         st.markdown(card_header_html, unsafe_allow_html=True)
 
-                        # Action Row: Left Compare Button (Replaces Rank box) | Right FinShield Score Badge
-                        act_row1, act_row2 = st.columns([1, 1.15], gap="small")
+                        # Action Row: Left Compare Button | Right View Details Button (Side-by-Side)
+                        act_row1, act_row2 = st.columns([1, 1], gap="small")
                         with act_row1:
-                            if st.button("⚖️ Compare >", key=f"btn_card_cmp_{idx}", use_container_width=True):
+                            if st.button("⚖️ Compare App", key=f"btn_card_cmp_{idx}", use_container_width=True):
                                 st.session_state.active_cmp_app1 = app_id
                                 st.rerun()
                         with act_row2:
-                            st.markdown(
-                                f"""
-                                <div style="background:{score_bg}; border:{score_bdr}; border-radius:30px; padding:7px 10px; text-align:center; display:flex; align-items:center; justify-content:center; gap:2px; height:100%;">
-                                    <span style="font-size:0.75rem; color:{score_fg}; font-weight:700;">FinShield Score: </span>
-                                    <strong style="font-size:1.02rem; font-weight:900; color:{score_fg};">{score}</strong>
-                                    <span style="font-size:0.72rem; color:{score_fg}; opacity:0.8;">/100</span>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                        
-                        with st.expander(f"🔍 View Details & Audit for {app_name.split(':')[0]}"):
-                            c1, c2 = st.columns(2)
-                            with c1:
-                                st.write(f"**Package ID:** `{app_id}`")
-                                st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if row['contacts'] else '🟢 No Contacts'}")
-                                st.write(f"**SMS Reading:** {'🔴 Asks SMS' if row['sms'] else '🟢 No SMS'}")
-                            with c2:
-                                st.write(f"**Photos/Media:** {'🔴 Asks Photos' if row['photos'] else '🟢 No Photos'}")
-                                st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
-                                st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
-                            
-                            if st.button("Run Live Riskometer Audit ➔", key=f"btn_audit_app_{idx}", use_container_width=True):
-                                st.session_state.active_package = app_id
-                                st.session_state.show_inline_audit = app_id
+                            if st.button("🔍 View Details", key=f"btn_details_card_{idx}", use_container_width=True):
+                                current_show = st.session_state.get("show_inline_audit")
+                                st.session_state.show_inline_audit = None if current_show == app_id else app_id
                                 st.rerun()
+                        
+                        if st.session_state.get("show_inline_audit") == app_id:
+                            st.markdown("---")
+                            with st.container(border=True):
+                                st.markdown(f"#### 🔍 App Details & Live Riskometer Audit for {app_name.split(':')[0]}")
+                                c1, c2 = st.columns(2)
+                                with c1:
+                                    st.write(f"**Package ID:** `{app_id}`")
+                                    st.write(f"**Contacts Access:** {'🔴 Asks Contacts' if row['contacts'] else '🟢 No Contacts'}")
+                                    st.write(f"**SMS Reading:** {'🔴 Asks SMS' if row['sms'] else '🟢 No SMS'}")
+                                with c2:
+                                    st.write(f"**Photos/Media:** {'🔴 Asks Photos' if row['photos'] else '🟢 No Photos'}")
+                                    st.write(f"**Harassment Mentions:** `{redflag_pct:.1f}%`")
+                                    st.write(f"**RBI Status:** {'🟢 Regulated NBFC Partner' if is_known else '⚠️ Unverified Partner'}")
                                 
-                            if st.session_state.get("show_inline_audit") == app_id:
                                 st.markdown("---")
                                 st.success(f"✅ **Live Riskometer Audit Output for {app_name.split(':')[0]}**", icon="🛡️")
                                 gauge_html = render_rbi_riskometer_card(row["risk_proba"], c_dark)
