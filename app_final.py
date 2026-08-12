@@ -724,13 +724,54 @@ st.markdown(f"""
     /* Input Selectbox & Text Input Rounded Styling */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {{
         border-radius: 14px !important;
-        border: 1px solid rgba(247, 201, 72, 0.25) !important;
-        background: rgba(15, 23, 42, 0.6) !important;
+        border: {"1px solid rgba(247, 201, 72, 0.25)" if st.session_state.dark_mode else "1px solid #CBD5E1"} !important;
+        background: {"rgba(15, 23, 42, 0.6)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
         transition: border-color 0.2s, box-shadow 0.2s !important;
+    }}
+    div[data-baseweb="select"] input, div[data-baseweb="input"] input, div[data-baseweb="select"] span {{
+        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
     }}
     div[data-baseweb="select"] > div:hover, div[data-baseweb="input"] > div:hover {{
         border-color: #F7C948 !important;
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
+    }}
+
+    /* Streamlit Expander Header & Content Styling */
+    [data-testid="stExpander"],
+    div[data-testid="stExpander"] details,
+    details[data-testid="stExpander"] {{
+        border-radius: 14px !important;
+        border: {"1px solid rgba(255, 255, 255, 0.1)" if st.session_state.dark_mode else "1px solid #E2E8F0"} !important;
+        background-color: {"#111622" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        overflow: hidden !important;
+        margin-top: 8px !important;
+    }}
+
+    [data-testid="stExpander"] summary,
+    div[data-testid="stExpander"] summary {{
+        background-color: {"#1A2234" if st.session_state.dark_mode else "#F8FAFC"} !important;
+        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-weight: 700 !important;
+        transition: background-color 0.2s ease, color 0.2s ease !important;
+    }}
+
+    [data-testid="stExpander"] summary:hover,
+    [data-testid="stExpander"] summary:focus,
+    [data-testid="stExpander"] summary:active,
+    [data-testid="stExpander"] summary[aria-expanded="true"] {{
+        background-color: {"#242F46" if st.session_state.dark_mode else "#F1F5F9"} !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+    }}
+
+    [data-testid="stExpander"] summary *,
+    [data-testid="stExpander"] summary span,
+    [data-testid="stExpander"] summary p,
+    [data-testid="stExpander"] summary svg {{
+        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
+        fill: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
     }}
 
     .stButton > button,
