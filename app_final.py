@@ -496,27 +496,122 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
+    @keyframes aura1 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
+        25%  {{ transform: translate(14%, 20%) scale(1.22); opacity: 0.32; }}
+        50%  {{ transform: translate(-10%, 30%) scale(0.88);opacity: 0.58; }}
+        75%  {{ transform: translate(22%, -12%) scale(1.1); opacity: 0.38; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
+    }}
+    @keyframes aura2 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
+        30%  {{ transform: translate(-16%, 14%) scale(0.82);opacity: 0.62; }}
+        60%  {{ transform: translate(12%, -20%) scale(1.3); opacity: 0.32; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
+    }}
+    @keyframes aura3 {{
+        0%   {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
+        40%  {{ transform: translate(20%, 24%) scale(0.8);  opacity: 0.58; }}
+        70%  {{ transform: translate(-14%, -10%) scale(1.2);opacity: 0.28; }}
+        100% {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
+    }}
+    @keyframes aura4 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
+        50%  {{ transform: translate(-22%, 16%) scale(1.28);opacity: 0.52; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
+    }}
+    @keyframes aura5 {{
+        0%   {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
+        45%  {{ transform: translate(16%, -22%) scale(1.18);opacity: 0.28; }}
+        100% {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
+    }}
+
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
         background-color: {"#07090E" if st.session_state.dark_mode else "#FAF9F6"} !important;
         font-family: 'Inter', sans-serif;
     }}
 
-    @keyframes symbolGlow {{
-        0%, 100% {{ filter: drop-shadow(0 0 4px rgba(247, 201, 72, 0.75)) drop-shadow(0 0 9px rgba(245, 158, 11, 0.45)); }}
-        50%      {{ filter: drop-shadow(0 0 8px rgba(247, 201, 72, 0.95)) drop-shadow(0 0 15px rgba(245, 158, 11, 0.75)); }}
+    /* Orb 1 — deep orange, top-left */
+    .stApp::before {{
+        content: "";
+        position: fixed;
+        top: -200px; left: -200px;
+        width: 820px; height: 820px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(234,88,12,0.55) 0%, rgba(217,119,6,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.60) 0%, rgba(253,186,116,0.40) 55%, transparent 72%)"};
+        filter: blur(145px);
+        pointer-events: none;
+        z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura1 30s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+    /* Orb 2 — warm amber-gold, top-right */
+    .stApp::after {{
+        content: "";
+        position: fixed;
+        top: -180px; right: -200px;
+        width: 760px; height: 760px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(245,158,11,0.55) 0%, rgba(234,179,8,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.62) 0%, rgba(252,211,77,0.40) 55%, transparent 72%)"};
+        filter: blur(145px);
+        pointer-events: none;
+        z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura2 36s ease-in-out infinite;
+        will-change: transform, opacity;
     }}
 
-    /* Financial symbol pattern layer — dense 140px tile with golden neon glow in dark mode & dark slate in light mode */
+    /* Orb 3 — burnt orange, bottom-left */
+    .bg-orb-3 {{
+        position: fixed;
+        bottom: -150px; left: -180px;
+        width: 640px; height: 640px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(194,65,12,0.38) 0%, rgba(234,88,12,0.22) 60%, transparent 75%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(249,115,22,0.42) 0%, rgba(251,146,60,0.26) 60%, transparent 75%)"};
+        filter: blur(130px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura3 40s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+    /* Orb 4 — golden yellow, bottom-right */
+    .bg-orb-4 {{
+        position: fixed;
+        bottom: -180px; right: 15%;
+        width: 680px; height: 680px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(202,138,4,0.42) 0%, rgba(161,98,7,0.26) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.50) 0%, rgba(250,204,21,0.32) 55%, transparent 72%)"};
+        filter: blur(135px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura4 44s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+    /* Orb 5 — vibrant warm orange, mid-right */
+    .bg-orb-5 {{
+        position: fixed;
+        top: 38%; right: -120px;
+        width: 520px; height: 520px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(249,115,22,0.35) 0%, rgba(217,119,6,0.20) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.42) 0%, rgba(253,186,116,0.26) 55%, transparent 72%)"};
+        filter: blur(120px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura5 34s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+
+    /* Financial symbol pattern — scattered, non-symmetrical */
     .bg-pattern-layer {{
         position: fixed;
         inset: 0;
         z-index: -2;
         pointer-events: none;
-        opacity: {"0.65" if st.session_state.dark_mode else "0.55"};
-        animation: {"symbolGlow 4s ease-in-out infinite" if st.session_state.dark_mode else "none"};
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Ctext x='8' y='36' font-size='20' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='Georgia,serif'%3E%E2%82%B9%3C/text%3E%3Ctext x='74' y='36' font-size='15' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.85'%3E%25%3C/text%3E%3Ctext x='110' y='36' font-size='12' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.75'%3E%E2%97%8F%3C/text%3E%3Ctext x='8' y='88' font-size='13' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.75'%3E%E2%94%80%E2%94%80%3C/text%3E%3Ctext x='56' y='88' font-size='18' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.85'%3E%E2%96%B3%3C/text%3E%3Ctext x='100' y='88' font-size='14' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='Georgia,serif' opacity='0.9'%3E%E2%82%B9%3C/text%3E%3Ctext x='8' y='132' font-size='12' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.7'%3E%E2%97%8B%3C/text%3E%3Ctext x='50' y='132' font-size='13' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.8'%3E%25%3C/text%3E%3Ctext x='90' y='132' font-size='12' fill='{"%23F7C948" if st.session_state.dark_mode else "%230F172A"}' font-family='sans-serif' opacity='0.7'%3E%E2%94%80%3C/text%3E%3C/svg%3E");
+        opacity: {"0.12" if st.session_state.dark_mode else "0.16"};
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Ctext x='23' y='47' font-size='22' fill='%23F7C948' font-family='Georgia,serif' opacity='0.9'%3E%E2%82%B9%3C/text%3E%3Ctext x='187' y='31' font-size='13' fill='%23F7C948' opacity='0.5'%3E%25%3C/text%3E%3Ctext x='341' y='68' font-size='18' fill='%23F7C948' opacity='0.7'%3E%E2%96%B3%3C/text%3E%3Ctext x='489' y='22' font-size='11' fill='%23F7C948' opacity='0.45'%3E%E2%97%8B%3C/text%3E%3Ctext x='542' y='74' font-size='16' fill='%23F7C948' font-family='Georgia,serif' opacity='0.65'%3E%E2%82%B9%3C/text%3E%3Ctext x='78' y='143' font-size='10' fill='%23F7C948' opacity='0.4'%3E%E2%94%80%E2%94%80%3C/text%3E%3Ctext x='264' y='121' font-size='14' fill='%23F7C948' opacity='0.6'%3E%E2%96%B3%3C/text%3E%3Ctext x='412' y='158' font-size='20' fill='%23F7C948' font-family='Georgia,serif' opacity='0.85'%3E%E2%82%B9%3C/text%3E%3Ctext x='558' y='134' font-size='12' fill='%23F7C948' opacity='0.5'%3E%25%3C/text%3E%3Ctext x='11' y='231' font-size='15' fill='%23F7C948' opacity='0.55'%3E%E2%96%B3%3C/text%3E%3Ctext x='139' y='274' font-size='22' fill='%23F7C948' font-family='Georgia,serif' opacity='0.8'%3E%E2%82%B9%3C/text%3E%3Ctext x='317' y='248' font-size='11' fill='%23F7C948' opacity='0.42'%3E%E2%97%8B%3C/text%3E%3Ctext x='467' y='212' font-size='13' fill='%23F7C948' opacity='0.58'%3E%25%3C/text%3E%3Ctext x='571' y='263' font-size='10' fill='%23F7C948' opacity='0.38'%3E%E2%94%80%3C/text%3E%3Ctext x='52' y='362' font-size='12' fill='%23F7C948' opacity='0.48'%3E%25%3C/text%3E%3Ctext x='203' y='388' font-size='17' fill='%23F7C948' opacity='0.7'%3E%E2%96%B3%3C/text%3E%3Ctext x='378' y='341' font-size='21' fill='%23F7C948' font-family='Georgia,serif' opacity='0.88'%3E%E2%82%B9%3C/text%3E%3Ctext x='514' y='374' font-size='11' fill='%23F7C948' opacity='0.44'%3E%E2%97%8B%3C/text%3E%3Ctext x='8' y='454' font-size='14' fill='%23F7C948' opacity='0.6'%3E%E2%94%80%E2%94%80%3C/text%3E%3Ctext x='161' y='481' font-size='10' fill='%23F7C948' opacity='0.38'%3E%25%3C/text%3E%3Ctext x='299' y='462' font-size='19' fill='%23F7C948' opacity='0.72'%3E%E2%96%B3%3C/text%3E%3Ctext x='441' y='498' font-size='23' fill='%23F7C948' font-family='Georgia,serif' opacity='0.9'%3E%E2%82%B9%3C/text%3E%3Ctext x='563' y='447' font-size='12' fill='%23F7C948' opacity='0.5'%3E%E2%97%8B%3C/text%3E%3Ctext x='87' y='558' font-size='16' fill='%23F7C948' opacity='0.62'%3E%E2%96%B3%3C/text%3E%3Ctext x='234' y='582' font-size='11' fill='%23F7C948' opacity='0.42'%3E%25%3C/text%3E%3Ctext x='388' y='566' font-size='10' fill='%23F7C948' opacity='0.36'%3E%E2%94%80%3C/text%3E%3Ctext x='512' y='591' font-size='20' fill='%23F7C948' font-family='Georgia,serif' opacity='0.78'%3E%E2%82%B9%3C/text%3E%3C/svg%3E");
         background-repeat: repeat;
-        background-size: 140px 140px;
+        background-size: 600px 600px;
     }}
 
 
@@ -844,8 +939,11 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Inject background financial pattern layer div
+# Inject background orbs (3-5) + financial pattern layer divs
 st.markdown("""
+<div class="bg-orb-3"></div>
+<div class="bg-orb-4"></div>
+<div class="bg-orb-5"></div>
 <div class="bg-pattern-layer"></div>
 """, unsafe_allow_html=True)
 
