@@ -139,7 +139,27 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     name_lower = clean_name.lower()
     pkg_str = str(package_id).lower().strip()
 
-    # Exact High-Definition 512x512 / 256x256 Official Brand Domain Map
+    # 512px Ultra-HD Official Vector / PNG Logos (Wikimedia / Official Brand Assets)
+    high_res_logo_map = {
+        "com.sbi.lotusintouch": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/State_Bank_of_India_logo.svg/512px-State_Bank_of_India_logo.svg.png",
+        "com.hdfcbank.android.now": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/HDFC_Bank_Logo.svg/512px-HDFC_Bank_Logo.svg.png",
+        "com.csam.icici.bank.imobile": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/ICICI_Bank_Logo.svg/512px-ICICI_Bank_Logo.svg.png",
+        "com.axis.mobile": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Axis_Bank_logo.svg/512px-Axis_Bank_logo.svg.png",
+        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Kotak_Mahindra_Bank_logo.svg/512px-Kotak_Mahindra_Bank_logo.svg.png",
+        "com.bankofbaroda.mconnect": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Bank_of_Baroda_Logo.svg/512px-Bank_of_Baroda_Logo.svg.png",
+        "com.canarabank.mobility": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Canara_Bank_Logo.svg/512px-Canara_Bank_Logo.svg.png",
+        "com.fedmobile": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Federal_Bank_Logo.svg/512px-Federal_Bank_Logo.svg.png",
+        "com.phonepe.app": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png",
+        "com.google.android.apps.nbu.paisa.user": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_%28GPay%29_Logo.svg/512px-Google_Pay_%28GPay%29_Logo.svg.png",
+        "in.amazon.mshop.android.shopping": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png",
+        "in.groww.dash": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Groww_Logo.svg/512px-Groww_Logo.svg.png",
+        "com.nextbillion.groww": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Groww_Logo.svg/512px-Groww_Logo.svg.png",
+        "com.dreamplug.androidapp": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/CRED_logo.svg/512px-CRED_logo.svg.png",
+        "com.myairtelapp": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Airtel_logo.svg/512px-Airtel_logo.svg.png",
+        "com.mobikwik_new": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/MobiKwik_Logo.svg/512px-MobiKwik_Logo.svg.png",
+    }
+
+    # Brand Domain Map for DuckDuckGo & Google HD Engines
     domain_map = {
         "com.sbi.lotusintouch": "sbi.co.in",
         "com.hdfcbank.android.now": "hdfcbank.com",
@@ -188,9 +208,9 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "com.innofinsolutions.instamoney": "instamoney.in",
     }
 
+    direct_hd_url = high_res_logo_map.get(pkg_str)
     matched_domain = domain_map.get(pkg_str)
-    
-    # Keyword fallback for unlisted app names
+
     if not matched_domain:
         if "sbi" in name_lower or "yono" in name_lower:
             matched_domain = "sbi.co.in"
@@ -221,10 +241,15 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     grad_start = f"hsl({hue}, 82%, 52%)"
     grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
+    bg_urls = []
+    if direct_hd_url:
+        bg_urls.append(f"url('{direct_hd_url}')")
     if matched_domain:
-        clearbit_hd_url = f"https://logo.clearbit.com/{matched_domain}"
-        google_256_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=256"
-        bg_images = f"url('{clearbit_hd_url}'), url('{google_256_url}')"
+        bg_urls.append(f"url('https://icons.duckduckgo.com/ip3/{matched_domain}.ico')")
+        bg_urls.append(f"url('https://www.google.com/s2/favicons?domain={matched_domain}&sz=256')")
+
+    if bg_urls:
+        bg_images = ", ".join(bg_urls)
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
