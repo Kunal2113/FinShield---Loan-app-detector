@@ -647,14 +647,17 @@ st.markdown(f"""
     }}
 
     /* Streamlit Expander Header & Content Styling */
-    [data-testid="stExpander"],
+    [data-testid="stExpander"] {{
+        border: none !important;
+        background: transparent !important;
+        margin-top: 8px !important;
+    }}
     div[data-testid="stExpander"] details,
     details[data-testid="stExpander"] {{
         border-radius: 14px !important;
         border: {"1px solid rgba(255, 255, 255, 0.1)" if st.session_state.dark_mode else "1px solid #E2E8F0"} !important;
         background-color: {"#111622" if st.session_state.dark_mode else "#FFFFFF"} !important;
         overflow: hidden !important;
-        margin-top: 8px !important;
     }}
 
     [data-testid="stExpander"] summary,
@@ -1391,7 +1394,7 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 <div style="background:{det_card}; border:1px solid {'rgba(255,255,255,0.06)' if c_dark else '#E2E8F0'}; border-radius:16px; padding:22px 26px;">
 <div style="margin-bottom:18px;">
 <div style="font-size:0.94rem; font-weight:800; color:{text_color}; display:flex; align-items:center; gap:8px;">
-<span style="color:#34D399; font-size:1rem;">👍</span> Loan Documentation
+<span style="color:#34D399; font-size:1rem;">✦</span> Loan Documentation
 </div>
 <div style="font-size:0.86rem; color:{muted_color}; margin-top:4px; line-height:1.55; padding-left:26px;">
 {doc_analysis}
@@ -1399,7 +1402,7 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 <div style="margin-bottom:18px;">
 <div style="font-size:0.94rem; font-weight:800; color:{text_color}; display:flex; align-items:center; gap:8px;">
-<span style="color:#34D399; font-size:1rem;">👍</span> Interest Rate
+<span style="color:#34D399; font-size:1rem;">✦</span> Interest Rate
 </div>
 <div style="font-size:0.86rem; color:{muted_color}; margin-top:4px; line-height:1.55; padding-left:26px;">
 {interest_analysis}
@@ -1407,7 +1410,7 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 <div style="margin-bottom:18px;">
 <div style="font-size:0.94rem; font-weight:800; color:{text_color}; display:flex; align-items:center; gap:8px;">
-<span style="color:#34D399; font-size:1rem;">👍</span> Processing Fee
+<span style="color:#34D399; font-size:1rem;">✦</span> Processing Fee
 </div>
 <div style="font-size:0.86rem; color:{muted_color}; margin-top:4px; line-height:1.55; padding-left:26px;">
 {fee_analysis}
@@ -1415,7 +1418,7 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 <div>
 <div style="font-size:0.94rem; font-weight:800; color:{text_color}; display:flex; align-items:center; gap:8px;">
-<span style="color:#34D399; font-size:1rem;">👍</span> Grievance Redressal
+<span style="color:#34D399; font-size:1rem;">✦</span> Grievance Redressal
 </div>
 <div style="font-size:0.86rem; color:{muted_color}; margin-top:4px; line-height:1.55; padding-left:26px;">
 {grievance_analysis}
