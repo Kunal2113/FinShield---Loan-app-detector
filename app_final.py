@@ -136,89 +136,81 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     else:
         monogram = (clean_name[0] if clean_name else "A").upper()
 
-    direct_logo_map = {
-        "sbi": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
-        "yono": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
-        "hdfc": "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg",
-        "icici": "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
-        "axis": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg",
-        "kotak": "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg",
-        "baroda": "https://upload.wikimedia.org/wikipedia/commons/2/27/Bank_of_Baroda_Logo.svg",
-        "canara": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Canara_Bank_Logo.svg",
-        "federal": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
-        "fedmobile": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
-        "paytm": "https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo.svg",
-        "phonepe": "https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg",
-        "amazon": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
-        "google": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_%28GPay%29_Logo.svg",
-        "muthoot": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Muthoot_Finance_Logo.svg",
-    }
-
-    domain_map = {
-        "navi": "navi.com",
-        "kreditbee": "kreditbee.in",
-        "groww": "groww.in",
-        "privo": "creditsaison.in",
-        "credit saison": "creditsaison.in",
-        "pocketly": "pocketly.in",
-        "money view": "moneyview.in",
-        "moneyview": "moneyview.in",
-        "fairmoney": "fairmoney.in",
-        "mpokket": "mpokket.in",
-        "cashe": "cashe.co.in",
-        "fibe": "fibe.in",
-        "earlysalary": "fibe.in",
-        "bajaj": "bajajfinserv.in",
-        "tata": "tatacapital.com",
-        "ltfs": "ltfs.com",
-        "l&t": "ltfs.com",
-        "piramal": "piramalfinance.com",
-        "hero": "herofincorp.com",
-        "home credit": "homecredit.co.in",
-        "kissht": "kissht.com",
-        "ring": "paywithring.com",
-        "branch": "branch.co",
-        "stashfin": "stashfin.com",
-        "truebalance": "truebalance.io",
-        "true balance": "truebalance.io",
-        "smartcoin": "smartcoin.co.in",
-        "rupeeredee": "rupeeredee.com",
-        "fatakpay": "fatakpay.com",
-        "instamoney": "instamoney.in",
-        "nobroker": "nobroker.in",
-        "lendingplate": "lendingplate.com",
-        "lenditt": "lenditt.com",
-        "salary now": "salarynow.in",
-        "smfg": "smfgindiacredit.com",
-        "freo": "freo.money",
-        "moneytap": "freo.money",
-        "airtel": "airtel.in",
-        "onescore": "onescore.app",
-        "mobikwik": "mobikwik.com",
-        "indialends": "indialends.com",
-        "lazypay": "lazypay.in",
-        "jupiter": "jupiter.money",
-        "cred": "cred.club",
-        "payrupik": "payrupik.in",
-        "rapidrupee": "rapidrupee.in",
+    package_logo_map = {
+        "com.sbi.lotusintouch": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
+        "com.hdfcbank.android.now": "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg",
+        "com.csam.icici.bank.imobile": "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
+        "com.axis.mobile": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg",
+        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg",
+        "com.bankofbaroda.mconnect": "https://upload.wikimedia.org/wikipedia/commons/2/27/Bank_of_Baroda_Logo.svg",
+        "com.canarabank.mobility": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Canara_Bank_Logo.svg",
+        "com.fedmobile": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
+        "com.phonepe.app": "https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg",
+        "com.google.android.apps.nbu.paisa.user": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_%28GPay%29_Logo.svg",
+        "in.amazon.mshop.android.shopping": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+        "com.muthootfinance.imuthoot": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Muthoot_Finance_Logo.svg",
+        "com.naviapp": "https://www.google.com/s2/favicons?domain=navi.com&sz=128",
+        "com.kreditbee.android": "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128",
+        "in.groww.dash": "https://www.google.com/s2/favicons?domain=groww.in&sz=128",
+        "com.nextbillion.groww": "https://www.google.com/s2/favicons?domain=groww.in&sz=128",
+        "com.whizdm.moneyview.loans": "https://www.google.com/s2/favicons?domain=moneyview.in&sz=128",
+        "co.tslc.cashe.android": "https://www.google.com/s2/favicons?domain=cashe.co.in&sz=128",
+        "com.mpokket.app": "https://www.google.com/s2/favicons?domain=mpokket.in&sz=128",
+        "com.earlysalary.android": "https://www.google.com/s2/favicons?domain=fibe.in&sz=128",
+        "com.privo.creditsaison": "https://www.google.com/s2/favicons?domain=creditsaison.in&sz=128",
+        "com.pocketly": "https://www.google.com/s2/favicons?domain=pocketly.in&sz=128",
+        "com.fastbanking": "https://www.google.com/s2/favicons?domain=kissht.com&sz=128",
+        "com.nobroker.loans": "https://www.google.com/s2/favicons?domain=nobroker.in&sz=128",
+        "com.balancehero.truebalance": "https://www.google.com/s2/favicons?domain=truebalance.io&sz=128",
+        "com.lendingplate": "https://www.google.com/s2/favicons?domain=lendingplate.com&sz=128",
+        "com.fintech.lenditt": "https://www.google.com/s2/favicons?domain=lenditt.com&sz=128",
+        "com.kksv.salarynowapp": "https://www.google.com/s2/favicons?domain=salarynow.in&sz=128",
+        "com.kksv.salarynowloan": "https://www.google.com/s2/favicons?domain=salarynow.in&sz=128",
+        "com.smfgindia.mconnect": "https://www.google.com/s2/favicons?domain=smfgindiacredit.com&sz=128",
+        "com.moneytap.bnpl.app": "https://www.google.com/s2/favicons?domain=freo.money&sz=128",
+        "com.myairtelapp": "https://www.google.com/s2/favicons?domain=airtel.in&sz=128",
+        "tech.fplabs.score": "https://www.google.com/s2/favicons?domain=onescore.app&sz=128",
+        "com.mobikwik_new": "https://www.google.com/s2/favicons?domain=mobikwik.com&sz=128",
+        "com.indialends.android": "https://www.google.com/s2/favicons?domain=indialends.com&sz=128",
+        "com.stashfin.android": "https://www.google.com/s2/favicons?domain=stashfin.com&sz=128",
+        "com.citrus.citruspay": "https://www.google.com/s2/favicons?domain=lazypay.in&sz=128",
+        "com.branch_international.branch.branch_demo_android": "https://www.google.com/s2/favicons?domain=branch.co&sz=128",
+        "money.jupiter": "https://www.google.com/s2/favicons?domain=jupiter.money&sz=128",
+        "com.dreamplug.androidapp": "https://www.google.com/s2/favicons?domain=cred.club&sz=128",
+        "com.piramal.app.pchf": "https://www.google.com/s2/favicons?domain=piramalfinance.com&sz=128",
+        "in.hanafintech": "https://www.google.com/s2/favicons?domain=payrupik.in&sz=128",
+        "com.rupeeredee.app": "https://www.google.com/s2/favicons?domain=rupeeredee.com&sz=128",
+        "rapidrupee.app": "https://www.google.com/s2/favicons?domain=rapidrupee.in&sz=128",
+        "com.innofinsolutions.instamoney": "https://www.google.com/s2/favicons?domain=instamoney.in&sz=128",
     }
 
     name_lower = clean_name.lower()
-    pkg_str = str(package_id).lower()
+    pkg_str = str(package_id).lower().strip()
     
-    logo_url = None
-    # Check direct high-res SVG map first
-    for k, v in direct_logo_map.items():
-        if k in name_lower or k in pkg_str:
-            logo_url = v
-            break
-            
-    # Check domain map second
+    logo_url = package_logo_map.get(pkg_str)
+    
+    # Keyword fallback for unlisted package IDs
     if not logo_url:
-        for k, v in domain_map.items():
-            if k in name_lower or k in pkg_str:
-                logo_url = f"https://www.google.com/s2/favicons?domain={v}&sz=128"
-                break
+        if "sbi" in name_lower or "yono" in name_lower:
+            logo_url = "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg"
+        elif "hdfc" in name_lower:
+            logo_url = "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg"
+        elif "icici" in name_lower:
+            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg"
+        elif "axis" in name_lower:
+            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg"
+        elif "kotak" in name_lower:
+            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg"
+        elif "navi" in name_lower:
+            logo_url = "https://www.google.com/s2/favicons?domain=navi.com&sz=128"
+        elif "kreditbee" in name_lower:
+            logo_url = "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128"
+        elif "groww" in name_lower:
+            logo_url = "https://www.google.com/s2/favicons?domain=groww.in&sz=128"
+        elif "moneyview" in name_lower or "money view" in name_lower:
+            logo_url = "https://www.google.com/s2/favicons?domain=moneyview.in&sz=128"
+        elif "cashe" in name_lower:
+            logo_url = "https://www.google.com/s2/favicons?domain=cashe.co.in&sz=128"
 
     hue = (sum(ord(c) for c in clean_name) * 37) % 360
     grad_start = f"hsl({hue}, 82%, 52%)"
@@ -228,7 +220,7 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<img src="{logo_url}" alt="{clean_name}" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
+            f'<img src="{logo_url}" alt="{clean_name}" referrerpolicy="no-referrer" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
             f'</div>'
         )
     else:
