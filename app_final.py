@@ -496,17 +496,34 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
-    @keyframes liquidAura1 {{
-        0% {{ transform: translate(-10%, -10%) rotate(0deg) scale(1); opacity: 0.62; }}
-        33% {{ transform: translate(18%, 14%) rotate(120deg) scale(1.25); opacity: 0.42; }}
-        66% {{ transform: translate(-12%, 22%) rotate(240deg) scale(0.9); opacity: 0.68; }}
-        100% {{ transform: translate(-10%, -10%) rotate(360deg) scale(1); opacity: 0.62; }}
+    @keyframes aura1 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
+        25%  {{ transform: translate(14%, 20%) scale(1.22); opacity: 0.32; }}
+        50%  {{ transform: translate(-10%, 30%) scale(0.88);opacity: 0.58; }}
+        75%  {{ transform: translate(22%, -12%) scale(1.1); opacity: 0.38; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
     }}
-    @keyframes liquidAura2 {{
-        0% {{ transform: translate(10%, -5%) rotate(0deg) scale(1); opacity: 0.58; }}
-        33% {{ transform: translate(-18%, 18%) rotate(-120deg) scale(0.85); opacity: 0.68; }}
-        66% {{ transform: translate(14%, -14%) rotate(-240deg) scale(1.2); opacity: 0.38; }}
-        100% {{ transform: translate(10%, -5%) rotate(-360deg) scale(1); opacity: 0.58; }}
+    @keyframes aura2 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
+        30%  {{ transform: translate(-16%, 14%) scale(0.82);opacity: 0.62; }}
+        60%  {{ transform: translate(12%, -20%) scale(1.3); opacity: 0.32; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
+    }}
+    @keyframes aura3 {{
+        0%   {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
+        40%  {{ transform: translate(20%, 24%) scale(0.8);  opacity: 0.58; }}
+        70%  {{ transform: translate(-14%, -10%) scale(1.2);opacity: 0.28; }}
+        100% {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
+    }}
+    @keyframes aura4 {{
+        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
+        50%  {{ transform: translate(-22%, 16%) scale(1.28);opacity: 0.52; }}
+        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
+    }}
+    @keyframes aura5 {{
+        0%   {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
+        45%  {{ transform: translate(16%, -22%) scale(1.18);opacity: 0.28; }}
+        100% {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
     }}
 
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
@@ -514,35 +531,87 @@ st.markdown(f"""
         font-family: 'Inter', sans-serif;
     }}
 
+    /* Orb 1 — blue-violet, top-left */
     .stApp::before {{
         content: "";
         position: fixed;
-        top: -150px;
-        left: -150px;
-        width: 750px;
-        height: 750px;
+        top: -200px; left: -200px;
+        width: 820px; height: 820px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(147, 51, 234, 0.3) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147, 197, 253, 0.5) 0%, rgba(216, 180, 254, 0.35) 45%, transparent 70%)"};
-        filter: blur(130px);
+        background: {"radial-gradient(circle, rgba(37,99,235,0.50) 0%, rgba(147,51,234,0.32) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147,197,253,0.55) 0%, rgba(216,180,254,0.38) 50%, transparent 72%)"};
+        filter: blur(145px);
         pointer-events: none;
-        z-index: 0;
-        animation: liquidAura1 26s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura1 30s ease-in-out infinite;
         will-change: transform, opacity;
     }}
+    /* Orb 2 — amber-gold, top-right */
     .stApp::after {{
         content: "";
         position: fixed;
-        top: -120px;
-        right: -150px;
-        width: 700px;
-        height: 700px;
+        top: -180px; right: -200px;
+        width: 760px; height: 760px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(217, 119, 6, 0.42) 0%, rgba(234, 179, 8, 0.28) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253, 224, 71, 0.48) 0%, rgba(251, 146, 60, 0.32) 45%, transparent 70%)"};
-        filter: blur(130px);
+        background: {"radial-gradient(circle, rgba(217,119,6,0.50) 0%, rgba(234,179,8,0.32) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.58) 0%, rgba(251,146,60,0.36) 50%, transparent 72%)"};
+        filter: blur(145px);
         pointer-events: none;
-        z-index: 0;
-        animation: liquidAura2 30s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura2 36s ease-in-out infinite;
         will-change: transform, opacity;
+    }}
+
+    /* Orb 3 — emerald green, bottom-left */
+    .bg-orb-3 {{
+        position: fixed;
+        bottom: -150px; left: -180px;
+        width: 640px; height: 640px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(16,185,129,0.30) 0%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 70%)"};
+        filter: blur(125px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura3 40s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+    /* Orb 4 — amber-crimson, bottom-right */
+    .bg-orb-4 {{
+        position: fixed;
+        bottom: -180px; right: 15%;
+        width: 680px; height: 680px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(245,158,11,0.34) 0%, rgba(239,68,68,0.20) 50%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,186,116,0.40) 0%, rgba(252,165,165,0.24) 50%, transparent 70%)"};
+        filter: blur(135px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura4 44s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+    /* Orb 5 — indigo, mid-right */
+    .bg-orb-5 {{
+        position: fixed;
+        top: 38%; right: -120px;
+        width: 520px; height: 520px;
+        border-radius: 50%;
+        background: {"radial-gradient(circle, rgba(99,102,241,0.28) 0%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(167,139,250,0.30) 0%, transparent 70%)"};
+        filter: blur(115px);
+        pointer-events: none; z-index: -1;
+        mix-blend-mode: normal;
+        animation: aura5 34s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+
+    /* Financial symbol pattern — very bottom layer */
+    .bg-pattern-layer {{
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        opacity: {"0.035" if st.session_state.dark_mode else "0.055"};
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Ctext x='8' y='36' font-size='20' fill='%23F7C948' font-family='Georgia%2Cserif'%3E%E2%82%B9%3C/text%3E%3Ctext x='74' y='36' font-size='15' fill='%23F7C948' font-family='sans-serif' opacity='0.7'%3E%25%3C/text%3E%3Ctext x='110' y='36' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.5'%3E%E2%97%8F%3C/text%3E%3Ctext x='8' y='88' font-size='13' fill='%23F7C948' font-family='sans-serif' opacity='0.55'%3E%E2%94%80%E2%94%80%3C/text%3E%3Ctext x='56' y='88' font-size='18' fill='%23F7C948' font-family='sans-serif' opacity='0.65'%3E%E2%96%B3%3C/text%3E%3Ctext x='100' y='88' font-size='14' fill='%23F7C948' font-family='Georgia%2Cserif' opacity='0.6'%3E%E2%82%B9%3C/text%3E%3Ctext x='8' y='132' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.45'%3E%E2%97%8B%3C/text%3E%3Ctext x='50' y='132' font-size='13' fill='%23F7C948' font-family='sans-serif' opacity='0.5'%3E%25%3C/text%3E%3Ctext x='90' y='132' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.45'%3E%E2%94%80%3C/text%3E%3C/svg%3E");
+        background-repeat: repeat;
+        background-size: 140px 140px;
     }}
 
     .block-container {{
@@ -551,8 +620,12 @@ st.markdown(f"""
         padding-right: 2rem !important;
         max-width: 1350px !important;
         margin: 0 auto !important;
+        position: relative;
+        z-index: 1;
+        isolation: isolate;
     }}
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
+
 
     /* Hero Section */
     .hero-container-light {{
@@ -863,6 +936,14 @@ st.markdown(f"""
         .stTabs [data-baseweb="tab"] {{ padding: 8px 12px !important; font-size: 0.8rem !important; flex-shrink: 0 !important; }}
     }}
 </style>
+""", unsafe_allow_html=True)
+
+# Inject background orbs (3-5) + financial pattern layer divs
+st.markdown("""
+<div class="bg-orb-3"></div>
+<div class="bg-orb-4"></div>
+<div class="bg-orb-5"></div>
+<div class="bg-pattern-layer"></div>
 """, unsafe_allow_html=True)
 
 # 1. Navigation Navbar Header
