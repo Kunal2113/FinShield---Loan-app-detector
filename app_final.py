@@ -722,85 +722,11 @@ st.markdown(f"""
     }}
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
 
-    /* Top Navigation Navbar */
-    .top-nav-bar {{
-        background: #0F172A;
-        padding: 14px 32px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }}
-    .nav-logo-box {{
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        text-decoration: none;
-    }}
-    .nav-logo-icon {{
-        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%);
-        color: #000;
-        font-weight: 900;
-        font-size: 1.1rem;
-        padding: 6px 14px;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(247, 201, 72, 0.25);
-    }}
-    .nav-logo-text {{
-        color: #FFFFFF;
-        font-weight: 900;
-        font-size: 1.3rem;
-        letter-spacing: -0.3px;
-    }}
-
-    /* FinShield Hero Section */
+    /* Hero Section */
     .hero-container-light {{
         background: transparent !important;
         padding: 45px 20px 30px;
         text-align: center;
-    }}
-    .trust-pills-row {{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 18px;
-        font-size: 0.84rem;
-        color: {t['muted']};
-        margin-bottom: 18px;
-        flex-wrap: wrap;
-    }}
-    .trust-pill-item {{
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid {t['card_border']};
-        padding: 5px 16px;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }}
-    div[data-testid="stExpander"], div[data-testid="stExpander"] > details, div[data-testid="stExpander"] summary {{
-        border: none !important;
-        border-style: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }}
-    div[data-testid="stExpander"] {{
-        margin-top: 6px !important;
-        margin-bottom: 6px !important;
-        background: {"rgba(255, 255, 255, 0.03)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.02)"} !important;
-        border-radius: 12px !important;
-        overflow: hidden !important;
-    }}
-    div[data-testid="stExpander"] summary {{
-        padding: 10px 16px !important;
-        background: transparent !important;
-    }}
-    div[data-testid="stExpander"] summary:hover {{
-        background: {"rgba(255, 255, 255, 0.06)" if st.session_state.dark_mode else "rgba(0, 0, 0, 0.04)"} !important;
-    }}
-    div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {{
-        border-top: none !important;
-        padding: 12px 16px !important;
     }}
     @keyframes fadeInUp {{
         0% {{
@@ -852,50 +778,7 @@ st.markdown(f"""
         opacity: 0;
     }}
 
-    /* Top Navigation Ribbon Bar Styling */
-    .hero-ribbon-bar {{
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: linear-gradient(135deg, rgba(247, 201, 72, 0.12) 0%, rgba(18, 20, 28, 0.9) 100%);
-        border: 1.5px solid rgba(247, 201, 72, 0.4);
-        padding: 8px 18px;
-        border-radius: 30px;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(247, 201, 72, 0.15);
-    }}
-    .ribbon-item {{
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #F7C948;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }}
-    .ribbon-divider {{
-        color: rgba(255, 255, 255, 0.2);
-        font-size: 0.8rem;
-    }}
-
-    /* Inner Planning Card */
-    .inner-planning-card {{
-        max-width: 1150px;
-        margin: 0 auto;
-        padding: 0 16px 40px;
-    }}
-
-    .sub-banner-blue {{
-        background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 100%);
-        color: #FFFFFF;
-        padding: 12px 22px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 15px rgba(29, 78, 216, 0.25);
-    }}
-
-    /* Floating Quick Badge */
+    /* Floating RBI Badge */
     .floating-chat-badge {{
         position: fixed;
         bottom: 24px;
@@ -1766,11 +1649,7 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
                     
                     app1_info = row
                     app2_info = df_ranked[df_ranked["app_name"] == selected_app2_name].iloc[0]
-                    
-                    s1, s2 = app1_info["safety_score"], app2_info["safety_score"]
-                    n2_short = app2_info["app_name"].split(':')[0]
-                    
-                    # Build Comprehensive Conclusion & Verdict Breakdown
+
                     n1_s = app1_info["app_name"].split(':')[0]
                     n2_s = app2_info["app_name"].split(':')[0]
                     s1, s2 = app1_info["safety_score"], app2_info["safety_score"]
