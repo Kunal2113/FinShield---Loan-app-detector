@@ -496,111 +496,11 @@ st.markdown(f"""
     header[data-testid="stHeader"] {{
         display: none !important;
     }}
-    @keyframes aura1 {{
-        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
-        25%  {{ transform: translate(14%, 20%) scale(1.22); opacity: 0.32; }}
-        50%  {{ transform: translate(-10%, 30%) scale(0.88);opacity: 0.58; }}
-        75%  {{ transform: translate(22%, -12%) scale(1.1); opacity: 0.38; }}
-        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.52; }}
-    }}
-    @keyframes aura2 {{
-        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
-        30%  {{ transform: translate(-16%, 14%) scale(0.82);opacity: 0.62; }}
-        60%  {{ transform: translate(12%, -20%) scale(1.3); opacity: 0.32; }}
-        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.48; }}
-    }}
-    @keyframes aura3 {{
-        0%   {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
-        40%  {{ transform: translate(20%, 24%) scale(0.8);  opacity: 0.58; }}
-        70%  {{ transform: translate(-14%, -10%) scale(1.2);opacity: 0.28; }}
-        100% {{ transform: translate(0%, 0%) scale(1.1);    opacity: 0.42; }}
-    }}
-    @keyframes aura4 {{
-        0%   {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
-        50%  {{ transform: translate(-22%, 16%) scale(1.28);opacity: 0.52; }}
-        100% {{ transform: translate(0%, 0%) scale(1);      opacity: 0.38; }}
-    }}
-    @keyframes aura5 {{
-        0%   {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
-        45%  {{ transform: translate(16%, -22%) scale(1.18);opacity: 0.28; }}
-        100% {{ transform: translate(0%, 0%) scale(0.9);    opacity: 0.48; }}
-    }}
-
     html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
         background-color: {"#07090E" if st.session_state.dark_mode else "#FAF9F6"} !important;
         font-family: 'Inter', sans-serif;
     }}
 
-    /* Orb 1 — deep orange, top-left */
-    .stApp::before {{
-        content: "";
-        position: fixed;
-        top: -200px; left: -200px;
-        width: 820px; height: 820px;
-        border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(234,88,12,0.55) 0%, rgba(217,119,6,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.60) 0%, rgba(253,186,116,0.40) 55%, transparent 72%)"};
-        filter: blur(145px);
-        pointer-events: none;
-        z-index: -1;
-        mix-blend-mode: normal;
-        animation: aura1 30s ease-in-out infinite;
-        will-change: transform, opacity;
-    }}
-    /* Orb 2 — warm amber-gold, top-right */
-    .stApp::after {{
-        content: "";
-        position: fixed;
-        top: -180px; right: -200px;
-        width: 760px; height: 760px;
-        border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(245,158,11,0.55) 0%, rgba(234,179,8,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.62) 0%, rgba(252,211,77,0.40) 55%, transparent 72%)"};
-        filter: blur(145px);
-        pointer-events: none;
-        z-index: -1;
-        mix-blend-mode: normal;
-        animation: aura2 36s ease-in-out infinite;
-        will-change: transform, opacity;
-    }}
-
-    /* Orb 3 — burnt orange, bottom-left */
-    .bg-orb-3 {{
-        position: fixed;
-        bottom: -150px; left: -180px;
-        width: 640px; height: 640px;
-        border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(194,65,12,0.38) 0%, rgba(234,88,12,0.22) 60%, transparent 75%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(249,115,22,0.42) 0%, rgba(251,146,60,0.26) 60%, transparent 75%)"};
-        filter: blur(130px);
-        pointer-events: none; z-index: -1;
-        mix-blend-mode: normal;
-        animation: aura3 40s ease-in-out infinite;
-        will-change: transform, opacity;
-    }}
-    /* Orb 4 — golden yellow, bottom-right */
-    .bg-orb-4 {{
-        position: fixed;
-        bottom: -180px; right: 15%;
-        width: 680px; height: 680px;
-        border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(202,138,4,0.42) 0%, rgba(161,98,7,0.26) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.50) 0%, rgba(250,204,21,0.32) 55%, transparent 72%)"};
-        filter: blur(135px);
-        pointer-events: none; z-index: -1;
-        mix-blend-mode: normal;
-        animation: aura4 44s ease-in-out infinite;
-        will-change: transform, opacity;
-    }}
-    /* Orb 5 — vibrant warm orange, mid-right */
-    .bg-orb-5 {{
-        position: fixed;
-        top: 38%; right: -120px;
-        width: 520px; height: 520px;
-        border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(249,115,22,0.35) 0%, rgba(217,119,6,0.20) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.42) 0%, rgba(253,186,116,0.26) 55%, transparent 72%)"};
-        filter: blur(120px);
-        pointer-events: none; z-index: -1;
-        mix-blend-mode: normal;
-        animation: aura5 34s ease-in-out infinite;
-        will-change: transform, opacity;
-    }}
 
     /* Financial symbol pattern — scattered, non-symmetrical */
     .bg-pattern-layer {{
@@ -939,11 +839,8 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Inject background orbs (3-5) + financial pattern layer divs
+# Inject background financial pattern layer div
 st.markdown("""
-<div class="bg-orb-3"></div>
-<div class="bg-orb-4"></div>
-<div class="bg-orb-5"></div>
 <div class="bg-pattern-layer"></div>
 """, unsafe_allow_html=True)
 
