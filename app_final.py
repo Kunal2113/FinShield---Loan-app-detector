@@ -722,15 +722,27 @@ st.markdown(f"""
     }}
 
 
+    footer, footer[data-testid="stFooter"] {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }}
+
     .block-container {{
         padding-top: 0.5rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
+        padding-bottom: 1rem !important;
         max-width: 1350px !important;
         margin: 0 auto !important;
         position: relative;
         z-index: 1;
         isolation: isolate;
+    }}
+    [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
+        padding-bottom: 0px !important;
     }}
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
 
@@ -1955,8 +1967,8 @@ st.markdown(
             </div>
         </div>
     </div>
-    <div style="max-width:1350px; margin: 0 auto 10px; padding: 0 16px 10px;">
-        <div style="border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if st.session_state.dark_mode else 'rgba(0, 0, 0, 0.08)'}; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div style="max-width:1350px; margin: 0 auto 0px; padding: 0 16px 8px;">
+        <div style="border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if st.session_state.dark_mode else 'rgba(0, 0, 0, 0.08)'}; padding-top: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
                 <div style="font-size: 1.05rem; font-weight: 800; color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'};">
                     FinShield
@@ -1967,10 +1979,10 @@ st.markdown(
             </div>
             <div style="display: flex; align-items: center; gap: 20px; font-size: 0.82rem; font-weight: 600;">
                 <a href="https://sachet.rbi.org.in" target="_blank" style="color: {'#94A3B8' if st.session_state.dark_mode else '#475569'}; text-decoration: none;">
-                    🏛️ RBI Sachet Portal ↗
+                     RBI Sachet Portal
                 </a>
                 <a href="https://cybercrime.gov.in" target="_blank" style="color: {'#94A3B8' if st.session_state.dark_mode else '#475569'}; text-decoration: none;">
-                    🚨 CyberCrime Portal ↗
+                     CyberCrime Portal
                 </a>
             </div>
         </div>
