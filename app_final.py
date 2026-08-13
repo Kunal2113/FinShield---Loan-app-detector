@@ -136,8 +136,25 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     else:
         monogram = (clean_name[0] if clean_name else "A").upper()
 
+    direct_logo_map = {
+        "sbi": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
+        "yono": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
+        "hdfc": "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg",
+        "icici": "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
+        "axis": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg",
+        "kotak": "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg",
+        "baroda": "https://upload.wikimedia.org/wikipedia/commons/2/27/Bank_of_Baroda_Logo.svg",
+        "canara": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Canara_Bank_Logo.svg",
+        "federal": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
+        "fedmobile": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
+        "paytm": "https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo.svg",
+        "phonepe": "https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg",
+        "amazon": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+        "google": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_%28GPay%29_Logo.svg",
+        "muthoot": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Muthoot_Finance_Logo.svg",
+    }
+
     domain_map = {
-        "sbi": "homeloans.sbi",
         "navi": "navi.com",
         "kreditbee": "kreditbee.in",
         "groww": "groww.in",
@@ -146,7 +163,6 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "pocketly": "pocketly.in",
         "money view": "moneyview.in",
         "moneyview": "moneyview.in",
-        "paytm": "paytm.com",
         "fairmoney": "fairmoney.in",
         "mpokket": "mpokket.in",
         "cashe": "cashe.co.in",
@@ -174,10 +190,6 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "lenditt": "lenditt.com",
         "salary now": "salarynow.in",
         "smfg": "smfgindiacredit.com",
-        "axis": "axisbank.com",
-        "hdfc": "hdfcbank.com",
-        "fedmobile": "federalbank.co.in",
-        "federal": "federalbank.co.in",
         "freo": "freo.money",
         "moneytap": "freo.money",
         "airtel": "airtel.in",
@@ -185,15 +197,8 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "mobikwik": "mobikwik.com",
         "indialends": "indialends.com",
         "lazypay": "lazypay.in",
-        "icici": "icicibank.com",
-        "kotak": "kotak.com",
-        "baroda": "bankofbaroda.in",
-        "canara": "canarabank.com",
         "jupiter": "jupiter.money",
         "cred": "cred.club",
-        "amazon": "amazon.in",
-        "google": "pay.google.com",
-        "muthoot": "muthootfinance.com",
         "payrupik": "payrupik.in",
         "rapidrupee": "rapidrupee.in",
     }
@@ -201,18 +206,25 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     name_lower = clean_name.lower()
     pkg_str = str(package_id).lower()
     
-    matched_domain = None
-    for k, v in domain_map.items():
+    logo_url = None
+    # Check direct high-res SVG map first
+    for k, v in direct_logo_map.items():
         if k in name_lower or k in pkg_str:
-            matched_domain = v
+            logo_url = v
             break
+            
+    # Check domain map second
+    if not logo_url:
+        for k, v in domain_map.items():
+            if k in name_lower or k in pkg_str:
+                logo_url = f"https://www.google.com/s2/favicons?domain={v}&sz=128"
+                break
 
     hue = (sum(ord(c) for c in clean_name) * 37) % 360
     grad_start = f"hsl({hue}, 82%, 52%)"
     grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
-    if matched_domain:
-        logo_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
+    if logo_url:
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
