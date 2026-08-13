@@ -137,18 +137,18 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         monogram = (clean_name[0] if clean_name else "A").upper()
 
     package_logo_map = {
-        "com.sbi.lotusintouch": "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg",
-        "com.hdfcbank.android.now": "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg",
-        "com.csam.icici.bank.imobile": "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
-        "com.axis.mobile": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg",
-        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg",
-        "com.bankofbaroda.mconnect": "https://upload.wikimedia.org/wikipedia/commons/2/27/Bank_of_Baroda_Logo.svg",
-        "com.canarabank.mobility": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Canara_Bank_Logo.svg",
-        "com.fedmobile": "https://upload.wikimedia.org/wikipedia/commons/3/36/Federal_Bank_Logo.svg",
-        "com.phonepe.app": "https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg",
-        "com.google.android.apps.nbu.paisa.user": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_%28GPay%29_Logo.svg",
-        "in.amazon.mshop.android.shopping": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
-        "com.muthootfinance.imuthoot": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Muthoot_Finance_Logo.svg",
+        "com.sbi.lotusintouch": "https://www.google.com/s2/favicons?domain=sbi.co.in&sz=128",
+        "com.hdfcbank.android.now": "https://www.google.com/s2/favicons?domain=hdfcbank.com&sz=128",
+        "com.csam.icici.bank.imobile": "https://www.google.com/s2/favicons?domain=icicibank.com&sz=128",
+        "com.axis.mobile": "https://www.google.com/s2/favicons?domain=axisbank.com&sz=128",
+        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://www.google.com/s2/favicons?domain=kotak.com&sz=128",
+        "com.bankofbaroda.mconnect": "https://www.google.com/s2/favicons?domain=bankofbaroda.in&sz=128",
+        "com.canarabank.mobility": "https://www.google.com/s2/favicons?domain=canarabank.com&sz=128",
+        "com.fedmobile": "https://www.google.com/s2/favicons?domain=federalbank.co.in&sz=128",
+        "com.phonepe.app": "https://www.google.com/s2/favicons?domain=phonepe.com&sz=128",
+        "com.google.android.apps.nbu.paisa.user": "https://www.google.com/s2/favicons?domain=pay.google.com&sz=128",
+        "in.amazon.mshop.android.shopping": "https://www.google.com/s2/favicons?domain=amazon.in&sz=128",
+        "com.muthootfinance.imuthoot": "https://www.google.com/s2/favicons?domain=muthootfinance.com&sz=128",
         "com.naviapp": "https://www.google.com/s2/favicons?domain=navi.com&sz=128",
         "com.kreditbee.android": "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128",
         "in.groww.dash": "https://www.google.com/s2/favicons?domain=groww.in&sz=128",
@@ -192,15 +192,15 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     # Keyword fallback for unlisted package IDs
     if not logo_url:
         if "sbi" in name_lower or "yono" in name_lower:
-            logo_url = "https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg"
+            logo_url = "https://www.google.com/s2/favicons?domain=sbi.co.in&sz=128"
         elif "hdfc" in name_lower:
-            logo_url = "https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg"
+            logo_url = "https://www.google.com/s2/favicons?domain=hdfcbank.com&sz=128"
         elif "icici" in name_lower:
-            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg"
+            logo_url = "https://www.google.com/s2/favicons?domain=icicibank.com&sz=128"
         elif "axis" in name_lower:
-            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Axis_Bank_logo.svg"
+            logo_url = "https://www.google.com/s2/favicons?domain=axisbank.com&sz=128"
         elif "kotak" in name_lower:
-            logo_url = "https://upload.wikimedia.org/wikipedia/commons/1/14/Kotak_Mahindra_Bank_logo.svg"
+            logo_url = "https://www.google.com/s2/favicons?domain=kotak.com&sz=128"
         elif "navi" in name_lower:
             logo_url = "https://www.google.com/s2/favicons?domain=navi.com&sz=128"
         elif "kreditbee" in name_lower:
@@ -220,7 +220,7 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<img src="{logo_url}" alt="{clean_name}" referrerpolicy="no-referrer" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
+            f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:url(\'{logo_url}\'); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
             f'</div>'
         )
     else:
