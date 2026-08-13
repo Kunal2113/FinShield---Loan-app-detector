@@ -152,13 +152,14 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         )
     elif "hdfc" in name_lower or "hdfc" in pkg_str:
         return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#004B87; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,75,135,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect x="5" y="5" width="90" height="90" fill="#004B87" rx="10"/>'
-            f'<rect x="22" y="22" width="56" height="56" fill="#ED232A"/>'
-            f'<rect x="37" y="5" width="26" height="90" fill="#004B87"/>'
-            f'<rect x="5" y="37" width="90" height="26" fill="#004B87"/>'
-            f'<rect x="37" y="37" width="26" height="26" fill="#FFFFFF"/>'
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED232A; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,35,42,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:78%; height:78%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<rect width="100" height="100" fill="#ED232A" rx="12"/>'
+            f'<rect x="16" y="16" width="26" height="26" fill="#004B87"/>'
+            f'<rect x="58" y="16" width="26" height="26" fill="#004B87"/>'
+            f'<rect x="16" y="58" width="26" height="26" fill="#004B87"/>'
+            f'<rect x="58" y="58" width="26" height="26" fill="#004B87"/>'
+            f'<rect x="36" y="36" width="28" height="28" fill="#FFFFFF"/>'
             f'</svg>'
             f'</div>'
         )
