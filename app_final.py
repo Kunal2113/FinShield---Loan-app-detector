@@ -531,14 +531,14 @@ st.markdown(f"""
         font-family: 'Inter', sans-serif;
     }}
 
-    /* Orb 1 — blue-violet, top-left */
+    /* Orb 1 — deep orange, top-left */
     .stApp::before {{
         content: "";
         position: fixed;
         top: -200px; left: -200px;
         width: 820px; height: 820px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(37,99,235,0.50) 0%, rgba(147,51,234,0.32) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(147,197,253,0.55) 0%, rgba(216,180,254,0.38) 50%, transparent 72%)"};
+        background: {"radial-gradient(circle, rgba(234,88,12,0.55) 0%, rgba(217,119,6,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.60) 0%, rgba(253,186,116,0.40) 55%, transparent 72%)"};
         filter: blur(145px);
         pointer-events: none;
         z-index: -1;
@@ -546,14 +546,14 @@ st.markdown(f"""
         animation: aura1 30s ease-in-out infinite;
         will-change: transform, opacity;
     }}
-    /* Orb 2 — amber-gold, top-right */
+    /* Orb 2 — warm amber-gold, top-right */
     .stApp::after {{
         content: "";
         position: fixed;
         top: -180px; right: -200px;
         width: 760px; height: 760px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(217,119,6,0.50) 0%, rgba(234,179,8,0.32) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.58) 0%, rgba(251,146,60,0.36) 50%, transparent 72%)"};
+        background: {"radial-gradient(circle, rgba(245,158,11,0.55) 0%, rgba(234,179,8,0.35) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.62) 0%, rgba(252,211,77,0.40) 55%, transparent 72%)"};
         filter: blur(145px);
         pointer-events: none;
         z-index: -1;
@@ -562,40 +562,40 @@ st.markdown(f"""
         will-change: transform, opacity;
     }}
 
-    /* Orb 3 — emerald green, bottom-left */
+    /* Orb 3 — burnt orange, bottom-left */
     .bg-orb-3 {{
         position: fixed;
         bottom: -150px; left: -180px;
         width: 640px; height: 640px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(16,185,129,0.30) 0%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 70%)"};
-        filter: blur(125px);
+        background: {"radial-gradient(circle, rgba(194,65,12,0.38) 0%, rgba(234,88,12,0.22) 60%, transparent 75%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(249,115,22,0.42) 0%, rgba(251,146,60,0.26) 60%, transparent 75%)"};
+        filter: blur(130px);
         pointer-events: none; z-index: -1;
         mix-blend-mode: normal;
         animation: aura3 40s ease-in-out infinite;
         will-change: transform, opacity;
     }}
-    /* Orb 4 — amber-crimson, bottom-right */
+    /* Orb 4 — golden yellow, bottom-right */
     .bg-orb-4 {{
         position: fixed;
         bottom: -180px; right: 15%;
         width: 680px; height: 680px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(245,158,11,0.34) 0%, rgba(239,68,68,0.20) 50%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,186,116,0.40) 0%, rgba(252,165,165,0.24) 50%, transparent 70%)"};
+        background: {"radial-gradient(circle, rgba(202,138,4,0.42) 0%, rgba(161,98,7,0.26) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(253,224,71,0.50) 0%, rgba(250,204,21,0.32) 55%, transparent 72%)"};
         filter: blur(135px);
         pointer-events: none; z-index: -1;
         mix-blend-mode: normal;
         animation: aura4 44s ease-in-out infinite;
         will-change: transform, opacity;
     }}
-    /* Orb 5 — indigo, mid-right */
+    /* Orb 5 — warm orange-red, mid-right */
     .bg-orb-5 {{
         position: fixed;
         top: 38%; right: -120px;
         width: 520px; height: 520px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(99,102,241,0.28) 0%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(167,139,250,0.30) 0%, transparent 70%)"};
-        filter: blur(115px);
+        background: {"radial-gradient(circle, rgba(220,38,38,0.28) 0%, rgba(239,68,68,0.16) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(252,165,165,0.38) 0%, rgba(254,202,202,0.24) 55%, transparent 72%)"};
+        filter: blur(120px);
         pointer-events: none; z-index: -1;
         mix-blend-mode: normal;
         animation: aura5 34s ease-in-out infinite;
@@ -608,11 +608,12 @@ st.markdown(f"""
         inset: 0;
         z-index: -2;
         pointer-events: none;
-        opacity: {"0.035" if st.session_state.dark_mode else "0.055"};
+        opacity: {"0.11" if st.session_state.dark_mode else "0.15"};
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Ctext x='8' y='36' font-size='20' fill='%23F7C948' font-family='Georgia%2Cserif'%3E%E2%82%B9%3C/text%3E%3Ctext x='74' y='36' font-size='15' fill='%23F7C948' font-family='sans-serif' opacity='0.7'%3E%25%3C/text%3E%3Ctext x='110' y='36' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.5'%3E%E2%97%8F%3C/text%3E%3Ctext x='8' y='88' font-size='13' fill='%23F7C948' font-family='sans-serif' opacity='0.55'%3E%E2%94%80%E2%94%80%3C/text%3E%3Ctext x='56' y='88' font-size='18' fill='%23F7C948' font-family='sans-serif' opacity='0.65'%3E%E2%96%B3%3C/text%3E%3Ctext x='100' y='88' font-size='14' fill='%23F7C948' font-family='Georgia%2Cserif' opacity='0.6'%3E%E2%82%B9%3C/text%3E%3Ctext x='8' y='132' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.45'%3E%E2%97%8B%3C/text%3E%3Ctext x='50' y='132' font-size='13' fill='%23F7C948' font-family='sans-serif' opacity='0.5'%3E%25%3C/text%3E%3Ctext x='90' y='132' font-size='12' fill='%23F7C948' font-family='sans-serif' opacity='0.45'%3E%E2%94%80%3C/text%3E%3C/svg%3E");
         background-repeat: repeat;
         background-size: 140px 140px;
     }}
+
 
     .block-container {{
         padding-top: 0.5rem !important;
