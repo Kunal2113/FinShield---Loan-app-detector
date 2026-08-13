@@ -502,6 +502,28 @@ st.markdown(f"""
     }}
 
 
+    @keyframes ambientPulse {{
+        0%   {{ transform: translate(-4%, -4%) scale(1); opacity: 0.45; }}
+        33%  {{ transform: translate(5%, 6%) scale(1.14); opacity: 0.65; }}
+        66%  {{ transform: translate(-3%, 8%) scale(0.94); opacity: 0.48; }}
+        100% {{ transform: translate(-4%, -4%) scale(1); opacity: 0.45; }}
+    }}
+
+    /* Single-color (Orange/Amber) full-screen ambient animated background gradient glow */
+    .bg-single-ambient {{
+        position: fixed;
+        top: -20vh;
+        left: -10vw;
+        width: 120vw;
+        height: 140vh;
+        z-index: -1;
+        pointer-events: none;
+        background: {"radial-gradient(circle at 50% 35%, rgba(234, 88, 12, 0.35) 0%, rgba(217, 119, 6, 0.18) 45%, transparent 70%)" if st.session_state.dark_mode else "radial-gradient(circle at 50% 35%, rgba(251, 146, 60, 0.28) 0%, rgba(253, 186, 116, 0.14) 45%, transparent 70%)"};
+        filter: blur(120px);
+        animation: ambientPulse 22s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+
     /* Financial symbol pattern layer — Dark mode only */
     .bg-pattern-layer {{
         position: fixed;
@@ -840,8 +862,9 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Inject background financial pattern layer div
+# Inject background single-color ambient gradient + pattern layer divs
 st.markdown("""
+<div class="bg-single-ambient"></div>
 <div class="bg-pattern-layer"></div>
 """, unsafe_allow_html=True)
 
