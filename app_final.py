@@ -686,6 +686,28 @@ st.markdown(f"""
         will-change: transform, opacity;
     }}
 
+    @keyframes rightGlowPulse {{
+        0%   {{ transform: translate(0, 0) scale(1); opacity: 0.35; }}
+        50%  {{ transform: translate(-3%, 4%) scale(1.12); opacity: 0.50; }}
+        100% {{ transform: translate(0, 0) scale(1); opacity: 0.35; }}
+    }}
+
+    /* Right-side glowing ambient gradient effect */
+    .bg-right-ambient {{
+        position: fixed;
+        top: -120px;
+        right: -150px;
+        width: 750px;
+        height: 750px;
+        border-radius: 50%;
+        z-index: -1;
+        pointer-events: none;
+        background: {"radial-gradient(circle, rgba(245, 158, 11, 0.42) 0%, rgba(234, 88, 12, 0.22) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(253, 186, 116, 0.18) 50%, transparent 72%)"};
+        filter: blur(120px);
+        animation: rightGlowPulse 18s ease-in-out infinite;
+        will-change: transform, opacity;
+    }}
+
     /* Financial symbol pattern layer — Dark mode only */
     .bg-pattern-layer {{
         position: fixed;
@@ -1082,9 +1104,10 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Inject background single-color ambient gradient + pattern layer divs
+# Inject background single-color ambient gradient + right-side glow + pattern layer divs
 st.markdown("""
 <div class="bg-single-ambient"></div>
+<div class="bg-right-ambient"></div>
 <div class="bg-pattern-layer"></div>
 """, unsafe_allow_html=True)
 
