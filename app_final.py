@@ -784,17 +784,27 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
-    /* Audit Input Container Box */
+    /* Audit Input Container Box & Modern Glass Container */
     form[data-testid="stForm"],
     div[data-testid="stForm"],
-    .stForm {{
-        background-color: {"rgba(18, 24, 38, 0.92)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        border: {"2.5px solid #F7C948" if st.session_state.dark_mode else "2.5px solid #1E293B"} !important;
-        border-radius: 20px !important;
-        padding: 24px 20px !important;
-        box-shadow: {"0 12px 35px rgba(0, 0, 0, 0.5)" if st.session_state.dark_mode else "0 12px 30px rgba(0, 0, 0, 0.12)"} !important;
+    .stForm,
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        background: {"linear-gradient(135deg, rgba(16, 22, 34, 0.88) 0%, rgba(10, 14, 23, 0.94) 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)"} !important;
+        border: {"1.5px solid rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "1.5px solid #CBD5E1"} !important;
+        border-radius: 24px !important;
+        padding: 26px 24px !important;
+        box-shadow: {"0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08)" if st.session_state.dark_mode else "0 12px 35px rgba(0, 0, 0, 0.08)"} !important;
         margin-top: 14px !important;
         margin-bottom: 24px !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+    }}
+    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"] {{
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }}
     form[data-testid="stForm"] label,
     form[data-testid="stForm"] p,
@@ -802,6 +812,54 @@ st.markdown(f"""
         color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
         font-weight: 600 !important;
     }}
+
+    /* Segmented Pill Switcher for Radio Buttons */
+    div[data-testid="stRadio"] {{
+        margin-top: 8px !important;
+        margin-bottom: 16px !important;
+    }}
+    div[data-testid="stRadio"] > div {{
+        background: {"rgba(255, 255, 255, 0.04)" if st.session_state.dark_mode else "#F1F5F9"} !important;
+        border: {"1.5px solid rgba(255, 255, 255, 0.1)" if st.session_state.dark_mode else "1.5px solid #E2E8F0"} !important;
+        border-radius: 30px !important;
+        padding: 5px !important;
+        gap: 6px !important;
+        display: inline-flex !important;
+        flex-wrap: wrap !important;
+    }}
+    div[data-testid="stRadio"] label {{
+        background: transparent !important;
+        border-radius: 24px !important;
+        padding: 8px 20px !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        color: {"#94A3B8" if st.session_state.dark_mode else "#64748B"} !important;
+        display: flex !important;
+        align-items: center !important;
+    }}
+    div[data-testid="stRadio"] label > div:first-child {{
+        display: none !important;
+    }}
+    div[data-testid="stRadio"] label:hover {{
+        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
+        background: {"rgba(255, 255, 255, 0.06)" if st.session_state.dark_mode else "#E2E8F0"} !important;
+    }}
+    div[data-testid="stRadio"] label:has(input:checked),
+    div[data-testid="stRadio"] label[aria-checked="true"] {{
+        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
+        box-shadow: 0 4px 18px rgba(247, 201, 72, 0.35) !important;
+    }}
+    div[data-testid="stRadio"] label:has(input:checked) p,
+    div[data-testid="stRadio"] label:has(input:checked) span,
+    div[data-testid="stRadio"] label[aria-checked="true"] p,
+    div[data-testid="stRadio"] label[aria-checked="true"] span {{
+        color: #000000 !important;
+        font-weight: 800 !important;
+    }}
+
 
 
     /* 3-Column Square Grid Layout (App at a glance) */
@@ -935,8 +993,23 @@ with tab_scorer:
 
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
     with st.container(border=True):
-        st.markdown(f'<h3 style="margin-top:0; font-size:1.35rem; font-weight:800; color:{t["text"]};">🔍 Evaluate Digital Loan App Safety</h3>', unsafe_allow_html=True)
-        st.caption("Select a pre-analyzed app or paste any custom Play Store link, website URL, or package name to audit unlisted apps.")
+        st.markdown(
+            f"""
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid {'rgba(255,255,255,0.08)' if st.session_state.dark_mode else 'rgba(0,0,0,0.06)'};">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg, rgba(247,201,72,0.22) 0%, rgba(217,119,6,0.35) 100%); border:1.5px solid rgba(247,201,72,0.45); display:flex; align-items:center; justify-content:center; font-size:1.3rem; box-shadow:0 6px 16px rgba(247,201,72,0.2);">🔍</div>
+                    <div>
+                        <div style="font-size:1.38rem; font-weight:800; color:{t['text']}; letter-spacing:-0.5px; line-height:1.25;">Evaluate Digital Loan App Safety</div>
+                        <div style="font-size:0.84rem; color:{t['muted']}; font-weight:500; margin-top:3px;">Select a pre-analyzed app or paste any custom Play Store link, website URL, or package name to audit.</div>
+                    </div>
+                </div>
+                <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(247,201,72,0.12); color:#F7C948; border:1.5px solid rgba(247,201,72,0.35); padding:6px 14px; border-radius:24px; font-size:0.72rem; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; box-shadow:0 2px 10px rgba(247,201,72,0.1);">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#F7C948; box-shadow:0 0 8px #F7C948;"></span> AI Safety Engine v2.6
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         if USE_FAKE_MODEL:
             st.info("🔧 Running with formula scoring mode (predatory_loan_detector.pkl not found). Good for UI testing.", icon="🔧")
