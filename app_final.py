@@ -702,9 +702,9 @@ st.markdown(f"""
         border-radius: 50%;
         z-index: -1;
         pointer-events: none;
-        background: {"radial-gradient(circle, rgba(245, 158, 11, 0.42) 0%, rgba(234, 88, 12, 0.22) 50%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(253, 186, 116, 0.18) 50%, transparent 72%)"};
+        background: {"radial-gradient(circle, rgba(245, 158, 11, 0.42) 0%, rgba(234, 88, 12, 0.22) 30%, transparent 82%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(253, 186, 116, 0.18) 50%, transparent 72%)"};
         filter: blur(120px);
-        animation: rightGlowPulse 18s ease-in-out infinite;
+        animation: rightGlowPulse 12s ease-in-out infinite;
         will-change: transform, opacity;
     }}
 
@@ -890,7 +890,7 @@ st.markdown(f"""
         font-weight: 800 !important;
     }}
 
-    /* Ultra-Modern Glassmorphic Floating Pill Tabs */
+    
     .stTabs [data-baseweb="tab-list"], [data-baseweb="tab-list"] {{
         gap: 10px !important;
         border-bottom: none !important;
