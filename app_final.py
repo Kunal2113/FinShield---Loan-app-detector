@@ -1495,30 +1495,28 @@ with tab_rankings:
 
                 app_logo_html = get_app_logo_html(app_name, app_id, size=38)
 
-                card_header_html = f"""
-                <div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:0.74rem; font-weight:700; color:{muted_color}; text-transform:uppercase; letter-spacing:0.5px;">{cat_tag}</span>
-                        <span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                        {app_logo_html}
-                        <div style="font-size:1.15rem; font-weight:800; color:{text_color}; line-height:1.35;" title="{app_name}">
-                            {app_name}
-                        </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; background:{'rgba(255,255,255,0.02)' if c_dark else '#F8FAFC'}; padding:8px 12px; border-radius:10px;">
-                        <div>
-                            <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">Installs Base</div>
-                            <div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{installs_str}</div>
-                        </div>
-                        <div>
-                            <div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">FinShield Score</div>
-                            <div style="font-weight:900; color:{score_fg}; font-size:0.96rem;">{score} <span style="font-size:0.72rem; opacity:0.8;">/ 100</span></div>
-                        </div>
-                    </div>
-                </div>
-                """
+                card_header_html = f"""<div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+<span style="font-size:0.74rem; font-weight:700; color:{muted_color}; text-transform:uppercase; letter-spacing:0.5px;">{cat_tag}</span>
+<span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
+</div>
+<div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
+{app_logo_html}
+<div style="font-size:1.15rem; font-weight:800; color:{text_color}; line-height:1.35; flex:1;" title="{app_name}">
+{app_name}
+</div>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; background:{'rgba(255,255,255,0.02)' if c_dark else '#F8FAFC'}; padding:8px 12px; border-radius:10px;">
+<div>
+<div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">Installs Base</div>
+<div style="font-weight:800; color:{text_color}; font-size:0.92rem;">{installs_str}</div>
+</div>
+<div>
+<div style="color:{muted_color}; font-size:0.72rem; font-weight:600;">FinShield Score</div>
+<div style="font-weight:900; color:{score_fg}; font-size:0.96rem;">{score} <span style="font-size:0.72rem; opacity:0.8;">/ 100</span></div>
+</div>
+</div>
+</div>"""
                 st.markdown(card_header_html, unsafe_allow_html=True)
 
                 # Action Row: Left Compare Button | Right View Details Button (Side-by-Side)
