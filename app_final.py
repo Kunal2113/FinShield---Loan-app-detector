@@ -126,174 +126,6 @@ def get_app_choices():
     except FileNotFoundError:
         return []
 
-def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
-    clean_name = str(app_name).split(':')[0].strip()
-    words = clean_name.split()
-    if len(words) >= 2:
-        monogram = (words[0][0] + words[1][0]).upper()
-    elif len(clean_name) >= 2:
-        monogram = clean_name[:2].upper()
-    else:
-        monogram = (clean_name[0] if clean_name else "A").upper()
-
-    name_lower = clean_name.lower()
-    pkg_str = str(package_id).strip()  # Keep original case for Play Store URLs
-
-    # Actual Play Store App Icon CDN URLs (play-lh.googleusercontent.com)
-    # These are the real round app icons as they appear on Google Play Store
-    play_store_icons = {
-        "com.sbi.lotusintouch": "https://play-lh.googleusercontent.com/GH_NIOhekFxiVOY5pq4pPJLRYlCW7NHqTYBfKmXibJrKLT-OT2WVJbcE19Xsb3U1uQ",
-        "com.hdfcbank.android.now": "https://play-lh.googleusercontent.com/YLDpGUoLwrmqBQHfBNVBMrDnf5L0uqYz4CtT0rAWOJv0iFTf3T3RGP3I0eRLjrIOEQ",
-        "com.csam.icici.bank.imobile": "https://play-lh.googleusercontent.com/AH7TlBzIiHWyS6QCN4LiXo9e0TkjUQBZEMXQB43VD-8Aw4fPXqpOSMkuRJcKFg4-KiE",
-        "com.axis.mobile": "https://play-lh.googleusercontent.com/m3D4rEKmWUVOzIVkH4s5BEPUoMByHtKqAQgkYTJIJA_Q-cWCpJl_i5BL_R7nEGk4cCA",
-        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://play-lh.googleusercontent.com/mvdUl6A8oYwFJAzU6fcuRGnCH5DVcGr5T-LHFdeBb7XGLFU9F-GUy0Iyg3bF4B48UOI",
-        "com.bankofbaroda.mconnect": "https://play-lh.googleusercontent.com/JEVLkqJfZi4xo-5FdaxlEoEjV7T9e8jLTKDjNLXFqNbOGgDhU0j0Xmtc-7fPy2MBiuQ",
-        "com.canarabank.mobility": "https://play-lh.googleusercontent.com/RMVbM3INicQfQJUn0cpGC3z0wC9O0IfPG3-JqN8FBJJiY7e4YT1gP6yHzb8OqCMRcA",
-        "com.fedmobile": "https://play-lh.googleusercontent.com/h8lHKLBwwp7TJdXbNpXJUlbmKwp-GkTHB0Rl6Kh-1DL1YPgEFMWL8I_7Pf_CqsEOA",
-        "com.phonepe.app": "https://play-lh.googleusercontent.com/lOkzCgpGRtV3kNbDaDumz-9L7V3UzJOb-2EBXPx8WxqGnH5O2rjfJc2S6A-jm0U8vP8",
-        "com.google.android.apps.nbu.paisa.user": "https://play-lh.googleusercontent.com/HArtbyi53v63p0_qlQ_xQUdAkvsAXaOrp-k5SqC4uXMjl2sEvx_2bw3iRp8eNGz6_L4",
-        "in.groww.dash": "https://play-lh.googleusercontent.com/sRMSAVhCDMdj0gswGiD3xF0kSSmRiG_dMNpRkpEUDSmEpBaF8V5NHtTW-gSz8OHKMQ",
-        "com.nextbillion.groww": "https://play-lh.googleusercontent.com/sRMSAVhCDMdj0gswGiD3xF0kSSmRiG_dMNpRkpEUDSmEpBaF8V5NHtTW-gSz8OHKMQ",
-        "com.dreamplug.androidapp": "https://play-lh.googleusercontent.com/zOcM5YkJgWuVAFY6YBuLfKhZsTH0fcQCc0vBJjGtbq3K-RpXTsEtJhNERU5X3mvWfQ",
-        "com.myairtelapp": "https://play-lh.googleusercontent.com/gdJWjKRkRVBsz0nZ-n5qTpCQNhJEP8pCMSVbVv7aHi7bZ1fJzd9a3j7Rc7aLRR8bKA",
-        "com.naviapp": "https://play-lh.googleusercontent.com/tMq2bblTFBNFVBKRCd39lT4dEkBvVxfGF8E5hf0j8EhcVzpINh1RVN5H_PaBpAF8tg",
-        "com.kreditbee.android": "https://play-lh.googleusercontent.com/e9OW3-rS9Hu-kWF8IwvWvjN1OfN3CJevSS4sH1Wt2v5ILzKEXsHvb8OYVR1n7Y9wig",
-        "com.whizdm.moneyview.loans": "https://play-lh.googleusercontent.com/bfxvRK8mIRl3DtKuH4c84U3cNkEQGS2Vz-TBkPRaMd6_D7t3ZOmFDFJV3DmKo5C8xw",
-        "co.tslc.cashe.android": "https://play-lh.googleusercontent.com/JqhKGiN8uewf5HmkDojtZ6g-nGpsPQBinVMSfL2OLJaYkBBVKPjnqF-MFCxGJNByEg",
-        "com.mpokket.app": "https://play-lh.googleusercontent.com/8IM3p5L_tpRGDQ4FuTFHBIQXbUAKixXpX4q8mS1eLbqy0IhcmQPj2P3I0RTEn0MFAQ",
-        "com.earlysalary.android": "https://play-lh.googleusercontent.com/FE1Ur9zTXLM-IyxP4GRvhLM9OEAZ7jFY2W5b7UWVKePqA8R0MREQjl6E3GHjFf4mDvQ",
-        "com.fastbanking": "https://play-lh.googleusercontent.com/GJXBn2tD6hONLuEHhRJkZEZMRhxaT5ZlN8zMXSwrTlPIajO1Gj7pN4SqcHJ1kNvdIw",
-        "com.balancehero.truebalance": "https://play-lh.googleusercontent.com/dRX0BuV0zt9EkLiC-kC4I8H4m2mNO5JVxwkJVVLWnF5C8QnwPxd-L3gy0W-4YNVzxHs",
-        "money.jupiter": "https://play-lh.googleusercontent.com/l0WlVMhWPiLhBaLUG_CWGbr_-Ry3sPbTGp3oH-cHtFEqAiNrQfj5rBqB5VQ0oiXYIA",
-        "com.moneytap.bnpl.app": "https://play-lh.googleusercontent.com/U8cVOQQfLrHjF_G9P_nJ_0TIlPDLWTSWHm7QAj-G-P0OcxNyI5sBMLPkH8JuC7vDFI",
-        "com.stashfin.android": "https://play-lh.googleusercontent.com/Ugg7M9O7Z-DZ0JByY2tnrVRkUP4nwp2sj4LuA8P7lLKN5aijL9JMpvbQmFyNPJ7OBlc",
-        "com.muthootfinance.imuthoot": "https://play-lh.googleusercontent.com/k5FPcnRUz1FGMN5Gch-CcRNeFHGHj3b4LmzMQi7ARmqMHFECHjxm_z_OUw5t5DpLng",
-        "com.citrus.citruspay": "https://play-lh.googleusercontent.com/8RXFNF79A4k5YGwJsf1HPYzl-6DxO3bVuNnpg8mTJsMR1FN6nVpb_Ot5t72JbJNpvg",
-        "com.mobikwik_new": "https://play-lh.googleusercontent.com/mKpNFkIAq5g5aX6jzl9O4KHcb9FP3y8GZF0KaBt4bZULt3TjxWPAOuMjxoXFqQMiWp4",
-        "com.indialends.android": "https://play-lh.googleusercontent.com/N0Sb1A_xEiALIJQMWCJH0F4A-3V-VRl1lCHXF2a4YBkB0YllOdKBqLGl2yOD0iUmxE",
-        "tech.fplabs.score": "https://play-lh.googleusercontent.com/e_J9kh9DKkuVzNJMcKqYEBbpX2E_cq7RkxKYJB0sBnhK7v8y8Y0CYBNiCOjqv8EEFQ",
-        "com.privo.creditsaison": "https://play-lh.googleusercontent.com/0h1RCl_mcJEOlQ9OiInUVklxdEuB4_8a2Q6MlCVqjWDuMCp3JxuP4AkGbE4_JA6MRDI",
-        "com.smfgindia.mconnect": "https://play-lh.googleusercontent.com/p7MVR0nBsWD0zXoB0lCxFf7UJ_IWZ_KR7N2jUv9_SnQtFGG4DmxL2W9zOt0zGAmTGI",
-        "com.nobroker.loans": "https://play-lh.googleusercontent.com/1xkJC_e6g6x6Z2TkF5CZ9r0Df-E5N1SVDBC0yBgP4ySq0E7VIcUQ5NjCQ5fOnD9Vpk",
-        "com.piramal.app.pchf": "https://play-lh.googleusercontent.com/NeHalJFAtNHH1bLlPf3oYJiIY6cLlFHYKwFoXu5XPnTBq9LHUi3sPMLWnrpTjM3fEA",
-        "in.amazon.mshop.android.shopping": "https://play-lh.googleusercontent.com/VUSFpTL4cpHVPEHfDJJMXxQBVaORXfv_BuFhxV3TvDq3sHhVlvbHJZcGfVa6R3XBLK4",
-        "in.amazon.mShop.android.shopping": "https://play-lh.googleusercontent.com/VUSFpTL4cpHVPEHfDJJMXxQBVaORXfv_BuFhxV3TvDq3sHhVlvbHJZcGfVa6R3XBLK4",
-        "com.whizdm.moneyview.loans": "https://play-lh.googleusercontent.com/bfxvRK8mIRl3DtKuH4c84U3cNkEQGS2Vz-TBkPRaMd6_D7t3ZOmFDFJV3DmKo5C8xw",
-    }
-
-    # Fallback: Google FaviconV2 API (better quality than s2/favicons)
-    domain_map = {
-        "com.naviapp": "navi.com",
-        "com.kreditbee.android": "kreditbee.in",
-        "com.whizdm.moneyview.loans": "moneyview.in",
-        "co.tslc.cashe.android": "cashe.co.in",
-        "com.mpokket.app": "mpokket.in",
-        "com.earlysalary.android": "fibe.in",
-        "com.privo.creditsaison": "creditsaison.in",
-        "com.fintech.lenditt": "lenditt.com",
-        "com.kksv.salarynowapp": "salarynow.in",
-        "com.kksv.salarynowloan": "salarynow.in",
-        "com.smfgindia.mconnect": "smfgindiacredit.com",
-        "com.moneytap.bnpl.app": "freo.money",
-        "tech.fplabs.score": "onescore.app",
-        "com.indialends.android": "indialends.com",
-        "com.stashfin.android": "stashfin.com",
-        "com.citrus.citruspay": "lazypay.in",
-        "com.branch_international.branch.branch_demo_android": "branch.co",
-        "money.jupiter": "jupiter.money",
-        "com.piramal.app.pchf": "piramalfinance.com",
-        "com.muthootfinance.imuthoot": "muthootfinance.com",
-        "in.hanafintech": "payrupik.in",
-        "com.rupeeredee.app": "rupeeredee.com",
-        "rapidrupee.app": "rapidrupee.in",
-        "com.innofinsolutions.instamoney": "instamoney.in",
-        "com.bankofbaroda.mconnect": "bankofbaroda.in",
-        "com.canarabank.mobility": "canarabank.com",
-        "com.fedmobile": "federalbank.co.in",
-        "com.phonepe.app": "phonepe.com",
-        "com.google.android.apps.nbu.paisa.user": "pay.google.com",
-        "in.amazon.mshop.android.shopping": "amazon.in",
-        "com.fastbanking": "kissht.com",
-        "com.balancehero.truebalance": "truebalance.io",
-        "com.lendingplate": "lendingplate.com",
-        "com.nobroker.loans": "nobroker.in",
-        "com.sbi.lotusintouch": "sbi.co.in",
-        "com.hdfcbank.android.now": "hdfcbank.com",
-        "com.csam.icici.bank.imobile": "icicibank.com",
-        "com.axis.mobile": "axisbank.com",
-        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "kotak.com",
-        "com.mobikwik_new": "mobikwik.com",
-        "com.myairtelapp": "airtel.in",
-        "com.dreamplug.androidapp": "cred.club",
-        "in.groww.dash": "groww.in",
-        "com.nextbillion.groww": "groww.in",
-    }
-
-    # Try exact package match first (Play Store icon), then domain favicon
-    play_icon = play_store_icons.get(pkg_str)
-    matched_domain = domain_map.get(pkg_str)
-
-    # Keyword fallback if both missing
-    if not play_icon and not matched_domain:
-        name_l = name_lower
-        if "sbi" in name_l or "yono" in name_l:
-            play_icon = play_store_icons.get("com.sbi.lotusintouch")
-        elif "hdfc" in name_l:
-            play_icon = play_store_icons.get("com.hdfcbank.android.now")
-        elif "icici" in name_l:
-            play_icon = play_store_icons.get("com.csam.icici.bank.imobile")
-        elif "axis" in name_l:
-            play_icon = play_store_icons.get("com.axis.mobile")
-        elif "kotak" in name_l:
-            play_icon = play_store_icons.get("com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge")
-        elif "navi" in name_l:
-            matched_domain = "navi.com"
-        elif "kreditbee" in name_l:
-            matched_domain = "kreditbee.in"
-        elif "groww" in name_l:
-            matched_domain = "groww.in"
-        elif "moneyview" in name_l or "money view" in name_l:
-            matched_domain = "moneyview.in"
-        elif "cashe" in name_l:
-            matched_domain = "cashe.co.in"
-        elif "mpokket" in name_l:
-            matched_domain = "mpokket.in"
-        elif "fibe" in name_l or "earlysalary" in name_l:
-            matched_domain = "fibe.in"
-        elif "phonepe" in name_l:
-            matched_domain = "phonepe.com"
-        elif "jupiter" in name_l:
-            matched_domain = "jupiter.money"
-        elif "cred" in name_l:
-            matched_domain = "cred.club"
-        elif "airtel" in name_l:
-            matched_domain = "airtel.in"
-
-    # Build final logo URL
-    if play_icon:
-        logo_url = f"{play_icon}=w512-h512-rw"
-    elif matched_domain:
-        logo_url = f"https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://{matched_domain}&size=256"
-    else:
-        logo_url = None
-
-    hue = (sum(ord(c) for c in clean_name) * 37) % 360
-    grad_start = f"hsl({hue}, 82%, 52%)"
-    grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
-
-    if logo_url:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
-            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<img src="{logo_url}" onerror="this.style.display=\'none\';" style="width:100%; height:100%; object-fit:cover; border-radius:10px; position:absolute; top:0; left:0;" />'
-            f'</div>'
-        )
-    else:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.2);">'
-            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'</div>'
-        )
 
 def lookup_app_features(identifier: str):
     df = load_features_table()
@@ -1441,7 +1273,6 @@ with tab_rankings:
                     score_fg = "#F87171" if c_dark else "#B91C1C"
                     status_text = "High Risk"
 
-                app_logo_html = get_app_logo_html(app_name, app_id, size=38)
 
                 card_header_html = f"""<div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -1449,7 +1280,6 @@ with tab_rankings:
 <span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
 </div>
 <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">
-{app_logo_html}
 <div style="font-size:1.15rem; font-weight:800; color:{text_color}; line-height:1.35; flex:1;" title="{app_name}">
 {app_name}
 </div>
@@ -1483,7 +1313,6 @@ with tab_rankings:
                     name_clean = app_name.split(':')[0].strip()
                     name_lower = name_clean.lower()
                     rank_num = idx + 1
-                    detail_logo_html = get_app_logo_html(name_clean, app_id, size=48)
 
                     # Profile details fallback
                     if "sbi" in name_lower:
@@ -1533,7 +1362,6 @@ with tab_rankings:
                     detail_view_html = f"""<div style="background:{det_bg}; border:{det_bdr}; border-radius:20px; padding:28px 32px; margin-top:20px; margin-bottom:28px; box-shadow:0 12px 35px rgba(0,0,0,0.25);">
 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid {'rgba(255,255,255,0.08)' if c_dark else '#E2E8F0'}; padding-bottom:20px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
 <div style="display:flex; align-items:center; gap:14px;">
-{detail_logo_html}
 <div>
 <div style="font-size:1.45rem; font-weight:900; color:{text_color};">{name_clean}</div>
 <span style="background:{score_bg}; color:{score_fg}; font-size:0.75rem; font-weight:800; padding:3px 10px; border-radius:20px; border:{score_bdr}; display:inline-block; margin-top:3px;">{tag_label}</span>
