@@ -136,135 +136,77 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     else:
         monogram = (clean_name[0] if clean_name else "A").upper()
 
-    name_lower = clean_name.lower()
     pkg_str = str(package_id).lower().strip()
 
-    # Pure Self-Contained SVG Vector Logos (0 network dependency, 100% reliable)
-    if "sbi" in name_lower or "yono" in name_lower or "sbi" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#0082CE; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,130,206,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<circle cx="50" cy="50" r="48" fill="#0082CE"/>'
-            f'<circle cx="50" cy="38" r="14" fill="#FFFFFF"/>'
-            f'<rect x="45" y="38" width="10" height="44" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "hdfc" in name_lower or "hdfc" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED232A; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,35,42,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:78%; height:78%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect width="100" height="100" fill="#ED232A" rx="12"/>'
-            f'<rect x="16" y="16" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="58" y="16" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="16" y="58" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="58" y="58" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="36" y="36" width="28" height="28" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "icici" in name_lower or "icici" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#003366; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,51,102,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect width="100" height="100" fill="#003366" rx="16"/>'
-            f'<polygon points="15,20 85,20 50,82" fill="#F37021"/>'
-            f'<circle cx="50" cy="38" r="13" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "axis" in name_lower or "axis" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#97144D; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(151,20,77,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<polygon points="50,15 88,85 68,85 50,50 32,85 12,85" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "kotak" in name_lower or "kotak" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED1C24; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,28,36,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<path d="M22 18 L40 18 L40 44 L68 18 L90 18 L58 50 L90 82 L68 82 L40 54 L40 82 L22 82 Z" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-
-    package_logo_map = {
-        "com.bankofbaroda.mconnect": "https://www.google.com/s2/favicons?domain=bankofbaroda.in&sz=128",
-        "com.canarabank.mobility": "https://www.google.com/s2/favicons?domain=canarabank.com&sz=128",
-        "com.fedmobile": "https://www.google.com/s2/favicons?domain=federalbank.co.in&sz=128",
-        "com.phonepe.app": "https://www.google.com/s2/favicons?domain=phonepe.com&sz=128",
-        "com.google.android.apps.nbu.paisa.user": "https://www.google.com/s2/favicons?domain=pay.google.com&sz=128",
-        "in.amazon.mshop.android.shopping": "https://www.google.com/s2/favicons?domain=amazon.in&sz=128",
-        "com.muthootfinance.imuthoot": "https://www.google.com/s2/favicons?domain=muthootfinance.com&sz=128",
-        "com.naviapp": "https://www.google.com/s2/favicons?domain=navi.com&sz=128",
-        "com.kreditbee.android": "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128",
-        "in.groww.dash": "https://www.google.com/s2/favicons?domain=groww.in&sz=128",
-        "com.nextbillion.groww": "https://www.google.com/s2/favicons?domain=groww.in&sz=128",
-        "com.whizdm.moneyview.loans": "https://www.google.com/s2/favicons?domain=moneyview.in&sz=128",
-        "co.tslc.cashe.android": "https://www.google.com/s2/favicons?domain=cashe.co.in&sz=128",
-        "com.mpokket.app": "https://www.google.com/s2/favicons?domain=mpokket.in&sz=128",
-        "com.earlysalary.android": "https://www.google.com/s2/favicons?domain=fibe.in&sz=128",
-        "com.privo.creditsaison": "https://www.google.com/s2/favicons?domain=creditsaison.in&sz=128",
-        "com.pocketly": "https://www.google.com/s2/favicons?domain=pocketly.in&sz=128",
-        "com.fastbanking": "https://www.google.com/s2/favicons?domain=kissht.com&sz=128",
-        "com.nobroker.loans": "https://www.google.com/s2/favicons?domain=nobroker.in&sz=128",
-        "com.balancehero.truebalance": "https://www.google.com/s2/favicons?domain=truebalance.io&sz=128",
-        "com.lendingplate": "https://www.google.com/s2/favicons?domain=lendingplate.com&sz=128",
-        "com.fintech.lenditt": "https://www.google.com/s2/favicons?domain=lenditt.com&sz=128",
-        "com.kksv.salarynowapp": "https://www.google.com/s2/favicons?domain=salarynow.in&sz=128",
-        "com.kksv.salarynowloan": "https://www.google.com/s2/favicons?domain=salarynow.in&sz=128",
-        "com.smfgindia.mconnect": "https://www.google.com/s2/favicons?domain=smfgindiacredit.com&sz=128",
-        "com.moneytap.bnpl.app": "https://www.google.com/s2/favicons?domain=freo.money&sz=128",
-        "com.myairtelapp": "https://www.google.com/s2/favicons?domain=airtel.in&sz=128",
-        "tech.fplabs.score": "https://www.google.com/s2/favicons?domain=onescore.app&sz=128",
-        "com.mobikwik_new": "https://www.google.com/s2/favicons?domain=mobikwik.com&sz=128",
-        "com.indialends.android": "https://www.google.com/s2/favicons?domain=indialends.com&sz=128",
-        "com.stashfin.android": "https://www.google.com/s2/favicons?domain=stashfin.com&sz=128",
-        "com.citrus.citruspay": "https://www.google.com/s2/favicons?domain=lazypay.in&sz=128",
-        "com.branch_international.branch.branch_demo_android": "https://www.google.com/s2/favicons?domain=branch.co&sz=128",
-        "money.jupiter": "https://www.google.com/s2/favicons?domain=jupiter.money&sz=128",
-        "com.dreamplug.androidapp": "https://www.google.com/s2/favicons?domain=cred.club&sz=128",
-        "com.piramal.app.pchf": "https://www.google.com/s2/favicons?domain=piramalfinance.com&sz=128",
-        "in.hanafintech": "https://www.google.com/s2/favicons?domain=payrupik.in&sz=128",
-        "com.rupeeredee.app": "https://www.google.com/s2/favicons?domain=rupeeredee.com&sz=128",
-        "rapidrupee.app": "https://www.google.com/s2/favicons?domain=rapidrupee.in&sz=128",
-        "com.innofinsolutions.instamoney": "https://www.google.com/s2/favicons?domain=instamoney.in&sz=128",
+    # Domain favicon mapping for web domains or fallback
+    domain_map = {
+        "com.sbi.lotusintouch": "sbi.co.in",
+        "com.hdfcbank.android.now": "hdfcbank.com",
+        "com.csam.icici.bank.imobile": "icicibank.com",
+        "com.axis.mobile": "axisbank.com",
+        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "kotak.com",
+        "com.bankofbaroda.mconnect": "bankofbaroda.in",
+        "com.canarabank.mobility": "canarabank.com",
+        "com.fedmobile": "federalbank.co.in",
+        "com.phonepe.app": "phonepe.com",
+        "com.google.android.apps.nbu.paisa.user": "pay.google.com",
+        "in.amazon.mshop.android.shopping": "amazon.in",
+        "com.muthootfinance.imuthoot": "muthootfinance.com",
+        "com.naviapp": "navi.com",
+        "com.kreditbee.android": "kreditbee.in",
+        "in.groww.dash": "groww.in",
+        "com.nextbillion.groww": "groww.in",
+        "com.whizdm.moneyview.loans": "moneyview.in",
+        "co.tslc.cashe.android": "cashe.co.in",
+        "com.mpokket.app": "mpokket.in",
+        "com.earlysalary.android": "fibe.in",
+        "com.privo.creditsaison": "creditsaison.in",
+        "com.pocketly": "pocketly.in",
+        "com.fastbanking": "kissht.com",
+        "com.nobroker.loans": "nobroker.in",
+        "com.balancehero.truebalance": "truebalance.io",
+        "com.lendingplate": "lendingplate.com",
+        "com.fintech.lenditt": "lenditt.com",
+        "com.kksv.salarynowapp": "salarynow.in",
+        "com.kksv.salarynowloan": "salarynow.in",
+        "com.smfgindia.mconnect": "smfgindiacredit.com",
+        "com.moneytap.bnpl.app": "freo.money",
+        "com.myairtelapp": "airtel.in",
+        "tech.fplabs.score": "onescore.app",
+        "com.mobikwik_new": "mobikwik.com",
+        "com.indialends.android": "indialends.com",
+        "com.stashfin.android": "stashfin.com",
+        "com.citrus.citruspay": "lazypay.in",
+        "com.branch_international.branch.branch_demo_android": "branch.co",
+        "money.jupiter": "jupiter.money",
+        "com.dreamplug.androidapp": "cred.club",
+        "com.piramal.app.pchf": "piramalfinance.com",
+        "in.hanafintech": "payrupik.in",
+        "com.rupeeredee.app": "rupeeredee.com",
+        "rapidrupee.app": "rapidrupee.in",
+        "com.innofinsolutions.instamoney": "instamoney.in",
     }
-    
-    logo_url = package_logo_map.get(pkg_str)
-    
-    # Keyword fallback for unlisted package IDs
-    if not logo_url:
-        if "navi" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=navi.com&sz=128"
-        elif "kreditbee" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128"
-        elif "groww" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=groww.in&sz=128"
-        elif "moneyview" in name_lower or "money view" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=moneyview.in&sz=128"
-        elif "cashe" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=cashe.co.in&sz=128"
+
+    matched_domain = domain_map.get(pkg_str, "")
+    fallback_favicon = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128" if matched_domain else ""
+
+    # Primary: Official Unavatar Google Play API
+    play_icon_url = f"https://unavatar.io/google-play/{pkg_str}"
 
     hue = (sum(ord(c) for c in clean_name) * 37) % 360
     grad_start = f"hsl({hue}, 82%, 52%)"
     grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
-    if logo_url:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
-            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:url(\'{logo_url}\'); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
-            f'</div>'
-        )
-    else:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.2);">'
-            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'</div>'
-        )
+    bg_images = f"url('{play_icon_url}')"
+    if fallback_favicon:
+        bg_images += f", url('{fallback_favicon}')"
+
+    return (
+        f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
+        f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
+        f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:{bg_images}; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
+        f'</div>'
+    )
 
 def lookup_app_features(identifier: str):
     df = load_features_table()
