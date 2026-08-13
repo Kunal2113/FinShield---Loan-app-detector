@@ -680,19 +680,19 @@ st.markdown(f"""
         height: 130vh;
         z-index: -1;
         pointer-events: none;
-        background: {"radial-gradient(circle at 50% 30%, rgba(234, 88, 12, 0.28) 0%, rgba(217, 119, 6, 0.10) 30%, transparent 50%)" if st.session_state.dark_mode else "radial-gradient(circle at 50% 30%, rgba(251, 146, 60, 0.20) 0%, rgba(253, 186, 116, 0.08) 30%, transparent 50%)"};
-        filter: blur(130px);
+        background: {"radial-gradient(circle at 50% 30%, rgba(234, 88, 12, 0.18) 0%, rgba(217, 119, 6, 0.05) 30%, transparent 50%)" if st.session_state.dark_mode else "radial-gradient(circle at 50% 30%, rgba(251, 146, 60, 0.12) 0%, rgba(253, 186, 116, 0.04) 30%, transparent 50%)"};
+        filter: blur(150px);
         animation: ambientPulse 22s ease-in-out infinite;
         will-change: transform, opacity;
     }}
 
     @keyframes rightGlowPulse {{
-        0%   {{ transform: translate(0, 0) scale(1); opacity: 0.35; }}
-        50%  {{ transform: translate(-3%, 4%) scale(1.12); opacity: 0.50; }}
-        100% {{ transform: translate(0, 0) scale(1); opacity: 0.35; }}
+        0%   {{ transform: translate(0, 0) scale(1); opacity: 0.20; }}
+        50%  {{ transform: translate(-3%, 4%) scale(1.08); opacity: 0.32; }}
+        100% {{ transform: translate(0, 0) scale(1); opacity: 0.20; }}
     }}
 
-    /* Right-side glowing ambient gradient effect */
+    /* Right-side glowing ambient gradient effect — Soft & Light */
     .bg-right-ambient {{
         position: fixed;
         top: -120px;
@@ -702,9 +702,9 @@ st.markdown(f"""
         border-radius: 50%;
         z-index: -1;
         pointer-events: none;
-        background: {"radial-gradient(circle, rgba(245, 158, 11, 0.42) 0%, rgba(234, 88, 12, 0.22) 30%, transparent 82%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(253, 186, 116, 0.18) 50%, transparent 72%)"};
-        filter: blur(120px);
-        animation: rightGlowPulse 12s ease-in-out infinite;
+        background: {"radial-gradient(circle, rgba(245, 158, 11, 0.24) 0%, rgba(234, 88, 12, 0.10) 35%, transparent 80%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251, 146, 60, 0.18) 0%, rgba(253, 186, 116, 0.08) 50%, transparent 72%)"};
+        filter: blur(140px);
+        animation: rightGlowPulse 14s ease-in-out infinite;
         will-change: transform, opacity;
     }}
 
