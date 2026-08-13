@@ -136,12 +136,60 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     else:
         monogram = (clean_name[0] if clean_name else "A").upper()
 
+    name_lower = clean_name.lower()
+    pkg_str = str(package_id).lower().strip()
+
+    # Pure Self-Contained SVG Vector Logos (0 network dependency, 100% reliable)
+    if "sbi" in name_lower or "yono" in name_lower or "sbi" in pkg_str:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#0082CE; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,130,206,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<circle cx="50" cy="50" r="48" fill="#0082CE"/>'
+            f'<circle cx="50" cy="38" r="14" fill="#FFFFFF"/>'
+            f'<rect x="45" y="38" width="10" height="44" fill="#FFFFFF"/>'
+            f'</svg>'
+            f'</div>'
+        )
+    elif "hdfc" in name_lower or "hdfc" in pkg_str:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#004B87; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,75,135,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<rect x="5" y="5" width="90" height="90" fill="#004B87" rx="10"/>'
+            f'<rect x="22" y="22" width="56" height="56" fill="#ED232A"/>'
+            f'<rect x="37" y="5" width="26" height="90" fill="#004B87"/>'
+            f'<rect x="5" y="37" width="90" height="26" fill="#004B87"/>'
+            f'<rect x="37" y="37" width="26" height="26" fill="#FFFFFF"/>'
+            f'</svg>'
+            f'</div>'
+        )
+    elif "icici" in name_lower or "icici" in pkg_str:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#003366; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,51,102,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<rect width="100" height="100" fill="#003366" rx="16"/>'
+            f'<polygon points="15,20 85,20 50,82" fill="#F37021"/>'
+            f'<circle cx="50" cy="38" r="13" fill="#FFFFFF"/>'
+            f'</svg>'
+            f'</div>'
+        )
+    elif "axis" in name_lower or "axis" in pkg_str:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#97144D; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(151,20,77,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<polygon points="50,15 88,85 68,85 50,50 32,85 12,85" fill="#FFFFFF"/>'
+            f'</svg>'
+            f'</div>'
+        )
+    elif "kotak" in name_lower or "kotak" in pkg_str:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED1C24; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,28,36,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
+            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
+            f'<path d="M22 18 L40 18 L40 44 L68 18 L90 18 L58 50 L90 82 L68 82 L40 54 L40 82 L22 82 Z" fill="#FFFFFF"/>'
+            f'</svg>'
+            f'</div>'
+        )
+
     package_logo_map = {
-        "com.sbi.lotusintouch": "https://www.google.com/s2/favicons?domain=sbi.co.in&sz=128",
-        "com.hdfcbank.android.now": "https://www.google.com/s2/favicons?domain=hdfcbank.com&sz=128",
-        "com.csam.icici.bank.imobile": "https://www.google.com/s2/favicons?domain=icicibank.com&sz=128",
-        "com.axis.mobile": "https://www.google.com/s2/favicons?domain=axisbank.com&sz=128",
-        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "https://www.google.com/s2/favicons?domain=kotak.com&sz=128",
         "com.bankofbaroda.mconnect": "https://www.google.com/s2/favicons?domain=bankofbaroda.in&sz=128",
         "com.canarabank.mobility": "https://www.google.com/s2/favicons?domain=canarabank.com&sz=128",
         "com.fedmobile": "https://www.google.com/s2/favicons?domain=federalbank.co.in&sz=128",
@@ -183,25 +231,12 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "rapidrupee.app": "https://www.google.com/s2/favicons?domain=rapidrupee.in&sz=128",
         "com.innofinsolutions.instamoney": "https://www.google.com/s2/favicons?domain=instamoney.in&sz=128",
     }
-
-    name_lower = clean_name.lower()
-    pkg_str = str(package_id).lower().strip()
     
     logo_url = package_logo_map.get(pkg_str)
     
     # Keyword fallback for unlisted package IDs
     if not logo_url:
-        if "sbi" in name_lower or "yono" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=sbi.co.in&sz=128"
-        elif "hdfc" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=hdfcbank.com&sz=128"
-        elif "icici" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=icicibank.com&sz=128"
-        elif "axis" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=axisbank.com&sz=128"
-        elif "kotak" in name_lower:
-            logo_url = "https://www.google.com/s2/favicons?domain=kotak.com&sz=128"
-        elif "navi" in name_lower:
+        if "navi" in name_lower:
             logo_url = "https://www.google.com/s2/favicons?domain=navi.com&sz=128"
         elif "kreditbee" in name_lower:
             logo_url = "https://www.google.com/s2/favicons?domain=kreditbee.in&sz=128"
