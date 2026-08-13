@@ -995,17 +995,9 @@ with tab_scorer:
     with st.container(border=True):
         st.markdown(
             f"""
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid {'rgba(255,255,255,0.08)' if st.session_state.dark_mode else 'rgba(0,0,0,0.06)'};">
-                <div style="display:flex; align-items:center; gap:14px;">
-                    <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg, rgba(247,201,72,0.22) 0%, rgba(217,119,6,0.35) 100%); border:1.5px solid rgba(247,201,72,0.45); display:flex; align-items:center; justify-content:center; font-size:1.3rem; box-shadow:0 6px 16px rgba(247,201,72,0.2);">🔍</div>
-                    <div>
-                        <div style="font-size:1.38rem; font-weight:800; color:{t['text']}; letter-spacing:-0.5px; line-height:1.25;">Evaluate Digital Loan App Safety</div>
-                        <div style="font-size:0.84rem; color:{t['muted']}; font-weight:500; margin-top:3px;">Select a pre-analyzed app or paste any custom Play Store link, website URL, or package name to audit.</div>
-                    </div>
-                </div>
-                <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(247,201,72,0.12); color:#F7C948; border:1.5px solid rgba(247,201,72,0.35); padding:6px 14px; border-radius:24px; font-size:0.72rem; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; box-shadow:0 2px 10px rgba(247,201,72,0.1);">
-                    <span style="width:7px; height:7px; border-radius:50%; background:#F7C948; box-shadow:0 0 8px #F7C948;"></span> AI Safety Engine v2.6
-                </div>
+            <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid {'rgba(255,255,255,0.08)' if st.session_state.dark_mode else 'rgba(0,0,0,0.06)'};">
+                <div style="font-size:1.38rem; font-weight:800; color:{t['text']}; letter-spacing:-0.5px; line-height:1.25;">Evaluate Digital Loan App Safety</div>
+                <div style="font-size:0.84rem; color:{t['muted']}; font-weight:500; margin-top:3px;">Select a pre-analyzed app or paste any custom Play Store link, website URL, or package name to audit.</div>
             </div>
             """,
             unsafe_allow_html=True
