@@ -1542,15 +1542,6 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 </div>
 </div>
-<div style="background:{det_adv_bg}; border:1px solid {det_adv_bdr}; border-radius:16px; padding:20px 26px; display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; flex-wrap:wrap; gap:16px;">
-<div>
-<div style="font-size:1.1rem; font-weight:900; color:{text_color};">Need Advice?</div>
-<div style="font-size:0.86rem; color:{muted_color}; margin-top:3px;">Receive an in-depth financial review to find the best loan options for your needs.</div>
-</div>
-<div style="background:linear-gradient(135deg, #F7C948 0%, #D97706 100%); color:#000; padding:10px 22px; border-radius:30px; font-weight:800; font-size:0.85rem; box-shadow:0 4px 15px rgba(247, 201, 72, 0.35); display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-Book a free consultation <span>›</span>
-</div>
-</div>
 <div>
 <div style="color:#F7C948; font-size:0.82rem; margin-bottom:4px; letter-spacing:2px;">✦ ✦ ✦</div>
 <div style="font-size:1.18rem; font-weight:900; color:{text_color}; margin-bottom:12px;">About {name_clean}</div>
