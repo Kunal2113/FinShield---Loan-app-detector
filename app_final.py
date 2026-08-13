@@ -1943,15 +1943,35 @@ with tab_rbi:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# GLOBAL LEGAL DISCLAIMER FOOTER
+# GLOBAL LEGAL DISCLAIMER & FOOTER
 # ==========================================
 st.markdown(
     f"""
-    <div style="max-width:1350px; margin: 40px auto 20px; padding: 0 16px;">
+    <div style="max-width:1350px; margin: 40px auto 16px; padding: 0 16px;">
         <div style="background: {'rgba(16, 22, 34, 0.75)' if st.session_state.dark_mode else '#F8FAFC'}; border: {'1.5px solid rgba(247, 201, 72, 0.25)' if st.session_state.dark_mode else '1.5px solid #E2E8F0'}; border-radius: 16px; padding: 18px 24px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: {'0 10px 30px rgba(0,0,0,0.3)' if st.session_state.dark_mode else '0 4px 15px rgba(0,0,0,0.04)'};">
             <div style="font-size: 0.82rem; color: {'#94A3B8' if st.session_state.dark_mode else '#64748B'}; line-height: 1.6; font-weight: 500;">
                 <strong style="color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'}; font-weight: 700;">Legal & Financial Disclaimer:</strong><br>
                 Finshield operates independently. The information presented herein is intended solely for educational and informational purposes and should not be construed as financial advice. Before making any financial decisions, it's essential to undertake your own thorough research and analysis. If you're uncertain about any financial matters, we strongly recommend seeking guidance from a qualified financial advisor.
+            </div>
+        </div>
+    </div>
+    <div style="max-width:1350px; margin: 0 auto 30px; padding: 0 16px;">
+        <div style="border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if st.session_state.dark_mode else 'rgba(0, 0, 0, 0.08)'}; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'}; display: flex; align-items: center; gap: 8px;">
+                    FinShield <span style="font-size: 0.72rem; font-weight: 700; background: rgba(247, 201, 72, 0.15); color: #F7C948; border: 1px solid rgba(247, 201, 72, 0.3); padding: 2px 8px; border-radius: 12px;">v2.6 AI Safety Engine</span>
+                </div>
+                <div style="font-size: 0.8rem; color: {'#64748B' if st.session_state.dark_mode else '#94A3B8'}; margin-top: 4px; font-weight: 500;">
+                    © 2026 FinShield. Empowering Borrowers & Detecting Illegal Loan Apps in India.
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px; font-size: 0.82rem; font-weight: 600;">
+                <a href="https://sachet.rbi.org.in" target="_blank" style="color: {'#94A3B8' if st.session_state.dark_mode else '#475569'}; text-decoration: none;">
+                    🏛️ RBI Sachet Portal ↗
+                </a>
+                <a href="https://cybercrime.gov.in" target="_blank" style="color: {'#94A3B8' if st.session_state.dark_mode else '#475569'}; text-decoration: none;">
+                    🚨 CyberCrime Portal ↗
+                </a>
             </div>
         </div>
     </div>
