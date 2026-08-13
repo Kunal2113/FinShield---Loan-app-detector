@@ -177,18 +177,17 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
             clean_pkg = pkg_str.replace("com.", "").replace("in.", "").replace("org.", "").replace("net.", "").split(".")[0]
             matched_domain = f"{clean_pkg}.com"
 
-    logo_url = f"https://logo.clearbit.com/{matched_domain}"
+    # High-Res Google Favicon Service
+    logo_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
     
-    hue = (ord(first_letter) * 37) % 360
-    grad_start = f"hsl({hue}, 80%, 50%)"
-    grad_end = f"hsl({(hue + 45) % 360}, 90%, 35%)"
+    hue = (ord(first_letter) * 43) % 360
+    grad_start = f"hsl({hue}, 85%, 52%)"
+    grad_end = f"hsl({(hue + 50) % 360}, 90%, 35%)"
 
     return (
-        f'<div style="position:relative; width:{size}px; height:{size}px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center;">'
-        f'<img src="{logo_url}" alt="{clean_name}" style="width:{size}px; height:{size}px; border-radius:10px; object-fit:cover; box-shadow:0 3px 10px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12);" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />'
-        f'<div style="display:none; width:{size}px; height:{size}px; border-radius:10px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); color:#FFFFFF; font-weight:900; font-size:{int(size*0.48)}px; align-items:center; justify-content:center; box-shadow:0 3px 10px rgba(0,0,0,0.25); text-transform:uppercase; text-shadow:0 2px 4px rgba(0,0,0,0.3);">'
-        f'{first_letter}'
-        f'</div>'
+        f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
+        f'<span style="font-weight:900; font-size:{int(size*0.48)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase;">{first_letter}</span>'
+        f'<img src="{logo_url}" alt="{clean_name}" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
         f'</div>'
     )
 
