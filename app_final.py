@@ -128,8 +128,14 @@ def get_app_choices():
 
 def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     clean_name = str(app_name).split(':')[0].strip()
-    first_letter = clean_name[0].upper() if clean_name else "A"
-    
+    words = clean_name.split()
+    if len(words) >= 2:
+        monogram = (words[0][0] + words[1][0]).upper()
+    elif len(clean_name) >= 2:
+        monogram = clean_name[:2].upper()
+    else:
+        monogram = (clean_name[0] if clean_name else "A").upper()
+
     domain_map = {
         "sbi": "homeloans.sbi",
         "navi": "navi.com",
@@ -149,6 +155,7 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "bajaj": "bajajfinserv.in",
         "tata": "tatacapital.com",
         "ltfs": "ltfs.com",
+        "l&t": "ltfs.com",
         "piramal": "piramalfinance.com",
         "hero": "herofincorp.com",
         "home credit": "homecredit.co.in",
@@ -157,39 +164,67 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "branch": "branch.co",
         "stashfin": "stashfin.com",
         "truebalance": "truebalance.io",
+        "true balance": "truebalance.io",
         "smartcoin": "smartcoin.co.in",
         "rupeeredee": "rupeeredee.com",
         "fatakpay": "fatakpay.com",
+        "instamoney": "instamoney.in",
+        "nobroker": "nobroker.in",
+        "lendingplate": "lendingplate.com",
+        "lenditt": "lenditt.com",
+        "salary now": "salarynow.in",
+        "smfg": "smfgindiacredit.com",
+        "axis": "axisbank.com",
+        "hdfc": "hdfcbank.com",
+        "fedmobile": "federalbank.co.in",
+        "federal": "federalbank.co.in",
+        "freo": "freo.money",
+        "moneytap": "freo.money",
+        "airtel": "airtel.in",
+        "onescore": "onescore.app",
+        "mobikwik": "mobikwik.com",
+        "indialends": "indialends.com",
+        "lazypay": "lazypay.in",
+        "icici": "icicibank.com",
+        "kotak": "kotak.com",
+        "baroda": "bankofbaroda.in",
+        "canara": "canarabank.com",
+        "jupiter": "jupiter.money",
+        "cred": "cred.club",
+        "amazon": "amazon.in",
+        "google": "pay.google.com",
+        "muthoot": "muthootfinance.com",
+        "payrupik": "payrupik.in",
+        "rapidrupee": "rapidrupee.in",
     }
-    
+
     name_lower = clean_name.lower()
     pkg_str = str(package_id).lower()
+    
     matched_domain = None
     for k, v in domain_map.items():
         if k in name_lower or k in pkg_str:
             matched_domain = v
             break
-            
-    if not matched_domain:
-        if pkg_str.startswith("http"):
-            matched_domain = pkg_str.replace("https://", "").replace("http://", "").split("/")[0]
-        else:
-            clean_pkg = pkg_str.replace("com.", "").replace("in.", "").replace("org.", "").replace("net.", "").split(".")[0]
-            matched_domain = f"{clean_pkg}.com"
 
-    # High-Res Google Favicon Service
-    logo_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
-    
-    hue = (ord(first_letter) * 43) % 360
-    grad_start = f"hsl({hue}, 85%, 52%)"
-    grad_end = f"hsl({(hue + 50) % 360}, 90%, 35%)"
+    hue = (sum(ord(c) for c in clean_name) * 37) % 360
+    grad_start = f"hsl({hue}, 82%, 52%)"
+    grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
-    return (
-        f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
-        f'<span style="font-weight:900; font-size:{int(size*0.48)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase;">{first_letter}</span>'
-        f'<img src="{logo_url}" alt="{clean_name}" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
-        f'</div>'
-    )
+    if matched_domain:
+        logo_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
+            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
+            f'<img src="{logo_url}" alt="{clean_name}" style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; object-fit:contain; background:#FFFFFF; padding:2px;" onerror="this.style.display=\'none\';" />'
+            f'</div>'
+        )
+    else:
+        return (
+            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.2);">'
+            f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
+            f'</div>'
+        )
 
 def lookup_app_features(identifier: str):
     df = load_features_table()
