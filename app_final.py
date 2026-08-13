@@ -4,6 +4,7 @@ import os
 import joblib
 import pandas as pd
 import streamlit as st
+import textwrap
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 FEATURE_COLUMNS = [
@@ -1475,10 +1476,8 @@ with tab_rankings:
                     det_adv_bg = "linear-gradient(135deg, rgba(247, 201, 72, 0.12) 0%, rgba(217, 119, 6, 0.08) 100%)" if c_dark else "linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%)"
                     det_adv_bdr = "rgba(247, 201, 72, 0.3)" if c_dark else "rgba(217, 119, 6, 0.3)"
 
-                    detail_view_html = f"""
+                    detail_view_html = textwrap.dedent(f"""
                     <div style="background:{det_bg}; border:{det_bdr}; border-radius:20px; padding:28px 32px; margin-top:20px; margin-bottom:28px; box-shadow:0 12px 35px rgba(0,0,0,0.25);">
-                        
-                        <!-- Top Header Bar: Logo/Title, Badge, Score & Rank -->
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid {'rgba(255,255,255,0.08)' if c_dark else '#E2E8F0'}; padding-bottom:20px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
                             <div style="display:flex; align-items:center; gap:12px;">
                                 <div style="font-size:1.45rem; font-weight:900; color:{text_color};">{name_clean}</div>
@@ -1494,7 +1493,6 @@ with tab_rankings:
                             </div>
                         </div>
 
-                        <!-- 3-Column Metrics Sub-Bar -->
                         <div style="display:grid; grid-template-columns:1fr 1fr 1.3fr; gap:18px; background:{det_subbar}; padding:16px 22px; border-radius:14px; margin-bottom:28px; border:1px solid {'rgba(255,255,255,0.04)' if c_dark else '#F1F5F9'};">
                             <div>
                                 <div style="font-size:0.72rem; color:{muted_color}; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Interest Rate</div>
@@ -1510,7 +1508,6 @@ with tab_rankings:
                             </div>
                         </div>
 
-                        <!-- Our Analysis Section -->
                         <div style="margin-bottom:28px;">
                             <div style="font-size:1.15rem; font-weight:900; color:{text_color}; margin-bottom:14px;">Our Analysis</div>
                             <div style="background:{det_card}; border:1px solid {'rgba(255,255,255,0.06)' if c_dark else '#E2E8F0'}; border-radius:16px; padding:22px 26px;">
@@ -1554,7 +1551,6 @@ with tab_rankings:
                             </div>
                         </div>
 
-                        <!-- Need Advice? Banner -->
                         <div style="background:{det_adv_bg}; border:1px solid {det_adv_bdr}; border-radius:16px; padding:20px 26px; display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; flex-wrap:wrap; gap:16px;">
                             <div>
                                 <div style="font-size:1.1rem; font-weight:900; color:{text_color};">Need Advice?</div>
@@ -1565,7 +1561,6 @@ with tab_rankings:
                             </div>
                         </div>
 
-                        <!-- About App Section -->
                         <div>
                             <div style="color:#F7C948; font-size:0.82rem; margin-bottom:4px; letter-spacing:2px;">✦ ✦ ✦</div>
                             <div style="font-size:1.18rem; font-weight:900; color:{text_color}; margin-bottom:12px;">About {name_clean}</div>
@@ -1589,7 +1584,7 @@ with tab_rankings:
                         </div>
 
                     </div>
-                    """
+                    """).strip()
                     st.markdown(detail_view_html, unsafe_allow_html=True)
                     
                     if row["reasons"]:
