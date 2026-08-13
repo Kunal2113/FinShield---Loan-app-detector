@@ -1960,7 +1960,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ==========================================
 st.markdown(
     f"""
-    <div style="max-width:1350px; margin: 22px auto 20px; padding: 0 16px;">
+    <div style="max-width:1350px; margin: 8px auto 16px; padding: 0 16px;">
         <div style="background: {'rgba(16, 22, 34, 0.75)' if st.session_state.dark_mode else '#F8FAFC'}; border: {'1.5px solid rgba(247, 201, 72, 0.25)' if st.session_state.dark_mode else '1.5px solid #E2E8F0'}; border-radius: 16px; padding: 18px 24px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: {'0 10px 30px rgba(0,0,0,0.3)' if st.session_state.dark_mode else '0 4px 15px rgba(0,0,0,0.04)'};">
             <div style="font-size: 0.82rem; color: {'#94A3B8' if st.session_state.dark_mode else '#64748B'}; line-height: 1.6; font-weight: 500;">
                 <strong style="color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'}; font-weight: 700;">Legal & Financial Disclaimer:</strong><br>
