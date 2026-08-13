@@ -139,59 +139,20 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     name_lower = clean_name.lower()
     pkg_str = str(package_id).lower().strip()
 
-    # Pure Self-Contained SVG Vector Logos for Top 5 Indian Banks (0 network latency, 100% reliable)
-    if "sbi" in name_lower or "yono" in name_lower or "sbi" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#0082CE; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,130,206,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<circle cx="50" cy="50" r="48" fill="#0082CE"/>'
-            f'<circle cx="50" cy="38" r="14" fill="#FFFFFF"/>'
-            f'<rect x="45" y="38" width="10" height="44" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "hdfc" in name_lower or "hdfc" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED232A; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,35,42,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:78%; height:78%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect width="100" height="100" fill="#ED232A" rx="12"/>'
-            f'<rect x="16" y="16" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="58" y="16" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="16" y="58" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="58" y="58" width="26" height="26" fill="#004B87"/>'
-            f'<rect x="36" y="36" width="28" height="28" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "icici" in name_lower or "icici" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#003366; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,51,102,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect width="100" height="100" fill="#003366" rx="16"/>'
-            f'<polygon points="15,20 85,20 50,82" fill="#F37021"/>'
-            f'<circle cx="50" cy="38" r="13" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "axis" in name_lower or "axis" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#97144D; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(151,20,77,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<polygon points="50,15 88,85 68,85 50,50 32,85 12,85" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-    elif "kotak" in name_lower or "kotak" in pkg_str:
-        return (
-            f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:#ED1C24; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(237,28,36,0.35); flex-shrink:0; border:1.5px solid rgba(255,255,255,0.25);">'
-            f'<svg viewBox="0 0 100 100" style="width:76%; height:76%;" xmlns="http://www.w3.org/2000/svg">'
-            f'<path d="M22 18 L40 18 L40 44 L68 18 L90 18 L58 50 L90 82 L68 82 L40 54 L40 82 L22 82 Z" fill="#FFFFFF"/>'
-            f'</svg>'
-            f'</div>'
-        )
-
-    # Google Favicon Domain Mapping for Instant High-Res Logos (Hosted on Google Global CDN)
+    # Exact High-Definition 512x512 / 256x256 Official Brand Domain Map
     domain_map = {
+        "com.sbi.lotusintouch": "sbi.co.in",
+        "com.hdfcbank.android.now": "hdfcbank.com",
+        "com.csam.icici.bank.imobile": "icicibank.com",
+        "com.axis.mobile": "axisbank.com",
+        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "kotak.com",
+        "com.bankofbaroda.mconnect": "bankofbaroda.in",
+        "com.canarabank.mobility": "canarabank.com",
+        "com.fedmobile": "federalbank.co.in",
+        "com.phonepe.app": "phonepe.com",
+        "com.google.android.apps.nbu.paisa.user": "pay.google.com",
+        "in.amazon.mshop.android.shopping": "amazon.in",
+        "com.muthootfinance.imuthoot": "muthootfinance.com",
         "com.naviapp": "navi.com",
         "com.kreditbee.android": "kreditbee.in",
         "in.groww.dash": "groww.in",
@@ -225,20 +186,23 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "com.rupeeredee.app": "rupeeredee.com",
         "rapidrupee.app": "rapidrupee.in",
         "com.innofinsolutions.instamoney": "instamoney.in",
-        "com.bankofbaroda.mconnect": "bankofbaroda.in",
-        "com.canarabank.mobility": "canarabank.com",
-        "com.fedmobile": "federalbank.co.in",
-        "com.phonepe.app": "phonepe.com",
-        "com.google.android.apps.nbu.paisa.user": "pay.google.com",
-        "in.amazon.mshop.android.shopping": "amazon.in",
-        "com.muthootfinance.imuthoot": "muthootfinance.com",
     }
 
     matched_domain = domain_map.get(pkg_str)
     
     # Keyword fallback for unlisted app names
     if not matched_domain:
-        if "navi" in name_lower:
+        if "sbi" in name_lower or "yono" in name_lower:
+            matched_domain = "sbi.co.in"
+        elif "hdfc" in name_lower:
+            matched_domain = "hdfcbank.com"
+        elif "icici" in name_lower:
+            matched_domain = "icicibank.com"
+        elif "axis" in name_lower:
+            matched_domain = "axisbank.com"
+        elif "kotak" in name_lower:
+            matched_domain = "kotak.com"
+        elif "navi" in name_lower:
             matched_domain = "navi.com"
         elif "kreditbee" in name_lower:
             matched_domain = "kreditbee.in"
@@ -258,11 +222,13 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
     if matched_domain:
-        logo_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
+        clearbit_hd_url = f"https://logo.clearbit.com/{matched_domain}"
+        google_256_url = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=256"
+        bg_images = f"url('{clearbit_hd_url}'), url('{google_256_url}')"
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:url(\'{logo_url}\'); background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
+            f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:{bg_images}; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
             f'</div>'
         )
     else:
