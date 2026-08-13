@@ -405,6 +405,168 @@ def score_app(identifier: str):
         st.error(f"Something went wrong scoring this app: {e}")
         return None, None, None, None
 
+def get_app_detailed_profile(name_clean: str, app_id: str, is_known: bool):
+    name_lower = name_clean.lower()
+    
+    # Default Profile Template
+    founded_by = "Promoted by RBI-registered NBFC / Regulated Lending Partner"
+    about = f"{name_clean} is a digital lending platform providing instant personal credit solutions across India. It features online document submission, structured tenure options, and clear repayment schedules."
+    
+    who_should_take = [
+        "Borrowers with stable monthly income looking for transparent, regulated loan terms.",
+        "Users needing short to medium term emergency credit with clear EMI repayment schedules.",
+        "Borrowers with verified bank accounts, PAN, and Aadhaar seeking digital onboarding.",
+        "Borrowers who verify interest rates, APR, and fee breakdowns before accepting sanction terms."
+    ]
+    
+    who_should_avoid = [
+        "Borrowers seeking unauthorized 7-day or 14-day ultra-short loans with hidden charges.",
+        "Users unable or unwilling to complete mandatory RBI e-KYC and income documentation.",
+        "Borrowers sensitive to sharing financial data or granting sensitive device permissions.",
+        "Individuals borrowing without a clear, sustainable monthly repayment budget."
+    ]
+    
+    # Specific Brand Overrides
+    if "sbi" in name_lower or "state bank" in name_lower:
+        founded_by = "Government of India (State Bank of India - Established 1955, Chaired by CS Setty)"
+        about = "State Bank of India (SBI) is India's largest public-sector bank and premier financial institution. It offers home loans, personal loans, and YONO digital credit with competitive interest rates and extended tenures."
+        who_should_take = [
+            "Borrowers seeking low interest rates (7.25% - 10.5% p.a.) and extended tenures up to 30 years.",
+            "Salaried employees, government staff, and verified business owners with good credit (750+ CIBIL).",
+            "Borrowers looking for government subsidies (e.g., PMAY) and zero hidden fee structures."
+        ]
+        who_should_avoid = [
+            "Borrowers seeking instant 5-minute approval without formal income proof.",
+            "Users with low credit scores (<650 CIBIL) or past default records."
+        ]
+    elif "navi" in name_lower:
+        founded_by = "Sachin Bansal & Ankit Agarwal (Founded 2018 under Navi Technologies Ltd / Navi Finserv Ltd)"
+        about = "Navi is an RBI-registered NBFC offering instant paperless personal loans up to ₹20 Lakhs, home loans, and mutual funds via a 100% digital app interface with zero physical documentation."
+        who_should_take = [
+            "Tech-savvy borrowers wanting 100% paperless digital loan disbursal within minutes.",
+            "Salaried and self-employed professionals with regular income deposited in bank accounts.",
+            "Borrowers looking for flexible EMI tenure options (3 to 84 months) with zero pre-closure charges."
+        ]
+        who_should_avoid = [
+            "Borrowers without regular bank statement transaction history.",
+            "Users seeking cash disbursals without bank account validation."
+        ]
+    elif "kreditbee" in name_lower:
+        founded_by = "Madhusudan Ekambaram, Karthik Srinivasan & Vivek Veda (Founded 2018 under Krazybee Services Pvt Ltd)"
+        about = "KreditBee is a major Indian digital lending platform partnering with Krazybee Services (RBI-registered NBFC) and partner banks to provide instant personal credit from ₹1,000 to ₹5,000,000."
+        who_should_take = [
+            "Young professionals and first-time borrowers needing quick short-term personal credit.",
+            "Borrowers looking for flexible options like Flexi Personal Loan and Salary Loans.",
+            "Users with valid PAN, Aadhaar, and monthly income proof seeking digital onboarding."
+        ]
+        who_should_avoid = [
+            "Borrowers looking for low single-digit interest rates (APR can range from 16% to 29.95% p.a.).",
+            "Users unable to pay processing fees or seeking unverified off-market loans."
+        ]
+    elif "bajaj" in name_lower:
+        founded_by = "Rahul Bajaj & Sanjiv Bajaj (Bajaj Finserv Ltd / Bajaj Finance Ltd - Established 1987)"
+        about = "Bajaj Finance Ltd is one of India's largest non-banking financial companies (NBFC). It offers Insta Personal Loans, EMI Store shopping cards, and business credit across India."
+        who_should_take = [
+            "Existing Bajaj Finserv customers with pre-approved Insta Loan offers.",
+            "Borrowers looking for no-cost EMI shopping and quick durable financing.",
+            "Salaried individuals seeking reliable NBFC backing with high credit limits."
+        ]
+        who_should_avoid = [
+            "Borrowers who dislike aggressive telecalling or cross-sell marketing.",
+            "Users unable to verify pre-calculated processing and insurance add-on costs."
+        ]
+    elif "tata" in name_lower:
+        founded_by = "Tata Sons / Tata Capital Limited (Founded 2007, Chaired by Rajiv Sabharwal)"
+        about = "Tata Capital Limited is the financial services arm of the Tata Group, offering digital personal loans, home financing, and small business credit backed by trusted corporate governance."
+        who_should_take = [
+            "Borrowers prioritizing corporate trust, legal compliance, and transparent terms.",
+            "Salaried corporate employees looking for competitive interest rates and clear APR disclosures.",
+            "Borrowers needing long-term stability with no surprise penalty clauses."
+        ]
+        who_should_avoid = [
+            "Borrowers seeking anonymous unlisted APK loans without KYC."
+        ]
+    elif "paytm" in name_lower:
+        founded_by = "Vijay Shekhar Sharma (One97 Communications Ltd / Paytm Payments Services)"
+        about = "Paytm provides digital credit and Paytm Postpaid solutions in partnership with regulated NBFCs like Aditya Birla Finance and Tata Capital, facilitating instant merchant and personal credit."
+        who_should_take = [
+            "Frequent Paytm wallet/UPI users looking for instant micro-credit for merchant payments.",
+            "Users wanting seamless bill payments and small ticket personal loans."
+        ]
+        who_should_avoid = [
+            "Borrowers needing large long-term home or capital loans.",
+            "Users sensitive to late payment convenience fee charges."
+        ]
+    elif "groww" in name_lower:
+        founded_by = "Lalit Keshre, Harsh Jain, Ishan Bansal & Neeraj Singh (Nextbillion Technology Pvt Ltd - Founded 2016)"
+        about = "Groww is an online investment and digital lending platform offering mutual funds, stocks, and instant personal loans to verified investors and salaried users."
+        who_should_take = [
+            "Existing Groww app users with verified Demat and mutual fund portfolios.",
+            "Borrowers seeking low-friction paperless personal loans with instant disbursal."
+        ]
+        who_should_avoid = [
+            "Non-registered users without online bank verification."
+        ]
+    elif "cashe" in name_lower:
+        founded_by = "V Raman Kumar (Founded 2016 under Bhanix Finance and Investment Ltd)"
+        about = "CASHe is an AI-driven digital lending platform for salaried millennials, offering short-term personal loans, BNPL credit, and credit lines using a proprietary Social Loan Quotient (SLQ)."
+        who_should_take = [
+            "Salaried millennials needing short 3 to 18-month personal loans for urgent expenses.",
+            "Borrowers with monthly salary statements looking for quick mobile disbursal."
+        ]
+        who_should_avoid = [
+            "Self-employed users without formal monthly salary slips.",
+            "Borrowers sensitive to upfront processing fee deductions."
+        ]
+    elif "moneyview" in name_lower or "money view" in name_lower:
+        founded_by = "Puneet Agarwal & Sanjay Aggarwal (Whizdm Innovations Pvt Ltd - Founded 2014)"
+        about = "Money View is a digital financial platform offering instant personal loans up to ₹10 Lakhs in partnership with leading RBI-registered NBFCs and banks across 5,000+ locations in India."
+        who_should_take = [
+            "Borrowers with CIBIL score of 600+ needing fast digital personal loans.",
+            "Salaried and self-employed individuals with minimum monthly income of ₹15,000."
+        ]
+        who_should_avoid = [
+            "Borrowers with active default records or zero income documentation."
+        ]
+    elif "stashfin" in name_lower:
+        founded_by = "Tushar Aggarwal (Founded 2016 under Akara Capital Advisors Pvt Ltd)"
+        about = "Stashfin is an RBI-registered NBFC platform offering credit lines, personal loans, and credit cards with flexible interest payments only on the amount withdrawn."
+        who_should_take = [
+            "Borrowers needing a flexible revolving credit line where interest applies only on utilized funds.",
+            "Users wanting 24/7 access to instant cash withdrawals."
+        ]
+        who_should_avoid = [
+            "Borrowers who delay monthly bill cycles (high penalty APR rates)."
+        ]
+    elif "mpokket" in name_lower:
+        founded_by = "Gaurav Jalan (Founded 2016 under mPokket Financial Services Pvt Ltd)"
+        about = "mPokket is an RBI-registered NBFC catering primarily to college students and young salaried professionals, offering small-ticket micro-loans from ₹500 to ₹50,000."
+        who_should_take = [
+            "College students and young graduates needing small pocket-money loans with student ID.",
+            "Salaried individuals seeking micro-credit for small emergency expenses."
+        ]
+        who_should_avoid = [
+            "Borrowers seeking large long-term loans (>₹1 Lakh).",
+            "Users unable to repay on due dates (impacts CIBIL score)."
+        ]
+    elif "fatakpay" in name_lower:
+        founded_by = "Ajit Kumar & Amit Dassani (FatakPay Digital Pvt Ltd)"
+        about = "FatakPay is a financial wellness platform providing instant salary advance and micro-credit solutions for blue-collar and salaried workers in partnership with RBI-registered NBFCs."
+        who_should_take = [
+            "Employed workers seeking instant salary advance before monthly payday.",
+            "Borrowers looking for 0% interest short credit periods."
+        ]
+        who_should_avoid = [
+            "Unemployed individuals or users seeking long-term loan terms."
+        ]
+
+    return {
+        "founded_by": founded_by,
+        "about": about,
+        "who_should_take": who_should_take,
+        "who_should_avoid": who_should_avoid
+    }
+
 def render_rbi_riskometer_card(score: float, dark_mode: bool) -> str:
     s = min(max(score, 0.0), 1.0)
     angle = s * 180.0
@@ -1381,7 +1543,9 @@ with tab_rankings:
                     name_lower = name_clean.lower()
                     rank_num = idx + 1
 
-                    # Profile details fallback
+                    # Profile & Founder details lookup
+                    profile = get_app_detailed_profile(name_clean, app_id, is_known)
+
                     if "sbi" in name_lower:
                         domain = "https://homeloans.sbi"
                         email = "customercare@sbi.co.in"
@@ -1389,7 +1553,6 @@ with tab_rankings:
                         interest_val = "7.25% - 8.55% p.a."
                         grievance_val = "Moderately effective"
                         fee_val = "0.35% (min ₹2,000 and max ₹10,000) + GST"
-                        about_txt = f"{name_clean}, a leading public-sector bank in India, provides diverse home loan options for both salaried and self-employed individuals. The bank provides loans for purchasing new homes, constructing houses, and renovating or repairing existing properties. With loan durations extending up to 30 years, SBI features several specific products, transparent interest rate concessions, and aligns with government initiatives like the Pradhan Mantri Awas Yojana (PMAY)."
                     elif "navi" in name_lower:
                         domain = "https://navi.com"
                         email = "help@navi.com"
@@ -1397,7 +1560,6 @@ with tab_rankings:
                         interest_val = "9.90% - 19.99% p.a."
                         grievance_val = "Highly Effective"
                         fee_val = "0.50% to 1.50% + GST"
-                        about_txt = f"{name_clean} is an RBI-registered non-banking financial company (NBFC) providing instant digital personal loans, home loans, and health insurance. It offers end-to-end paperless processing, transparent loan terms, and fast disbursal directly into verified bank accounts."
                     elif "kreditbee" in name_lower:
                         domain = "https://kreditbee.in"
                         email = "help@kreditbee.in"
@@ -1405,7 +1567,6 @@ with tab_rankings:
                         interest_val = "12.0% - 24.0% p.a."
                         grievance_val = "Moderately Effective"
                         fee_val = "1.0% to 2.5% + GST"
-                        about_txt = f"{name_clean} is a digital lending platform partnering with multiple RBI-registered NBFCs to provide instant credit solutions to salaried professionals and self-employed individuals. It maintains transparent APR disclosures and flexible repayment terms."
                     else:
                         _d_host = app_id.replace('com.', '').replace('in.', '').replace('org.', '')
                         domain = app_id if app_id.startswith("http") else f"https://{_d_host}.com"
@@ -1414,19 +1575,30 @@ with tab_rankings:
                         interest_val = "10.5% - 22.0% p.a." if is_known else "18.0% - 36.0% p.a."
                         grievance_val = "Moderately Effective" if is_known else "Standard Redressal"
                         fee_val = "1.0% to 3.0% + GST"
-                        about_txt = f"{name_clean} is a digital loan platform operating across India. It offers borrowers instant credit access with online document submission, structured tenure options, and clear repayment terms."
 
-                    doc_analysis = "Demands essential documents but allows some choice in additional paperwork, balancing thoroughness and convenience." if not row['contacts'] else "Requests sensitive device permissions (Contacts/SMS access), requiring borrower caution prior to applying."
+                    doc_analysis = "Demands essential documents but allows choice in additional paperwork, balancing thoroughness and convenience." if not row['contacts'] else "Requests sensitive device permissions (Contacts/SMS access), requiring borrower caution prior to applying."
                     interest_analysis = f"Clearly displays interest rates on their website/platform, offering straightforward and affordable rate structures for easy borrower understanding." if row['disclosure_score'] >= 3 else "Interest rate details are conditional; verify final Sanction Letter terms."
                     fee_analysis = f"Details processing fees clearly online, ensuring transparent, cost-effective choices for informed borrower decisions."
-                    grievance_analysis = f"Has an online grievance escalation matrix with some accessibility options, leading to moderately effective problem-solving."
+                    grievance_analysis = f"Has an online grievance escalation matrix with accessibility options, leading to effective problem-solving."
 
                     det_bg = "#0D111A" if c_dark else "#FFFFFF"
                     det_bdr = "1.5px solid rgba(255, 255, 255, 0.08)" if c_dark else "1.5px solid #E2E8F0"
                     det_subbar = "rgba(255, 255, 255, 0.03)" if c_dark else "#F8FAFC"
                     det_card = "rgba(255, 255, 255, 0.02)" if c_dark else "#FAFAFA"
-                    
-                    detail_view_html = f"""<div style="background:{det_bg}; border:{det_bdr}; border-radius:20px; padding:28px 32px; margin-top:20px; margin-bottom:28px; box-shadow:0 12px 35px rgba(0,0,0,0.25);">
+
+                    take_items_html = "".join([
+                        f'<div style="display:flex; align-items:flex-start; gap:8px; font-size:0.84rem; color:{text_color}; line-height:1.45;">'
+                        f'<span style="color:#34D399; font-weight:bold; flex-shrink:0; font-size:0.95rem;">✓</span><span>{item}</span></div>'
+                        for item in profile["who_should_take"]
+                    ])
+
+                    avoid_items_html = "".join([
+                        f'<div style="display:flex; align-items:flex-start; gap:8px; font-size:0.84rem; color:{text_color}; line-height:1.45;">'
+                        f'<span style="color:#F87171; font-weight:bold; flex-shrink:0; font-size:0.95rem;">✕</span><span>{item}</span></div>'
+                        for item in profile["who_should_avoid"]
+                    ])
+
+                    detail_view_html = f"""<div style="background:{det_bg}; border:{det_bdr}; border-radius:22px; padding:28px 32px; margin-top:20px; margin-bottom:28px; box-shadow:0 16px 40px rgba(0,0,0,0.35);">
 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid {'rgba(255,255,255,0.08)' if c_dark else '#E2E8F0'}; padding-bottom:20px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
 <div style="display:flex; align-items:center; gap:14px;">
 <div>
@@ -1443,6 +1615,43 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 </div>
 </div>
+
+<!-- ABOUT & FOUNDED BY BLOCK -->
+<div style="margin-bottom:24px; background:{det_card}; border:1px solid {'rgba(255,255,255,0.06)' if c_dark else '#E2E8F0'}; border-radius:18px; padding:22px 26px;">
+<div style="font-size:1.15rem; font-weight:900; color:{text_color}; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+<span style="color:#F7C948;">ℹ️</span> About {name_clean}
+</div>
+<div style="font-size:0.88rem; color:{muted_color}; line-height:1.65; margin-bottom:16px;">
+{profile['about']}
+</div>
+<div style="display:flex; align-items:center; gap:10px; background:{'rgba(247,201,72,0.1)' if c_dark else '#FEF3C7'}; border:1px solid {'rgba(247,201,72,0.3)' if c_dark else '#FDE68A'}; padding:10px 16px; border-radius:12px;">
+<span style="font-size:1rem;">🏛️</span>
+<div style="font-size:0.86rem; color:{'#F7C948' if c_dark else '#92400E'};">
+<strong>Founded By / Parent Entity:</strong> {profile['founded_by']}
+</div>
+</div>
+</div>
+
+<!-- WHO SHOULD TAKE vs WHO SHOULD AVOID GRID -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:28px;">
+<div style="background:{'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,78,59,0.15) 100%)' if c_dark else '#F0FDF4'}; border:1.5px solid {'rgba(16,185,129,0.35)' if c_dark else '#BBF7D0'}; border-radius:18px; padding:20px 22px;">
+<div style="font-size:1.05rem; font-weight:800; color:{'#34D399' if c_dark else '#15803D'}; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+<span>✅</span> Who Should Take Loan
+</div>
+<div style="display:flex; flex-direction:column; gap:10px;">
+{take_items_html}
+</div>
+</div>
+<div style="background:{'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(127,29,29,0.15) 100%)' if c_dark else '#FEF2F2'}; border:1.5px solid {'rgba(239,68,68,0.35)' if c_dark else '#FECACA'}; border-radius:18px; padding:20px 22px;">
+<div style="font-size:1.05rem; font-weight:800; color:{'#F87171' if c_dark else '#B91C1C'}; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+<span>⚠️</span> Who Should Avoid
+</div>
+<div style="display:flex; flex-direction:column; gap:10px;">
+{avoid_items_html}
+</div>
+</div>
+</div>
+
 <div style="display:grid; grid-template-columns:1fr 1fr 1.3fr; gap:18px; background:{det_subbar}; padding:16px 22px; border-radius:14px; margin-bottom:28px; border:1px solid {'rgba(255,255,255,0.04)' if c_dark else '#F1F5F9'};">
 <div>
 <div style="font-size:0.72rem; color:{muted_color}; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Interest Rate</div>
@@ -1495,11 +1704,6 @@ FinShield Rank: <strong>#{rank_num:02d}</strong>
 </div>
 </div>
 <div>
-<div style="color:#F7C948; font-size:0.82rem; margin-bottom:4px; letter-spacing:2px;">✦ ✦ ✦</div>
-<div style="font-size:1.18rem; font-weight:900; color:{text_color}; margin-bottom:12px;">About {name_clean}</div>
-<div style="font-size:0.88rem; color:{muted_color}; line-height:1.65; margin-bottom:22px;">
-{about_txt}
-</div>
 <div style="display:flex; gap:40px; font-size:0.85rem; flex-wrap:wrap;">
 <div>
 <div style="color:{muted_color}; font-weight:600; margin-bottom:4px;">Website Link</div>
