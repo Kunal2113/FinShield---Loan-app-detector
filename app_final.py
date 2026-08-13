@@ -126,6 +126,72 @@ def get_app_choices():
     except FileNotFoundError:
         return []
 
+def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
+    clean_name = str(app_name).split(':')[0].strip()
+    first_letter = clean_name[0].upper() if clean_name else "A"
+    
+    domain_map = {
+        "sbi": "homeloans.sbi",
+        "navi": "navi.com",
+        "kreditbee": "kreditbee.in",
+        "groww": "groww.in",
+        "privo": "creditsaison.in",
+        "credit saison": "creditsaison.in",
+        "pocketly": "pocketly.in",
+        "money view": "moneyview.in",
+        "moneyview": "moneyview.in",
+        "paytm": "paytm.com",
+        "fairmoney": "fairmoney.in",
+        "mpokket": "mpokket.in",
+        "cashe": "cashe.co.in",
+        "fibe": "fibe.in",
+        "earlysalary": "fibe.in",
+        "bajaj": "bajajfinserv.in",
+        "tata": "tatacapital.com",
+        "ltfs": "ltfs.com",
+        "piramal": "piramalfinance.com",
+        "hero": "herofincorp.com",
+        "home credit": "homecredit.co.in",
+        "kissht": "kissht.com",
+        "ring": "paywithring.com",
+        "branch": "branch.co",
+        "stashfin": "stashfin.com",
+        "truebalance": "truebalance.io",
+        "smartcoin": "smartcoin.co.in",
+        "rupeeredee": "rupeeredee.com",
+        "fatakpay": "fatakpay.com",
+    }
+    
+    name_lower = clean_name.lower()
+    pkg_str = str(package_id).lower()
+    matched_domain = None
+    for k, v in domain_map.items():
+        if k in name_lower or k in pkg_str:
+            matched_domain = v
+            break
+            
+    if not matched_domain:
+        if pkg_str.startswith("http"):
+            matched_domain = pkg_str.replace("https://", "").replace("http://", "").split("/")[0]
+        else:
+            clean_pkg = pkg_str.replace("com.", "").replace("in.", "").replace("org.", "").replace("net.", "").split(".")[0]
+            matched_domain = f"{clean_pkg}.com"
+
+    logo_url = f"https://logo.clearbit.com/{matched_domain}"
+    
+    hue = (ord(first_letter) * 37) % 360
+    grad_start = f"hsl({hue}, 80%, 50%)"
+    grad_end = f"hsl({(hue + 45) % 360}, 90%, 35%)"
+
+    return (
+        f'<div style="position:relative; width:{size}px; height:{size}px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center;">'
+        f'<img src="{logo_url}" alt="{clean_name}" style="width:{size}px; height:{size}px; border-radius:10px; object-fit:cover; box-shadow:0 3px 10px rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12);" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />'
+        f'<div style="display:none; width:{size}px; height:{size}px; border-radius:10px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); color:#FFFFFF; font-weight:900; font-size:{int(size*0.48)}px; align-items:center; justify-content:center; box-shadow:0 3px 10px rgba(0,0,0,0.25); text-transform:uppercase; text-shadow:0 2px 4px rgba(0,0,0,0.3);">'
+        f'{first_letter}'
+        f'</div>'
+        f'</div>'
+    )
+
 def lookup_app_features(identifier: str):
     df = load_features_table()
     ident = str(identifier).strip().lower()
@@ -1389,14 +1455,19 @@ with tab_rankings:
                     score_fg = "#F87171" if c_dark else "#B91C1C"
                     status_text = "High Risk"
 
+                app_logo_html = get_app_logo_html(app_name, app_id, size=38)
+
                 card_header_html = f"""
                 <div style="background:{card_bg}; border:{card_bdr}; border-radius:16px; padding:18px 20px 14px; margin-bottom:16px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <span style="font-size:0.74rem; font-weight:700; color:{muted_color}; text-transform:uppercase; letter-spacing:0.5px;">{cat_tag}</span>
                         <span style="font-size:0.72rem; background:{score_bg}; color:{score_fg}; padding:2px 8px; border-radius:12px; font-weight:800; border:{score_bdr};">{status_text}</span>
                     </div>
-                    <div style="font-size:1.15rem; font-weight:800; color:{text_color}; margin-bottom:12px; line-height:1.35;" title="{app_name}">
-                        {app_name}
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                        {app_logo_html}
+                        <div style="font-size:1.15rem; font-weight:800; color:{text_color}; line-height:1.35;" title="{app_name}">
+                            {app_name}
+                        </div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; background:{'rgba(255,255,255,0.02)' if c_dark else '#F8FAFC'}; padding:8px 12px; border-radius:10px;">
                         <div>
@@ -1428,6 +1499,7 @@ with tab_rankings:
                     name_clean = app_name.split(':')[0].strip()
                     name_lower = name_clean.lower()
                     rank_num = idx + 1
+                    detail_logo_html = get_app_logo_html(name_clean, app_id, size=48)
 
                     # Profile details fallback
                     if "sbi" in name_lower:
@@ -1473,14 +1545,15 @@ with tab_rankings:
                     det_bdr = "1.5px solid rgba(255, 255, 255, 0.08)" if c_dark else "1.5px solid #E2E8F0"
                     det_subbar = "rgba(255, 255, 255, 0.03)" if c_dark else "#F8FAFC"
                     det_card = "rgba(255, 255, 255, 0.02)" if c_dark else "#FAFAFA"
-                    det_adv_bg = "linear-gradient(135deg, rgba(247, 201, 72, 0.12) 0%, rgba(217, 119, 6, 0.08) 100%)" if c_dark else "linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%)"
-                    det_adv_bdr = "rgba(247, 201, 72, 0.3)" if c_dark else "rgba(217, 119, 6, 0.3)"
-
+                    
                     detail_view_html = f"""<div style="background:{det_bg}; border:{det_bdr}; border-radius:20px; padding:28px 32px; margin-top:20px; margin-bottom:28px; box-shadow:0 12px 35px rgba(0,0,0,0.25);">
 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid {'rgba(255,255,255,0.08)' if c_dark else '#E2E8F0'}; padding-bottom:20px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
-<div style="display:flex; align-items:center; gap:12px;">
+<div style="display:flex; align-items:center; gap:14px;">
+{detail_logo_html}
+<div>
 <div style="font-size:1.45rem; font-weight:900; color:{text_color};">{name_clean}</div>
-<span style="background:{score_bg}; color:{score_fg}; font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:20px; border:{score_bdr};">{tag_label}</span>
+<span style="background:{score_bg}; color:{score_fg}; font-size:0.75rem; font-weight:800; padding:3px 10px; border-radius:20px; border:{score_bdr}; display:inline-block; margin-top:3px;">{tag_label}</span>
+</div>
 </div>
 <div style="display:flex; align-items:center; gap:12px;">
 <div style="background:{'#0E3321' if c_dark else '#D1FAE5'}; color:{'#48BB78' if c_dark else '#047857'}; font-size:0.85rem; font-weight:800; padding:8px 16px; border-radius:12px; border:1px solid {'rgba(72,187,120,0.3)' if c_dark else 'rgba(4,120,87,0.3)'};">
