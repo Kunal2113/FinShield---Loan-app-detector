@@ -1955,11 +1955,11 @@ st.markdown(
             </div>
         </div>
     </div>
-    <div style="max-width:1350px; margin: 0 auto 30px; padding: 0 16px;">
-        <div style="border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if st.session_state.dark_mode else 'rgba(0, 0, 0, 0.08)'}; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div style="max-width:1350px; margin: 0 auto 10px; padding: 0 16px 10px;">
+        <div style="border-top: 1px solid {'rgba(255, 255, 255, 0.08)' if st.session_state.dark_mode else 'rgba(0, 0, 0, 0.08)'}; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <div style="font-size: 0.95rem; font-weight: 800; color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'}; display: flex; align-items: center; gap: 8px;">
-                    FinShield <span style="font-size: 0.72rem; font-weight: 700; background: rgba(247, 201, 72, 0.15); color: #F7C948; border: 1px solid rgba(247, 201, 72, 0.3); padding: 2px 8px; border-radius: 12px;">v2.6 AI Safety Engine</span>
+                <div style="font-size: 1.05rem; font-weight: 800; color: {'#F8FAFC' if st.session_state.dark_mode else '#0F172A'};">
+                    FinShield
                 </div>
                 <div style="font-size: 0.8rem; color: {'#64748B' if st.session_state.dark_mode else '#94A3B8'}; margin-top: 4px; font-weight: 500;">
                     © 2026 FinShield. Empowering Borrowers & Detecting Illegal Loan Apps in India.
