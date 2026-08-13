@@ -787,9 +787,7 @@ st.markdown(f"""
     /* Audit Input Container Box */
     form[data-testid="stForm"],
     div[data-testid="stForm"],
-    .stForm,
-    [data-testid="stVerticalBlockBorderWrapper"],
-    div[data-testid="stVerticalBlockBorderWrapper"] {{
+    .stForm {{
         background-color: {"rgba(18, 24, 38, 0.92)" if st.session_state.dark_mode else "#FFFFFF"} !important;
         border: {"2.5px solid #F7C948" if st.session_state.dark_mode else "2.5px solid #1E293B"} !important;
         border-radius: 20px !important;
@@ -800,13 +798,11 @@ st.markdown(f"""
     }}
     form[data-testid="stForm"] label,
     form[data-testid="stForm"] p,
-    form[data-testid="stForm"] span,
-    div[data-testid="stVerticalBlockBorderWrapper"] label,
-    div[data-testid="stVerticalBlockBorderWrapper"] p,
-    div[data-testid="stVerticalBlockBorderWrapper"] span {{
+    form[data-testid="stForm"] span {{
         color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
         font-weight: 600 !important;
     }}
+
 
     /* 3-Column Square Grid Layout (App at a glance) */
     .glance-grid-3col {{
