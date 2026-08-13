@@ -791,25 +791,6 @@ st.markdown(f"""
         opacity: 0;
     }}
 
-    /* Floating RBI Badge */
-    .floating-chat-badge {{
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        background: #111827;
-        color: #FFFFFF;
-        padding: 10px 18px;
-        border-radius: 30px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        z-index: 9999;
-        text-decoration: none;
-        border: 1px solid rgba(255,255,255,0.1);
-    }}
 
     /* Input Selectbox & Text Input Rounded Styling */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {{
@@ -1145,15 +1126,6 @@ tab_scorer, tab_profiler, tab_rankings, tab_calculators, tab_rbi = st.tabs([
 ])
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 4. Floating RBI Portal Badge
-st.markdown(
-    """
-    <a href="https://sachet.rbi.org.in" target="_blank" class="floating-chat-badge">
-        🏛️ RBI Sachet Portal ↗
-    </a>
-    """,
-    unsafe_allow_html=True
-)
 
 # ==========================================
 # TAB 1: APP RISK SCORER & GAUGE
