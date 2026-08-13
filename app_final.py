@@ -588,13 +588,13 @@ st.markdown(f"""
         animation: aura4 44s ease-in-out infinite;
         will-change: transform, opacity;
     }}
-    /* Orb 5 — warm orange-red, mid-right */
+    /* Orb 5 — vibrant warm orange, mid-right */
     .bg-orb-5 {{
         position: fixed;
         top: 38%; right: -120px;
         width: 520px; height: 520px;
         border-radius: 50%;
-        background: {"radial-gradient(circle, rgba(220,38,38,0.28) 0%, rgba(239,68,68,0.16) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(252,165,165,0.38) 0%, rgba(254,202,202,0.24) 55%, transparent 72%)"};
+        background: {"radial-gradient(circle, rgba(249,115,22,0.35) 0%, rgba(217,119,6,0.20) 55%, transparent 72%)" if st.session_state.dark_mode else "radial-gradient(circle, rgba(251,146,60,0.42) 0%, rgba(253,186,116,0.26) 55%, transparent 72%)"};
         filter: blur(120px);
         pointer-events: none; z-index: -1;
         mix-blend-mode: normal;
