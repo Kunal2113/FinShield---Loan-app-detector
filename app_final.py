@@ -139,8 +139,8 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
     name_lower = clean_name.lower()
     pkg_str = str(package_id).lower().strip()
 
-    # 512px Ultra-HD Official Vector / PNG Logos (Wikimedia / Official Brand Assets)
-    high_res_logo_map = {
+    # Direct 512px High-Res Wikimedia Assets for Top Banks & Major Brands
+    high_res_map = {
         "com.sbi.lotusintouch": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/State_Bank_of_India_logo.svg/512px-State_Bank_of_India_logo.svg.png",
         "com.hdfcbank.android.now": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/HDFC_Bank_Logo.svg/512px-HDFC_Bank_Logo.svg.png",
         "com.csam.icici.bank.imobile": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/ICICI_Bank_Logo.svg/512px-ICICI_Bank_Logo.svg.png",
@@ -152,6 +152,7 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "com.phonepe.app": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png",
         "com.google.android.apps.nbu.paisa.user": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_%28GPay%29_Logo.svg/512px-Google_Pay_%28GPay%29_Logo.svg.png",
         "in.amazon.mshop.android.shopping": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png",
+        "in.amazon.mShop.android.shopping": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png",
         "in.groww.dash": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Groww_Logo.svg/512px-Groww_Logo.svg.png",
         "com.nextbillion.groww": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Groww_Logo.svg/512px-Groww_Logo.svg.png",
         "com.dreamplug.androidapp": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/CRED_logo.svg/512px-CRED_logo.svg.png",
@@ -159,69 +160,49 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         "com.mobikwik_new": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/MobiKwik_Logo.svg/512px-MobiKwik_Logo.svg.png",
     }
 
-    # Brand Domain Map for DuckDuckGo & Google HD Engines
     domain_map = {
-        "com.sbi.lotusintouch": "sbi.co.in",
-        "com.hdfcbank.android.now": "hdfcbank.com",
-        "com.csam.icici.bank.imobile": "icicibank.com",
-        "com.axis.mobile": "axisbank.com",
-        "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": "kotak.com",
-        "com.bankofbaroda.mconnect": "bankofbaroda.in",
-        "com.canarabank.mobility": "canarabank.com",
-        "com.fedmobile": "federalbank.co.in",
-        "com.phonepe.app": "phonepe.com",
-        "com.google.android.apps.nbu.paisa.user": "pay.google.com",
-        "in.amazon.mshop.android.shopping": "amazon.in",
-        "com.muthootfinance.imuthoot": "muthootfinance.com",
         "com.naviapp": "navi.com",
         "com.kreditbee.android": "kreditbee.in",
-        "in.groww.dash": "groww.in",
-        "com.nextbillion.groww": "groww.in",
         "com.whizdm.moneyview.loans": "moneyview.in",
         "co.tslc.cashe.android": "cashe.co.in",
         "com.mpokket.app": "mpokket.in",
         "com.earlysalary.android": "fibe.in",
         "com.privo.creditsaison": "creditsaison.in",
-        "com.pocketly": "pocketly.in",
-        "com.fastbanking": "kissht.com",
-        "com.nobroker.loans": "nobroker.in",
-        "com.balancehero.truebalance": "truebalance.io",
-        "com.lendingplate": "lendingplate.com",
         "com.fintech.lenditt": "lenditt.com",
         "com.kksv.salarynowapp": "salarynow.in",
         "com.kksv.salarynowloan": "salarynow.in",
         "com.smfgindia.mconnect": "smfgindiacredit.com",
         "com.moneytap.bnpl.app": "freo.money",
-        "com.myairtelapp": "airtel.in",
         "tech.fplabs.score": "onescore.app",
-        "com.mobikwik_new": "mobikwik.com",
         "com.indialends.android": "indialends.com",
         "com.stashfin.android": "stashfin.com",
         "com.citrus.citruspay": "lazypay.in",
         "com.branch_international.branch.branch_demo_android": "branch.co",
         "money.jupiter": "jupiter.money",
-        "com.dreamplug.androidapp": "cred.club",
         "com.piramal.app.pchf": "piramalfinance.com",
+        "com.muthootfinance.imuthoot": "muthootfinance.com",
         "in.hanafintech": "payrupik.in",
         "com.rupeeredee.app": "rupeeredee.com",
         "rapidrupee.app": "rapidrupee.in",
         "com.innofinsolutions.instamoney": "instamoney.in",
+        "com.moneyclub.android": "themoneyclub.in",
+        "com.vizzve_micro_seva": "vizzve.com",
     }
 
-    direct_hd_url = high_res_logo_map.get(pkg_str)
+    direct_logo = high_res_map.get(pkg_str)
     matched_domain = domain_map.get(pkg_str)
 
-    if not matched_domain:
+    if not direct_logo and not matched_domain:
         if "sbi" in name_lower or "yono" in name_lower:
-            matched_domain = "sbi.co.in"
+            direct_logo = high_res_map["com.sbi.lotusintouch"]
         elif "hdfc" in name_lower:
-            matched_domain = "hdfcbank.com"
+            direct_logo = high_res_map["com.hdfcbank.android.now"]
         elif "icici" in name_lower:
-            matched_domain = "icicibank.com"
+            direct_logo = high_res_map["com.csam.icici.bank.imobile"]
         elif "axis" in name_lower:
-            matched_domain = "axisbank.com"
+            direct_logo = high_res_map["com.axis.mobile"]
         elif "kotak" in name_lower:
-            matched_domain = "kotak.com"
+            direct_logo = high_res_map["com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge"]
         elif "navi" in name_lower:
             matched_domain = "navi.com"
         elif "kreditbee" in name_lower:
@@ -237,23 +218,18 @@ def get_app_logo_html(app_name: str, package_id: str, size: int = 40) -> str:
         elif "fibe" in name_lower or "earlysalary" in name_lower:
             matched_domain = "fibe.in"
 
+    if matched_domain and not direct_logo:
+        direct_logo = f"https://www.google.com/s2/favicons?domain={matched_domain}&sz=128"
+
     hue = (sum(ord(c) for c in clean_name) * 37) % 360
     grad_start = f"hsl({hue}, 82%, 52%)"
     grad_end = f"hsl({(hue + 48) % 360}, 88%, 34%)"
 
-    bg_urls = []
-    if direct_hd_url:
-        bg_urls.append(f"url('{direct_hd_url}')")
-    if matched_domain:
-        bg_urls.append(f"url('https://icons.duckduckgo.com/ip3/{matched_domain}.ico')")
-        bg_urls.append(f"url('https://www.google.com/s2/favicons?domain={matched_domain}&sz=256')")
-
-    if bg_urls:
-        bg_images = ", ".join(bg_urls)
+    if direct_logo:
         return (
             f'<div style="width:{size}px; height:{size}px; border-radius:12px; background:linear-gradient(135deg, {grad_start} 0%, {grad_end} 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.25); flex-shrink:0; overflow:hidden; border:1.5px solid rgba(255,255,255,0.18); position:relative;">'
             f'<span style="font-weight:900; font-size:{int(size*0.42)}px; color:#FFFFFF; text-shadow:0 2px 4px rgba(0,0,0,0.4); text-transform:uppercase; letter-spacing:0.5px;">{monogram}</span>'
-            f'<div style="width:100%; height:100%; position:absolute; top:0; left:0; border-radius:10px; background-image:{bg_images}; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#FFFFFF;"></div>'
+            f'<img src="{direct_logo}" onerror="this.style.display=\'none\';" style="width:100%; height:100%; object-fit:contain; border-radius:10px; background-color:#FFFFFF; position:absolute; top:0; left:0;" />'
             f'</div>'
         )
     else:
