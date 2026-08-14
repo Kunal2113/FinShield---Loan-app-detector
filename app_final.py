@@ -910,6 +910,7 @@ st.markdown(f"""
         background: {"radial-gradient(circle at 35% 35%, #242F46 0%, #111622 100%)" if st.session_state.dark_mode else "radial-gradient(circle at 35% 35%, #ffffff 0%, #F1F5F9 100%)"} !important;
         box-shadow: {"4px 4px 10px #04060A, -3px -3px 8px #2C3A54" if st.session_state.dark_mode else "4px 4px 10px rgba(0,0,0,0.18), -3px -3px 8px #ffffff"} !important;
         border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #94A3B8"} !important;
+        transform: {"translateX(42px)" if st.session_state.dark_mode else "translateX(0px)"} !important;
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
 
