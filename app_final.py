@@ -1069,6 +1069,12 @@ st.markdown(f"""
     }}
 
 
+    /* Eradicate any black box background around tab scroll wrappers & buttons */
+    div[data-testid="stTabs"],
+    div[data-testid="stTabs"] > div,
+    .stTabs,
+    .stTabs > div,
+    [data-baseweb="tab-list"] > div,
     [data-baseweb*="tab-scroll"],
     [data-baseweb="tab-scroll-button-left"],
     [data-baseweb="tab-scroll-button-right"],
@@ -1083,23 +1089,19 @@ st.markdown(f"""
     button[aria-label*="Scroll"],
     button[aria-label*="Next"],
     button[aria-label*="Previous"] {{
-        background: {"linear-gradient(135deg, #F7C948 0%, #EA580C 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)"} !important;
-        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
-        border-radius: 12px !important;
-        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        box-shadow: {"0 0 16px rgba(247, 201, 72, 0.75)" if st.session_state.dark_mode else "0 4px 12px rgba(0, 0, 0, 0.25)"} !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
         opacity: 1 !important;
         visibility: visible !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 4px 8px !important;
-        margin: 0 4px !important;
         cursor: pointer !important;
-        transition: all 0.2s ease !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
     }}
 
-    /* Target SVG Chevrons inside the right & left scroll boxes */
+    /* Target SVG Chevrons inside the scroll arrows - Vibrant Glowing Gold/Orange Floating Icon */
     [data-baseweb*="tab-scroll"] svg,
     [data-baseweb*="tab-scroll"] svg path,
     [data-baseweb*="tab-scroll"] svg polyline,
@@ -1109,10 +1111,19 @@ st.markdown(f"""
     button[aria-label*="Scroll"] svg,
     button[aria-label*="Next"] svg,
     button[aria-label*="Previous"] svg {{
-        fill: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        stroke: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        stroke-width: 3px !important;
+        fill: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        stroke: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        stroke-width: 3.5px !important;
+        filter: {"drop-shadow(0 0 8px rgba(247, 201, 72, 0.9))" if st.session_state.dark_mode else "none"} !important;
+        transition: all 0.2s ease !important;
+    }}
+
+    [data-baseweb*="tab-scroll"]:hover svg,
+    button[aria-label*="Next"]:hover svg,
+    button[aria-label*="Previous"]:hover svg {{
+        transform: scale(1.25) !important;
+        filter: {"drop-shadow(0 0 14px #F7C948)" if st.session_state.dark_mode else "none"} !important;
     }}
 
 
