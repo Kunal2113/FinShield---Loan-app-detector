@@ -1068,6 +1068,60 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
+    /* High-Visibility Highlighted Tab Scroll Arrows (< and >) */
+    .stTabs [data-baseweb="tab-list"] button,
+    .stTabs button[data-baseweb="button"],
+    .stTabs button[aria-label*="scroll"],
+    .stTabs button[aria-label*="Scroll"],
+    .stTabs button[aria-label*="Previous"],
+    .stTabs button[aria-label*="Next"],
+    .stTabs [data-baseweb="tab-scroll-button-left"],
+    .stTabs [data-baseweb="tab-scroll-button-right"],
+    div[data-testid="stTabs"] button,
+    div[data-testid="stTabs"] [role="button"] {{
+        background: {"linear-gradient(135deg, #1E293B 0%, #111622 100%)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
+        border-radius: 50% !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        box-shadow: {"0 0 14px rgba(247, 201, 72, 0.45)" if st.session_state.dark_mode else "0 4px 12px rgba(0, 0, 0, 0.2)"} !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 10 !important;
+        transition: all 0.2s ease !important;
+        margin: 0 4px !important;
+    }}
+    .stTabs [data-baseweb="tab-list"] button:hover,
+    div[data-testid="stTabs"] button:hover {{
+        background: {"linear-gradient(135deg, #F7C948 0%, #D97706 100%)" if st.session_state.dark_mode else "#0F172A"} !important;
+        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border-color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        transform: scale(1.1) !important;
+    }}
+    .stTabs [data-baseweb="tab-list"] button svg,
+    .stTabs [data-baseweb="tab-list"] button svg path,
+    div[data-testid="stTabs"] button svg,
+    div[data-testid="stTabs"] button svg path {{
+        fill: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        stroke: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        stroke-width: 2.5px !important;
+    }}
+    .stTabs [data-baseweb="tab-list"] button:hover svg,
+    .stTabs [data-baseweb="tab-list"] button:hover svg path,
+    div[data-testid="stTabs"] button:hover svg,
+    div[data-testid="stTabs"] button:hover svg path {{
+        fill: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        stroke: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+    }}
+
     /* Audit Input Container Box & Modern Glass Container */
     form[data-testid="stForm"],
     div[data-testid="stForm"],
