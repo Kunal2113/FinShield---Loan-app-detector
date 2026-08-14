@@ -824,18 +824,29 @@ st.markdown(f"""
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
     }}
 
-    /* Exact Neumorphic Soft UI Theme Switcher (Daymode / Nightmode) */
+    /* Exact Neumorphic Soft UI Theme Switcher (Top-Right Pinned) */
+    div[data-testid="column"]:has(.st-key-dark_mode),
+    div[data-testid="column"]:has([data-testid="stToggle"]) {{
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: flex-start !important;
+        text-align: right !important;
+    }}
+
     .st-key-dark_mode,
     div[data-testid="stToggle"] {{
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-end !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
         float: right !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        margin-top: 4px !important;
     }}
     .st-key-dark_mode label,
     div[data-testid="stToggle"] label {{
@@ -1201,7 +1212,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 1. Navigation Navbar Header
-col_n1, col_n2 = st.columns([3, 1], vertical_alignment="center")
+col_n1, col_n2 = st.columns([3, 1], vertical_alignment="top")
 with col_n1:
     st.markdown(
         f"""
