@@ -653,8 +653,8 @@ def theme_colors(dark: bool) -> dict:
 
 t = theme_colors(st.session_state.dark_mode)
 
-moon_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23F7C948' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3Cpolygon points='12 2 13.09 4.26 15.54 4.62 13.77 6.35 14.19 8.8 12 7.65 9.81 8.8 10.23 6.35 8.46 4.62 10.91 4.26 12 2'/%3E%3C/svg%3E\")"
-sun_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230F172A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E\")"
+moon_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23F7C948' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3Cpolygon points='12 2 13.09 4.26 15.54 4.62 13.77 6.35 14.19 8.8 12 7.65 9.81 8.8 10.23 6.35 8.46 4.62 10.91 4.26 12 2'/%3E%3C/svg%3E\")"
+sun_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230F172A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E\")"
 neumorphic_svg_bg = moon_svg_url if st.session_state.dark_mode else sun_svg_url
 
 st.markdown(f"""
@@ -874,17 +874,17 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div,
     .st-key-dark_mode [data-baseweb="checkbox"] span::before,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::before {{
-        width: 84px !important;
-        height: 42px !important;
-        border-radius: 50px !important;
+        width: 56px !important;
+        height: 28px !important;
+        border-radius: 30px !important;
         background-color: {"#111622" if st.session_state.dark_mode else "#CBD5E1"} !important;
         background-image: {neumorphic_svg_bg} !important;
         background-repeat: no-repeat !important;
-        background-position: {"12px center" if st.session_state.dark_mode else "52px center"} !important;
-        box-shadow: {"inset 4px 4px 8px #08090c, inset -4px -4px 8px #222736" if st.session_state.dark_mode else "inset 4px 4px 8px #94a3b8, inset -4px -4px 8px #ffffff"} !important;
+        background-position: {"6px center" if st.session_state.dark_mode else "34px center"} !important;
+        box-shadow: {"inset 3px 3px 6px #08090c, inset -3px -3px 6px #222736" if st.session_state.dark_mode else "inset 3px 3px 6px #94a3b8, inset -3px -3px 6px #ffffff"} !important;
         border: {"1.5px solid rgba(247, 201, 72, 0.4)" if st.session_state.dark_mode else "1.5px solid #94A3B8"} !important;
         opacity: 1 !important;
-        padding: 4px !important;
+        padding: 2px !important;
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
 
@@ -903,14 +903,14 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div *,
     .st-key-dark_mode [data-baseweb="checkbox"] span::after,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::after {{
-        width: 34px !important;
-        height: 34px !important;
+        width: 22px !important;
+        height: 22px !important;
         border-radius: 50% !important;
         background-color: {"#1A2234" if st.session_state.dark_mode else "#FFFFFF"} !important;
         background: {"radial-gradient(circle at 35% 35%, #242F46 0%, #111622 100%)" if st.session_state.dark_mode else "radial-gradient(circle at 35% 35%, #ffffff 0%, #F1F5F9 100%)"} !important;
-        box-shadow: {"4px 4px 10px #04060A, -3px -3px 8px #2C3A54" if st.session_state.dark_mode else "4px 4px 10px rgba(0,0,0,0.18), -3px -3px 8px #ffffff"} !important;
+        box-shadow: {"3px 3px 6px #04060A, -2px -2px 5px #2C3A54" if st.session_state.dark_mode else "3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px #ffffff"} !important;
         border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #94A3B8"} !important;
-        transform: {"translateX(42px)" if st.session_state.dark_mode else "translateX(0px)"} !important;
+        transform: {"translateX(28px)" if st.session_state.dark_mode else "translateX(0px)"} !important;
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
 
