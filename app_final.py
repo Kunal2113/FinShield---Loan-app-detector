@@ -1068,7 +1068,7 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
-    /* High-Visibility Highlighted Tab Scroll Arrows (< and >) */
+
     .stTabs [data-baseweb="tab-list"] button,
     .stTabs button[data-baseweb="button"],
     .stTabs button[aria-label*="scroll"],
