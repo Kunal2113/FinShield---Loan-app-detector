@@ -1068,15 +1068,53 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
-    /* Orange / Golden Glow Edge Shadows around Tab Scroll Arrows */
-    [data-baseweb="tab-list"]::before,
-    [data-baseweb="tab-list"]::after,
-    .stTabs [data-baseweb="tab-list"]::before,
-    .stTabs [data-baseweb="tab-list"]::after,
-    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div::before,
-    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div::after {{
-        background: {"linear-gradient(90deg, rgba(247, 201, 72, 0.4), transparent)" if st.session_state.dark_mode else "linear-gradient(90deg, rgba(234, 88, 12, 0.3), transparent)"} !important;
-        box-shadow: {"0 0 25px rgba(247, 201, 72, 0.6), 0 0 12px rgba(234, 88, 12, 0.5)" if st.session_state.dark_mode else "0 0 15px rgba(247, 201, 72, 0.4)"} !important;
+    /* High-Visibility Golden/Orange Scroll Indicator Arrows (< and >) on Tab List */
+    .stTabs [data-baseweb="tab-list"]::before {{
+        content: "‹" !important;
+        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
+        font-size: 1.35rem !important;
+        font-weight: 900 !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        background: {"linear-gradient(135deg, #1E293B 0%, #111622 100%)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        box-shadow: {"0 0 12px rgba(247, 201, 72, 0.6)" if st.session_state.dark_mode else "0 2px 8px rgba(0, 0, 0, 0.15)"} !important;
+        flex-shrink: 0 !important;
+        margin-right: 4px !important;
+        margin-left: 2px !important;
+        align-self: center !important;
+    }}
+
+    .stTabs [data-baseweb="tab-list"]::after {{
+        content: "›" !important;
+        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
+        font-size: 1.35rem !important;
+        font-weight: 900 !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        background: {"linear-gradient(135deg, #1E293B 0%, #111622 100%)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        box-shadow: {"0 0 12px rgba(247, 201, 72, 0.6)" if st.session_state.dark_mode else "0 2px 8px rgba(0, 0, 0, 0.15)"} !important;
+        flex-shrink: 0 !important;
+        margin-left: 4px !important;
+        margin-right: 2px !important;
+        align-self: center !important;
     }}
 
 
