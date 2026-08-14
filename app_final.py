@@ -994,13 +994,13 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab-list"], [data-baseweb="tab-list"] {{
         gap: 10px !important;
         border-bottom: none !important;
-        border: 1.5px solid rgba(247, 201, 72, 0.3) !important;
+        border: 1.5px solid rgba(247, 201, 72, 0.45) !important;
         background: {"rgba(18, 24, 38, 0.85)" if st.session_state.dark_mode else "#FFFFFF"} !important;
         backdrop-filter: blur(16px) !important;
         -webkit-backdrop-filter: blur(16px) !important;
         padding: 8px 14px !important;
         border-radius: 40px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        box-shadow: {"0 8px 32px rgba(247, 201, 72, 0.3), 0 0 20px rgba(234, 88, 12, 0.3)" if st.session_state.dark_mode else "0 8px 25px rgba(247, 201, 72, 0.25)"} !important;
         justify-content: center !important;
         margin-bottom: 24px !important;
     }}
@@ -1066,6 +1066,17 @@ st.markdown(f"""
         position: absolute !important;
         top: -9999px !important;
         left: -9999px !important;
+    }}
+
+    /* Orange / Golden Glow Edge Shadows around Tab Scroll Arrows */
+    [data-baseweb="tab-list"]::before,
+    [data-baseweb="tab-list"]::after,
+    .stTabs [data-baseweb="tab-list"]::before,
+    .stTabs [data-baseweb="tab-list"]::after,
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div::before,
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] > div::after {{
+        background: {"linear-gradient(90deg, rgba(247, 201, 72, 0.4), transparent)" if st.session_state.dark_mode else "linear-gradient(90deg, rgba(234, 88, 12, 0.3), transparent)"} !important;
+        box-shadow: {"0 0 25px rgba(247, 201, 72, 0.6), 0 0 12px rgba(234, 88, 12, 0.5)" if st.session_state.dark_mode else "0 0 15px rgba(247, 201, 72, 0.4)"} !important;
     }}
 
 
