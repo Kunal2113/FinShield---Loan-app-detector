@@ -1068,53 +1068,51 @@ st.markdown(f"""
         left: -9999px !important;
     }}
 
-    /* High-Visibility Golden/Orange Scroll Indicator Arrows (< and >) on Tab List */
-    .stTabs [data-baseweb="tab-list"]::before {{
-        content: "‹" !important;
-        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
-        font-size: 1.35rem !important;
-        font-weight: 900 !important;
-        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
-        background: {"linear-gradient(135deg, #1E293B 0%, #111622 100%)" if st.session_state.dark_mode else "#FFFFFF"} !important;
+
+    [data-baseweb*="tab-scroll"],
+    [data-baseweb="tab-scroll-button-left"],
+    [data-baseweb="tab-scroll-button-right"],
+    div[data-baseweb="tab-scroll-button-left"],
+    div[data-baseweb="tab-scroll-button-right"],
+    .stTabs [data-baseweb*="tab-scroll"],
+    .stTabs [data-baseweb="tab-scroll-button-left"],
+    .stTabs [data-baseweb="tab-scroll-button-right"],
+    .stTabs [data-baseweb="tab-list"] > button,
+    .stTabs [data-baseweb="tab-list"] > div > button,
+    button[aria-label*="scroll"],
+    button[aria-label*="Scroll"],
+    button[aria-label*="Next"],
+    button[aria-label*="Previous"] {{
+        background: {"linear-gradient(135deg, #F7C948 0%, #EA580C 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)"} !important;
         border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        display: inline-flex !important;
+        border-radius: 12px !important;
+        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        box-shadow: {"0 0 16px rgba(247, 201, 72, 0.75)" if st.session_state.dark_mode else "0 4px 12px rgba(0, 0, 0, 0.25)"} !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        line-height: 1 !important;
-        box-shadow: {"0 0 12px rgba(247, 201, 72, 0.6)" if st.session_state.dark_mode else "0 2px 8px rgba(0, 0, 0, 0.15)"} !important;
-        flex-shrink: 0 !important;
-        margin-right: 4px !important;
-        margin-left: 2px !important;
-        align-self: center !important;
+        padding: 4px 8px !important;
+        margin: 0 4px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
     }}
 
-    .stTabs [data-baseweb="tab-list"]::after {{
-        content: "›" !important;
-        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
-        font-size: 1.35rem !important;
-        font-weight: 900 !important;
-        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
-        background: {"linear-gradient(135deg, #1E293B 0%, #111622 100%)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #0F172A"} !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1 !important;
-        box-shadow: {"0 0 12px rgba(247, 201, 72, 0.6)" if st.session_state.dark_mode else "0 2px 8px rgba(0, 0, 0, 0.15)"} !important;
-        flex-shrink: 0 !important;
-        margin-left: 4px !important;
-        margin-right: 2px !important;
-        align-self: center !important;
+    /* Target SVG Chevrons inside the right & left scroll boxes */
+    [data-baseweb*="tab-scroll"] svg,
+    [data-baseweb*="tab-scroll"] svg path,
+    [data-baseweb*="tab-scroll"] svg polyline,
+    .stTabs [data-baseweb="tab-list"] button svg,
+    .stTabs [data-baseweb="tab-list"] button svg path,
+    button[aria-label*="scroll"] svg,
+    button[aria-label*="Scroll"] svg,
+    button[aria-label*="Next"] svg,
+    button[aria-label*="Previous"] svg {{
+        fill: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        stroke: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        color: {"#000000" if st.session_state.dark_mode else "#FFFFFF"} !important;
+        stroke-width: 3px !important;
     }}
 
 
