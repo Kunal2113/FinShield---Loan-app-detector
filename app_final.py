@@ -653,6 +653,10 @@ def theme_colors(dark: bool) -> dict:
 
 t = theme_colors(st.session_state.dark_mode)
 
+moon_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23CBD5E1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3Cpolygon points='12 2 13.09 4.26 15.54 4.62 13.77 6.35 14.19 8.8 12 7.65 9.81 8.8 10.23 6.35 8.46 4.62 10.91 4.26 12 2'/%3E%3C/svg%3E\")"
+sun_svg_url = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E\")"
+neumorphic_svg_bg = moon_svg_url if st.session_state.dark_mode else sun_svg_url
+
 st.markdown(f"""
 <style>
     header[data-testid="stHeader"] {{
@@ -820,43 +824,45 @@ st.markdown(f"""
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
     }}
 
-    /* High-Visibility Prominent Dark Mode Toggle Badge Button */
+    /* Exact Neumorphic Soft UI Theme Switcher (Daymode / Nightmode) */
     .st-key-dark_mode,
     div[data-testid="stToggle"] {{
-        display: inline-flex !important;
-        align-items: center !important;
-        background: {"rgba(18, 24, 38, 0.92)" if st.session_state.dark_mode else "#0F172A"} !important;
-        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #F7C948"} !important;
-        padding: 6px 18px !important;
-        border-radius: 40px !important;
-        box-shadow: {"0 4px 18px rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "0 4px 16px rgba(15, 23, 42, 0.3)"} !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
         float: right !important;
     }}
-    .st-key-dark_mode:hover,
-    div[data-testid="stToggle"]:hover {{
-        border-color: #FBBF24 !important;
-        background: {"rgba(247, 201, 72, 0.22)" if st.session_state.dark_mode else "#1E293B"} !important;
-        box-shadow: 0 6px 22px rgba(247, 201, 72, 0.4) !important;
-        transform: translateY(-2px) !important;
-    }}
     .st-key-dark_mode label,
-    .st-key-dark_mode label *,
-    .st-key-dark_mode span,
-    .st-key-dark_mode p,
-    div[data-testid="stToggle"] label,
-    div[data-testid="stToggle"] label *,
-    div[data-testid="stToggle"] span,
-    div[data-testid="stToggle"] p {{
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
-        font-size: 0.9rem !important;
-        letter-spacing: -0.01em !important;
+    div[data-testid="stToggle"] label {{
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        align-items: flex-end !important;
+        gap: 6px !important;
         cursor: pointer !important;
     }}
-    /* Switch Track (Background Pill inside Toggle) */
+
+    /* Top Mode Header Label (DAYMODE / NIGHTMODE) */
+    .st-key-dark_mode label span:last-child,
+    .st-key-dark_mode label p,
+    div[data-testid="stToggle"] label span:last-child,
+    div[data-testid="stToggle"] label p {{
+        font-family: 'Space Mono', 'Courier New', monospace !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 2.5px !important;
+        text-transform: uppercase !important;
+        color: {"#A0AEC0" if st.session_state.dark_mode else "#64748B"} !important;
+        cursor: pointer !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }}
+
+    /* Neumorphic Inset Track (Sunken Soft UI Track with SVG Sun / Moon Icon) */
     .st-key-dark_mode label > span:first-of-type,
     .st-key-dark_mode label > div:first-of-type,
     .st-key-dark_mode input[type="checkbox"] + span,
@@ -871,12 +877,21 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div,
     .st-key-dark_mode [data-baseweb="checkbox"] span::before,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::before {{
-        background-color: #F7C948 !important;
-        background: linear-gradient(135deg, #F7C948 0%, #D97706 100%) !important;
-        border: 1px solid #D97706 !important;
+        width: 84px !important;
+        height: 42px !important;
+        border-radius: 50px !important;
+        background-color: {"#14171D" if st.session_state.dark_mode else "#E6E9EF"} !important;
+        background-image: {neumorphic_svg_bg} !important;
+        background-repeat: no-repeat !important;
+        background-position: {"12px center" if st.session_state.dark_mode else "52px center"} !important;
+        box-shadow: {"inset 4px 4px 8px #0a0c0f, inset -4px -4px 8px #1e222b" if st.session_state.dark_mode else "inset 4px 4px 8px #c8ccd4, inset -4px -4px 8px #ffffff"} !important;
+        border: none !important;
         opacity: 1 !important;
+        padding: 4px !important;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
-    /* Switch Circle Knob */
+
+    /* Neumorphic Raised Knob (Soft UI 3D Sphere Handle) */
     .st-key-dark_mode label > span:first-of-type *,
     .st-key-dark_mode label > div:first-of-type *,
     .st-key-dark_mode input[type="checkbox"] + span *,
@@ -891,10 +906,14 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div *,
     .st-key-dark_mode [data-baseweb="checkbox"] span::after,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::after {{
-        background-color: #04060A !important;
-        background: #04060A !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
-        border: 1px solid #F7C948 !important;
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 50% !important;
+        background-color: {"#181B22" if st.session_state.dark_mode else "#E6E9EF"} !important;
+        background: {"radial-gradient(circle at 35% 35%, #222630 0%, #14171D 100%)" if st.session_state.dark_mode else "radial-gradient(circle at 35% 35%, #ffffff 0%, #E6E9EF 100%)"} !important;
+        box-shadow: {"5px 5px 10px #090a0d, -4px -4px 9px #232731" if st.session_state.dark_mode else "5px 5px 10px #c3c7cf, -4px -4px 9px #ffffff"} !important;
+        border: none !important;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
 
 
@@ -1204,7 +1223,7 @@ with col_n1:
         unsafe_allow_html=True
     )
 with col_n2:
-    st.toggle("🌙 Dark Mode", key="dark_mode")
+    st.toggle("NIGHTMODE" if st.session_state.dark_mode else "DAYMODE", key="dark_mode")
 
 # 3. FIRST: Top Tabs Navigation Toggle Bar
 st.markdown('<div style="max-width:1350px; margin: 12px auto 0; padding: 0 16px;">', unsafe_allow_html=True)
