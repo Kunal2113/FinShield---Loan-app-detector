@@ -994,13 +994,12 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab-list"], [data-baseweb="tab-list"] {{
         gap: 10px !important;
         border-bottom: none !important;
-        border: 1.5px solid rgba(247, 201, 72, 0.45) !important;
-        background: {"rgba(18, 24, 38, 0.85)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        padding: 8px 14px !important;
-        border-radius: 40px !important;
-        box-shadow: {"0 8px 32px rgba(247, 201, 72, 0.3), 0 0 20px rgba(234, 88, 12, 0.3)" if st.session_state.dark_mode else "0 8px 25px rgba(247, 201, 72, 0.25)"} !important;
+        border: none !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 4px 8px !important;
+        box-shadow: none !important;
         justify-content: center !important;
         margin-bottom: 24px !important;
     }}
