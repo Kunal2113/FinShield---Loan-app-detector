@@ -1069,13 +1069,11 @@ st.markdown(f"""
     }}
 
 
-    /* Eradicate any black box background around tab scroll wrappers & buttons */
-    div[data-testid="stTabs"],
+    /* Eradicate any box border, background, shadow or pseudo-element around tab scroll arrows */
     div[data-testid="stTabs"] > div,
-    .stTabs,
-    .stTabs > div,
     [data-baseweb="tab-list"] > div,
     [data-baseweb*="tab-scroll"],
+    [data-baseweb*="tab-scroll"] *,
     [data-baseweb="tab-scroll-button-left"],
     [data-baseweb="tab-scroll-button-right"],
     div[data-baseweb="tab-scroll-button-left"],
@@ -1083,8 +1081,8 @@ st.markdown(f"""
     .stTabs [data-baseweb*="tab-scroll"],
     .stTabs [data-baseweb="tab-scroll-button-left"],
     .stTabs [data-baseweb="tab-scroll-button-right"],
-    .stTabs [data-baseweb="tab-list"] > button,
-    .stTabs [data-baseweb="tab-list"] > div > button,
+    .stTabs [data-baseweb="tab-list"] > button:not([role="tab"]),
+    .stTabs [data-baseweb="tab-list"] > div > button:not([role="tab"]),
     button[aria-label*="scroll"],
     button[aria-label*="Scroll"],
     button[aria-label*="Next"],
@@ -1092,21 +1090,36 @@ st.markdown(f"""
         background: transparent !important;
         background-color: transparent !important;
         border: none !important;
+        border-radius: 0 !important;
         box-shadow: none !important;
         outline: none !important;
         opacity: 1 !important;
         visibility: visible !important;
         cursor: pointer !important;
-        padding: 2px 6px !important;
+        padding: 0 4px !important;
         margin: 0 !important;
     }}
 
-    /* Target SVG Chevrons inside the scroll arrows - Vibrant Glowing Gold/Orange Floating Icon */
+    /* Remove any pseudo-box overlays on scroll containers */
+    [data-baseweb*="tab-scroll"]::before,
+    [data-baseweb*="tab-scroll"]::after,
+    button[aria-label*="Next"]::before,
+    button[aria-label*="Next"]::after,
+    button[aria-label*="Previous"]::before,
+    button[aria-label*="Previous"]::after {{
+        display: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        content: "" !important;
+    }}
+
+    /* Standalone Floating Vibrant Gold/Orange Chevron Arrow (NO BOX) */
     [data-baseweb*="tab-scroll"] svg,
     [data-baseweb*="tab-scroll"] svg path,
     [data-baseweb*="tab-scroll"] svg polyline,
-    .stTabs [data-baseweb="tab-list"] button svg,
-    .stTabs [data-baseweb="tab-list"] button svg path,
+    .stTabs [data-baseweb="tab-list"] button:not([role="tab"]) svg,
+    .stTabs [data-baseweb="tab-list"] button:not([role="tab"]) svg path,
     button[aria-label*="scroll"] svg,
     button[aria-label*="Scroll"] svg,
     button[aria-label*="Next"] svg,
@@ -1115,15 +1128,15 @@ st.markdown(f"""
         stroke: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         stroke-width: 3.5px !important;
-        filter: {"drop-shadow(0 0 8px rgba(247, 201, 72, 0.9))" if st.session_state.dark_mode else "none"} !important;
+        filter: {"drop-shadow(0 0 8px rgba(247, 201, 72, 0.95))" if st.session_state.dark_mode else "none"} !important;
         transition: all 0.2s ease !important;
     }}
 
     [data-baseweb*="tab-scroll"]:hover svg,
     button[aria-label*="Next"]:hover svg,
     button[aria-label*="Previous"]:hover svg {{
-        transform: scale(1.25) !important;
-        filter: {"drop-shadow(0 0 14px #F7C948)" if st.session_state.dark_mode else "none"} !important;
+        transform: scale(1.3) !important;
+        filter: {"drop-shadow(0 0 16px #F7C948)" if st.session_state.dark_mode else "none"} !important;
     }}
 
 
