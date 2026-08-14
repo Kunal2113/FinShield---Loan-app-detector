@@ -675,7 +675,7 @@ st.markdown(f"""
         100% {{ transform: translate(-3%, -3%) scale(1); opacity: 0.18; }}
     }}
 
-    /* Subtle ambient orange haze — deep pitch black background dominates */
+    /* Background glow */
     .bg-single-ambient {{
         position: fixed;
         top: -15vh;
@@ -696,7 +696,7 @@ st.markdown(f"""
         100% {{ transform: translate(0, 0) scale(1); opacity: 0.20; }}
     }}
 
-    /* Right-side glowing ambient gradient effect — Soft & Light */
+    /* Right side glow */
     .bg-right-ambient {{
         position: fixed;
         top: -120px;
@@ -712,7 +712,7 @@ st.markdown(f"""
         will-change: transform, opacity;
     }}
 
-    /* Financial symbol pattern layer — Dark mode only */
+    /* Background pattern */
     .bg-pattern-layer {{
         position: fixed;
         inset: 0;
@@ -751,7 +751,7 @@ st.markdown(f"""
     h1, h2, h3, p, span, label, .stMarkdown {{ color: {t['text']}; }}
 
 
-    /* Hero Section */
+    /* Hero section */
     .hero-container-light {{
         background: transparent !important;
         padding: 45px 20px 30px;
@@ -779,36 +779,36 @@ st.markdown(f"""
         }}
     }}
     .hero-main-title {{
-        font-family: 'League Spartan', 'Inter', sans-serif;
-        font-size: 3rem;
-        font-weight: 900;
-        line-height: 1.15;
-        color: {t['text']};
-        margin-bottom: 12px;
+        font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif !important;
+        font-size: 2.8rem !important;
+        font-weight: 800 !important;
+        line-height: 1.15 !important;
+        letter-spacing: -1.2px !important;
+        margin-bottom: 16px !important;
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }}
+    .hero-title-dark {{
+        color: #F8FAFC !important;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }}
+    .hero-title-gradient {{
+        background: linear-gradient(120deg, #F7C948 0%, #FBBF24 25%, #FFFFFF 50%, #D97706 75%, #F7C948 100%);
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-size: 200% auto;
+    }}
+    .hero-subtext-light {{
+        font-size: 1.02rem;
+        max-width: 620px;
+        margin: 0 auto 28px;
+        line-height: 1.6;
+        opacity: 0.88;
+        font-weight: 450;
         animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }}
-    .hero-gold-text {{
-        background: linear-gradient(120deg, #F7C948 0%, #FBBF24 25%, #FFFFFF 50%, #D97706 75%, #F7C948 100%);
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shimmerGradient 4s ease infinite;
-        display: inline-block;
-    }}
-    .hero-subtitle {{
-        font-size: 1.1rem;
-        color: {t['muted']};
-        max-width: 750px;
-        margin: 0 auto 24px auto !important;
-        text-align: center !important;
-        line-height: 1.5;
-        display: block;
-        animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-        opacity: 0;
-    }}
 
 
-    /* Input Selectbox & Text Input Rounded Styling */
+    /* Input fields styling */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {{
         border-radius: 14px !important;
         border: {"1px solid rgba(247, 201, 72, 0.25)" if st.session_state.dark_mode else "1px solid #CBD5E1"} !important;
@@ -824,7 +824,7 @@ st.markdown(f"""
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
     }}
 
-    /* Exact Neumorphic Soft UI Theme Switcher (Top-Right Pinned) */
+    /* Dark mode toggle switch styling */
     div[data-testid="column"]:has(.st-key-dark_mode),
     div[data-testid="column"]:has([data-testid="stToggle"]) {{
         display: flex !important;
@@ -857,7 +857,7 @@ st.markdown(f"""
         cursor: pointer !important;
     }}
 
-    /* Hide top text label above toggle switch */
+
     .st-key-dark_mode label span:last-child,
     .st-key-dark_mode label p,
     div[data-testid="stToggle"] label span:last-child,
@@ -870,7 +870,7 @@ st.markdown(f"""
         padding: 0px !important;
     }}
 
-    /* Neumorphic Inset Track (Sunken Soft UI Track with SVG Sun / Moon Icon) */
+
     .st-key-dark_mode label > span:first-of-type,
     .st-key-dark_mode label > div:first-of-type,
     .st-key-dark_mode input[type="checkbox"] + span,
@@ -899,7 +899,7 @@ st.markdown(f"""
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
 
-    /* Neumorphic Raised Knob (Soft UI 3D Sphere Handle) */
+   
     .st-key-dark_mode label > span:first-of-type *,
     .st-key-dark_mode label > div:first-of-type *,
     .st-key-dark_mode input[type="checkbox"] + span *,
@@ -926,7 +926,7 @@ st.markdown(f"""
     }}
 
 
-    /* Streamlit Expander Header & Content Styling */
+    /* Collapsible section styling */
     [data-testid="stExpander"] {{
         border: none !important;
         background: transparent !important;
@@ -1042,7 +1042,7 @@ st.markdown(f"""
         color: #000000 !important;
         font-weight: 800 !important;
     }}
-    /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & red lines completely */
+    /* Hide default tab bottom highlight line */
     div[data-baseweb="tab-highlight"],
     div[data-baseweb="tab-border"],
     [data-baseweb="tab-highlight"],
@@ -1068,7 +1068,8 @@ st.markdown(f"""
     }}
 
 
-    /* Eradicate any box border, background, shadow or pseudo-element around tab scroll arrows */
+
+    /* Tab scroll arrows styling */
     [data-baseweb*="tab-scroll"],
     [data-baseweb*="tab-scroll"] *,
     [data-baseweb="tab-scroll-button-left"],
@@ -1112,7 +1113,7 @@ st.markdown(f"""
         content: "" !important;
     }}
 
-    /* Target SVG Chevrons inside the scroll arrows - Pure Floating Arrow with NO BOX */
+    /* Tab scroll arrow icon styling */
     [data-baseweb*="tab-scroll"] svg,
     [data-baseweb*="tab-scroll"] svg path,
     [data-baseweb*="tab-scroll"] svg polyline,
@@ -1142,7 +1143,7 @@ st.markdown(f"""
 
 
 
-    /* Audit Input Container Box & Modern Glass Container */
+    /* Form container styling */
     form[data-testid="stForm"],
     div[data-testid="stForm"],
     .stForm,
@@ -1171,7 +1172,7 @@ st.markdown(f"""
         font-weight: 600 !important;
     }}
 
-    /* Segmented Pill Switcher for Radio Buttons */
+    /* Radio buttons styling */
     div[data-testid="stRadio"] {{
         margin-top: 8px !important;
         margin-bottom: 16px !important;
