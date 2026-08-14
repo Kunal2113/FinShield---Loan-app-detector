@@ -1029,19 +1029,17 @@ st.markdown(f"""
     [data-baseweb="tab"][aria-selected="true"],
     button[role="tab"][aria-selected="true"],
     div[role="tab"][aria-selected="true"] {{
-        background: transparent !important;
-        background-color: transparent !important;
-        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
+        color: #000000 !important;
         font-weight: 800 !important;
         border: none !important;
-        border-bottom: 3px solid {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
-        border-radius: 0px !important;
-        box-shadow: none !important;
+        border-radius: 30px !important;
+        box-shadow: 0 4px 20px rgba(247, 201, 72, 0.45) !important;
     }}
     .stTabs [aria-selected="true"] *,
     [data-baseweb="tab"][aria-selected="true"] *,
     button[role="tab"][aria-selected="true"] * {{
-        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        color: #000000 !important;
         font-weight: 800 !important;
     }}
     /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & red lines completely */
@@ -1071,8 +1069,6 @@ st.markdown(f"""
 
 
     /* Eradicate any box border, background, shadow or pseudo-element around tab scroll arrows */
-    div[data-testid="stTabs"] > div,
-    [data-baseweb="tab-list"] > div,
     [data-baseweb*="tab-scroll"],
     [data-baseweb*="tab-scroll"] *,
     [data-baseweb="tab-scroll-button-left"],
@@ -1091,7 +1087,7 @@ st.markdown(f"""
         background: transparent !important;
         background-color: transparent !important;
         border: none !important;
-        border-radius: 0 !important;
+        border-radius: 0px !important;
         box-shadow: none !important;
         outline: none !important;
         opacity: 1 !important;
@@ -1101,7 +1097,8 @@ st.markdown(f"""
         margin: 0 !important;
     }}
 
-    /* Remove any pseudo-box overlays on scroll containers */
+    .stTabs [data-baseweb="tab-list"]::before,
+    .stTabs [data-baseweb="tab-list"]::after,
     [data-baseweb*="tab-scroll"]::before,
     [data-baseweb*="tab-scroll"]::after,
     button[aria-label*="Next"]::before,
@@ -1109,13 +1106,13 @@ st.markdown(f"""
     button[aria-label*="Previous"]::before,
     button[aria-label*="Previous"]::after {{
         display: none !important;
+        border: none !important;
         background: transparent !important;
         box-shadow: none !important;
-        border: none !important;
         content: "" !important;
     }}
 
-    /* Standalone Floating Vibrant Gold/Orange Chevron Arrow (NO BOX) */
+    /* Target SVG Chevrons inside the scroll arrows - Pure Floating Arrow with NO BOX */
     [data-baseweb*="tab-scroll"] svg,
     [data-baseweb*="tab-scroll"] svg path,
     [data-baseweb*="tab-scroll"] svg polyline,
@@ -1128,9 +1125,11 @@ st.markdown(f"""
         fill: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         stroke: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
-        stroke-width: 3px !important;
+        stroke-width: 3.5px !important;
         filter: none !important;
-        transition: all 0.2s ease !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
     }}
 
     [data-baseweb*="tab-scroll"]:hover svg,
