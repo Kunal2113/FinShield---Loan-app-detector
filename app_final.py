@@ -820,16 +820,16 @@ st.markdown(f"""
         box-shadow: 0 0 15px rgba(247, 201, 72, 0.2) !important;
     }}
 
-    /* Modern Professional Theme Switcher (Dark Mode Toggle) */
+    /* High-Visibility Prominent Dark Mode Toggle Badge Button */
     .st-key-dark_mode,
     div[data-testid="stToggle"] {{
         display: inline-flex !important;
         align-items: center !important;
-        background: {"rgba(18, 24, 38, 0.75)" if st.session_state.dark_mode else "#FFFFFF"} !important;
-        border: {"1px solid rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "1px solid #CBD5E1"} !important;
-        padding: 5px 16px !important;
+        background: {"rgba(18, 24, 38, 0.92)" if st.session_state.dark_mode else "#0F172A"} !important;
+        border: {"1.5px solid #F7C948" if st.session_state.dark_mode else "1.5px solid #F7C948"} !important;
+        padding: 6px 18px !important;
         border-radius: 40px !important;
-        box-shadow: {"0 4px 16px rgba(0, 0, 0, 0.35)" if st.session_state.dark_mode else "0 2px 10px rgba(0, 0, 0, 0.05)"} !important;
+        box-shadow: {"0 4px 18px rgba(247, 201, 72, 0.35)" if st.session_state.dark_mode else "0 4px 16px rgba(15, 23, 42, 0.3)"} !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -837,10 +837,10 @@ st.markdown(f"""
     }}
     .st-key-dark_mode:hover,
     div[data-testid="stToggle"]:hover {{
-        border-color: {"#F7C948" if st.session_state.dark_mode else "#94A3B8"} !important;
-        background: {"rgba(247, 201, 72, 0.2)" if st.session_state.dark_mode else "#F8FAFC"} !important;
-        box-shadow: {"0 6px 20px rgba(247, 201, 72, 0.25)" if st.session_state.dark_mode else "0 4px 14px rgba(0, 0, 0, 0.08)"} !important;
-        transform: translateY(-1px) !important;
+        border-color: #FBBF24 !important;
+        background: {"rgba(247, 201, 72, 0.22)" if st.session_state.dark_mode else "#1E293B"} !important;
+        box-shadow: 0 6px 22px rgba(247, 201, 72, 0.4) !important;
+        transform: translateY(-2px) !important;
     }}
     .st-key-dark_mode label,
     .st-key-dark_mode label *,
@@ -850,13 +850,13 @@ st.markdown(f"""
     div[data-testid="stToggle"] label *,
     div[data-testid="stToggle"] span,
     div[data-testid="stToggle"] p {{
-        color: {"#F8FAFC" if st.session_state.dark_mode else "#0F172A"} !important;
-        font-weight: 600 !important;
-        font-size: 0.88rem !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
         letter-spacing: -0.01em !important;
         cursor: pointer !important;
     }}
-    /* Switch Track (Background Pill) - targeting span, div, and input+span/div */
+    /* Switch Track (Background Pill inside Toggle) */
     .st-key-dark_mode label > span:first-of-type,
     .st-key-dark_mode label > div:first-of-type,
     .st-key-dark_mode input[type="checkbox"] + span,
@@ -871,12 +871,12 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div,
     .st-key-dark_mode [data-baseweb="checkbox"] span::before,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::before {{
-        background-color: {"#F7C948" if st.session_state.dark_mode else "#CBD5E1"} !important;
-        background: {"linear-gradient(135deg, #F7C948 0%, #D97706 100%)" if st.session_state.dark_mode else "#CBD5E1"} !important;
-        border: {"1px solid #D97706" if st.session_state.dark_mode else "1px solid #94A3B8"} !important;
+        background-color: #F7C948 !important;
+        background: linear-gradient(135deg, #F7C948 0%, #D97706 100%) !important;
+        border: 1px solid #D97706 !important;
         opacity: 1 !important;
     }}
-    /* Switch Thumb (Circle Knob) - targeting inner span/div/children */
+    /* Switch Circle Knob */
     .st-key-dark_mode label > span:first-of-type *,
     .st-key-dark_mode label > div:first-of-type *,
     .st-key-dark_mode input[type="checkbox"] + span *,
@@ -891,10 +891,10 @@ st.markdown(f"""
     div[data-testid="stToggle"] [data-baseweb="checkbox"] > div *,
     .st-key-dark_mode [data-baseweb="checkbox"] span::after,
     div[data-testid="stToggle"] [data-baseweb="checkbox"] span::after {{
-        background-color: {"#0B0F19" if st.session_state.dark_mode else "#0F172A"} !important;
-        background: {"#0B0F19" if st.session_state.dark_mode else "#0F172A"} !important;
-        box-shadow: {"0 2px 4px rgba(0,0,0,0.5)" if st.session_state.dark_mode else "0 2px 5px rgba(15, 23, 42, 0.4)"} !important;
-        border: {"1px solid #F7C948" if st.session_state.dark_mode else "1px solid #0F172A"} !important;
+        background-color: #04060A !important;
+        background: #04060A !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+        border: 1px solid #F7C948 !important;
     }}
 
 
