@@ -1029,17 +1029,19 @@ st.markdown(f"""
     [data-baseweb="tab"][aria-selected="true"],
     button[role="tab"][aria-selected="true"],
     div[role="tab"][aria-selected="true"] {{
-        background: linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%) !important;
-        color: #000000 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         font-weight: 800 !important;
         border: none !important;
-        border-radius: 30px !important;
-        box-shadow: 0 4px 20px rgba(247, 201, 72, 0.45) !important;
+        border-bottom: 3px solid {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
+        border-radius: 0px !important;
+        box-shadow: none !important;
     }}
     .stTabs [aria-selected="true"] *,
     [data-baseweb="tab"][aria-selected="true"] *,
     button[role="tab"][aria-selected="true"] * {{
-        color: #000000 !important;
+        color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         font-weight: 800 !important;
     }}
     /* Eradicate BaseWeb tab highlight, borders, pseudo-elements & red lines completely */
@@ -1126,16 +1128,16 @@ st.markdown(f"""
         fill: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         stroke: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
         color: {"#F7C948" if st.session_state.dark_mode else "#0F172A"} !important;
-        stroke-width: 3.5px !important;
-        filter: {"drop-shadow(0 0 8px rgba(247, 201, 72, 0.95))" if st.session_state.dark_mode else "none"} !important;
+        stroke-width: 3px !important;
+        filter: none !important;
         transition: all 0.2s ease !important;
     }}
 
     [data-baseweb*="tab-scroll"]:hover svg,
     button[aria-label*="Next"]:hover svg,
     button[aria-label*="Previous"]:hover svg {{
-        transform: scale(1.3) !important;
-        filter: {"drop-shadow(0 0 16px #F7C948)" if st.session_state.dark_mode else "none"} !important;
+        transform: scale(1.15) !important;
+        filter: none !important;
     }}
 
 
