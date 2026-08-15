@@ -3,3 +3,6 @@ pandas
 scikit-learn
 vaderSentiment
 joblib
+google-play-scraper
+beautifulsoup4
+

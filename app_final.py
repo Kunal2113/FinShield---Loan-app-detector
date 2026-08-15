@@ -5,7 +5,16 @@ import joblib
 import pandas as pd
 import streamlit as st
 import textwrap
+import requests
+from bs4 import BeautifulSoup
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+try:
+    from google_play_scraper import app as play_app_scraper, reviews as play_reviews_scraper
+    HAS_PLAY_SCRAPER = True
+except ImportError:
+    HAS_PLAY_SCRAPER = False
+
 
 FEATURE_COLUMNS = [
     "contacts", "sms", "microphone", "location", "photos_media_storage",
@@ -328,8 +337,200 @@ def extract_package_id(input_str: str) -> str:
         return domain
     return input_str.lower()
 
-def build_unlisted_app_features(pkg_id: str) -> dict:
-    pkg_clean = pkg_id.lower().strip()
+def scrape_playstore_live(pkg_id: str) -> dict | None:
+    if not HAS_PLAY_SCRAPER:
+        return None
+    
+    clean_id = pkg_id.strip()
+    data = None
+    try:
+        data = play_app_scraper(clean_id, lang='en', country='in')
+    except Exception:
+        m = re.search(r'id=([a-zA-Z0-9_\.]+)', clean_id)
+        if m:
+            clean_id = m.group(1)
+            try:
+                data = play_app_scraper(clean_id, lang='en', country='in')
+            except Exception:
+                return None
+        else:
+            return None
+
+    if not data:
+        return None
+
+    app_name = data.get('title') or clean_id
+    description = data.get('description') or data.get('summary') or ""
+    privacy_policy = data.get('privacyPolicy') or ""
+    
+    raw_installs = data.get('realInstalls') or data.get('minInstalls')
+    if raw_installs and isinstance(raw_installs, (int, float)) and raw_installs > 0:
+        installs = int(raw_installs)
+    else:
+        installs = parse_installs(str(data.get('installs', 0))) or 10000
+
+    disc_score = disclosure_score(description, privacy_policy)
+    
+    perms_raw = str(data.get('permissions', [])).lower() + " " + description.lower()
+    has_contacts = 1 if ('contact' in perms_raw or 'read_contacts' in perms_raw) else 0
+    has_sms = 1 if ('sms' in perms_raw or 'read_sms' in perms_raw or 'receive_sms' in perms_raw) else 0
+    has_mic = 1 if ('record_audio' in perms_raw or 'microphone' in perms_raw) else 0
+    has_loc = 1 if ('location' in perms_raw or 'access_fine_location' in perms_raw or 'gps' in perms_raw) else 0
+    has_storage = 1 if ('storage' in perms_raw or 'photos' in perms_raw or 'media' in perms_raw or 'read_external_storage' in perms_raw) else 0
+
+    rvs = []
+    try:
+        rv_data, _ = play_reviews_scraper(clean_id, lang='en', country='in', count=50)
+        if rv_data:
+            rvs = [r.get('content', '') for r in rv_data if r.get('content')]
+    except Exception:
+        pass
+    
+    if rvs:
+        redflag_count = sum(1 for r in rvs if REDFLAG_PATTERN.search(r))
+        review_redflag_score = redflag_count / len(rvs)
+        
+        compounds = [analyzer.polarity_scores(r)['compound'] for r in rvs]
+        avg_review_sentiment = sum(compounds) / len(compounds)
+        
+        strongly_neg = sum(1 for c in compounds if c <= -0.5)
+        pct_strongly_negative_reviews = strongly_neg / len(rvs)
+        
+        avg_review_length = sum(len(r.split()) for r in rvs) / len(rvs)
+    else:
+        review_redflag_score = 0.05
+        avg_review_sentiment = 0.1
+        pct_strongly_negative_reviews = 0.05
+        avg_review_length = 15.0
+
+    is_known = any(b in app_name.lower() or b in clean_id.lower() for b in KNOWN_BANKS)
+
+    return {
+        "app_id": clean_id,
+        "app_name": app_name,
+        "install_count": installs,
+        "disclosure_score": disc_score,
+        "review_redflag_score": review_redflag_score,
+        "pct_strongly_negative_reviews": pct_strongly_negative_reviews,
+        "avg_review_sentiment": avg_review_sentiment,
+        "avg_review_length": avg_review_length,
+        "contacts": has_contacts,
+        "sms": has_sms,
+        "microphone": has_mic,
+        "location": has_loc,
+        "photos_media_storage": has_storage,
+        "is_known_legit": is_known,
+        "is_web_domain": False,
+        "is_custom_unlisted": True,
+        "scrape_source": "live_playstore",
+        "scraped_developer": data.get("developer", ""),
+        "scraped_privacy_policy": privacy_policy,
+        "scraped_reviews_count": len(rvs)
+    }
+
+def scrape_web_domain_live(url_or_domain: str) -> dict | None:
+    raw_input = url_or_domain.strip()
+    if not (raw_input.startswith("http://") or raw_input.startswith("https://")):
+        target_url = "https://" + raw_input
+    else:
+        target_url = raw_input
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    try:
+        res = requests.get(target_url, headers=headers, timeout=6)
+        if res.status_code != 200:
+            if target_url.startswith("https://"):
+                target_url = "http://" + raw_input.replace("https://", "")
+                res = requests.get(target_url, headers=headers, timeout=6)
+            if res.status_code != 200:
+                return None
+    except Exception:
+        return None
+
+    try:
+        soup = BeautifulSoup(res.text, 'html.parser')
+        
+        page_title = soup.title.string.strip() if soup.title and soup.title.string else raw_input
+        h1 = soup.find('h1')
+        if h1 and h1.text:
+            display_name = h1.text.strip()[:60]
+        else:
+            display_name = page_title[:60]
+
+        for script in soup(["script", "style", "header", "footer", "nav"]):
+            script.extract()
+        text_body = soup.get_text(separator=' ')
+        clean_text = ' '.join(text_body.split())
+
+        privacy_policy = ""
+        for a in soup.find_all('a', href=True):
+            href = a['href']
+            if 'privacy' in href.lower():
+                privacy_policy = href if href.startswith("http") else (target_url.rstrip("/") + "/" + href.lstrip("/"))
+                break
+
+        disc_score = disclosure_score(clean_text, privacy_policy)
+
+        text_lower = clean_text.lower()
+        redflag_matches = REDFLAG_PATTERN.findall(text_lower)
+        redflag_score = min(0.5, len(redflag_matches) * 0.1)
+
+        pol = analyzer.polarity_scores(clean_text[:2000])
+        sentiment = pol['compound']
+        neg_pct = pol['neg']
+
+        has_contacts = 1 if any(w in text_lower for w in ["contacts list", "read contacts", "access contacts", "contact list"]) else 0
+        has_sms = 1 if any(w in text_lower for w in ["read sms", "sms permission", "otp access", "receive sms"]) else 0
+        has_mic = 1 if any(w in text_lower for w in ["microphone", "record audio"]) else 0
+        has_loc = 1 if any(w in text_lower for w in ["location", "gps access"]) else 0
+        has_storage = 1 if any(w in text_lower for w in ["gallery", "photos", "storage permission", "media access"]) else 0
+
+        is_known = any(b in display_name.lower() or b in raw_input.lower() for b in KNOWN_BANKS)
+
+        return {
+            "app_id": raw_input,
+            "app_name": display_name,
+            "install_count": 10000 if not is_known else 10000000,
+            "disclosure_score": disc_score,
+            "review_redflag_score": redflag_score,
+            "pct_strongly_negative_reviews": neg_pct,
+            "avg_review_sentiment": sentiment,
+            "avg_review_length": 25.0,
+            "contacts": has_contacts,
+            "sms": has_sms,
+            "microphone": has_mic,
+            "location": has_loc,
+            "photos_media_storage": has_storage,
+            "is_known_legit": is_known,
+            "is_web_domain": True,
+            "is_custom_unlisted": True,
+            "scrape_source": "live_website",
+            "scraped_privacy_policy": privacy_policy,
+            "scraped_url": target_url
+        }
+    except Exception:
+        return None
+
+def build_unlisted_app_features(pkg_id_or_input: str) -> dict:
+    raw_input = pkg_id_or_input.strip()
+
+    # 1. Try Live Google Play Store Scraping if package id or Play Store link
+    clean_pkg_id = extract_package_id(raw_input)
+    live_play = scrape_playstore_live(clean_pkg_id)
+    if live_play:
+        return live_play
+
+    # 2. Try Live Web Scraping if URL or web domain
+    if "." in raw_input or raw_input.startswith("http"):
+        live_web = scrape_web_domain_live(raw_input)
+        if live_web:
+            return live_web
+
+    # 3. Offline / Unreachable Fallback Heuristic
+    pkg_clean = clean_pkg_id.lower()
     HIGH_RISK_TERMS = [
         "fast", "quick", "instant", "7day", "urgent", "pocket", "rupee",
         "cash", "loan", "wallet", "easy", "credit", "money", "express", "apk"
@@ -347,25 +548,21 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
     else:
         installs, disclosure, redflag, neg_reviews, sentiment, length, contacts, sms, mic, loc, storage = 100000, 3, 0.12, 0.22, 0.05, 25.0, 1, 0, 0, 1, 0
 
-    display_name = pkg_id
-    if "." in pkg_id:
-        parts = [p for p in pkg_id.split(".") if p not in ["com", "in", "org", "net", "co", "io", "xyz", "site", "online", "http", "https", "www"]]
+    display_name = raw_input
+    if "." in raw_input:
+        parts = [p for p in raw_input.split(".") if p not in ["com", "in", "org", "net", "co", "io", "xyz", "site", "online", "http", "https", "www"]]
         if parts:
             display_name = " ".join(parts).replace("_", " ").replace("-", " ").title()
 
-    # True web domain: detect from raw input (pkg_id is already extracted)
-    # is_web if original input was a real website URL (not play.google.com) or bare domain (not android package)
     is_android_pkg = bool(
-        re.search(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+){1,}$', pkg_id)
-        and any(pkg_id.startswith(p) for p in ["com.", "in.", "org.", "net.", "io.", "co."])
+        re.search(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+){1,}$', clean_pkg_id)
+        and any(clean_pkg_id.startswith(p) for p in ["com.", "in.", "org.", "net.", "io.", "co."])
     )
-    is_playstore = "play.google.com" in pkg_id
-    # A web domain is something like "chatgpt.com", "www.ltfinance.com" or "https://somesite.com"
-    # NOT an android package like "com.example.app"
-    is_web = not is_android_pkg and not is_playstore and "." in pkg_id
+    is_playstore = "play.google.com" in raw_input
+    is_web = not is_android_pkg and not is_playstore and "." in raw_input
 
     return {
-        "app_id": pkg_id,
+        "app_id": raw_input,
         "app_name": display_name,
         "install_count": installs,
         "disclosure_score": disclosure,
@@ -380,7 +577,8 @@ def build_unlisted_app_features(pkg_id: str) -> dict:
         "photos_media_storage": storage,
         "is_known_legit": is_known,
         "is_web_domain": is_web,
-        "is_custom_unlisted": True
+        "is_custom_unlisted": True,
+        "scrape_source": "offline_fallback"
     }
 
 def score_app(identifier: str):
@@ -393,7 +591,7 @@ def score_app(identifier: str):
             features = lookup_app_features(identifier)
 
         if features is None:
-            features = build_unlisted_app_features(clean_id)
+            features = build_unlisted_app_features(identifier)
             used_fallback = True
             
         score, reasons = predict(features)
@@ -1397,8 +1595,27 @@ with tab_scorer:
         with st.spinner("Analyzing app features & review sentiment..."):
             score, reasons, used_fallback, features = score_app(package_name)
 
-            if used_fallback:
-                st.info(f"**Unlisted App Audit Active** — Performing real-time risk assessment for `{extract_package_id(package_name)}`.", icon="✨")
+            if used_fallback and features:
+                src = features.get("scrape_source")
+                if src == "live_playstore":
+                    dev = features.get("scraped_developer")
+                    dev_str = f" by **{dev}**" if dev else ""
+                    rvs_cnt = features.get("scraped_reviews_count", 0)
+                    st.success(
+                        f"🟢 **Live Data: Scraped from Google Play Store** — Real-time app metadata{dev_str}, terms disclosure, and {rvs_cnt} live user reviews analyzed.",
+                        icon="🔍"
+                    )
+                elif src == "live_website":
+                    url_scraped = features.get("scraped_url", package_name)
+                    st.success(
+                        f"🌐 **Live Data: Scraped from Website** — Real-time disclosures, privacy policy terms & text scraped from `{url_scraped}`.",
+                        icon="🌐"
+                    )
+                else:
+                    st.info(
+                        f"📡 **Off-Store / Domain Safety Analysis** — App not active on Play Store / site offline. Applied safety domain analysis for `{extract_package_id(package_name)}`.",
+                        icon="✨"
+                    )
 
             if score is not None:
                 st.write("")
