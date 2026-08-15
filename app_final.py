@@ -6,14 +6,15 @@ import pandas as pd
 import streamlit as st
 import textwrap
 import requests
-from bs4 import BeautifulSoup
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from bs4 import BeautifulSoup  # type: ignore
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer  # type: ignore
 
 try:
-    from google_play_scraper import app as play_app_scraper, reviews as play_reviews_scraper
+    from google_play_scraper import app as play_app_scraper, reviews as play_reviews_scraper  # type: ignore
     HAS_PLAY_SCRAPER = True
 except ImportError:
     HAS_PLAY_SCRAPER = False
+
 
 
 FEATURE_COLUMNS = [
