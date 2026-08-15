@@ -1602,20 +1602,21 @@ with tab_scorer:
                     dev_str = f" by **{dev}**" if dev else ""
                     rvs_cnt = features.get("scraped_reviews_count", 0)
                     st.success(
-                        f"🟢 **Live Data: Scraped from Google Play Store** — Real-time app metadata{dev_str}, terms disclosure, and {rvs_cnt} live user reviews analyzed.",
-                        icon="🔍"
+                        f"**Live Data: Scraped from Google Play Store** — Real-time app metadata{dev_str}, terms disclosure, and {rvs_cnt} live user reviews analyzed.",
+                        icon="🟢"
                     )
                 elif src == "live_website":
                     url_scraped = features.get("scraped_url", package_name)
                     st.success(
-                        f"🌐 **Live Data: Scraped from Website** — Real-time disclosures, privacy policy terms & text scraped from `{url_scraped}`.",
+                        f"**Live Data: Scraped from Website** — Real-time disclosures, privacy policy terms & text scraped from `{url_scraped}`.",
                         icon="🌐"
                     )
                 else:
                     st.info(
-                        f"📡 **Off-Store / Domain Safety Analysis** — App not active on Play Store / site offline. Applied safety domain analysis for `{extract_package_id(package_name)}`.",
-                        icon="✨"
+                        f"**Off-Store / Domain Safety Analysis** — App not active on Play Store / site offline. Applied safety domain analysis for `{extract_package_id(package_name)}`.",
+                        icon="📡"
                     )
+
 
             if score is not None:
                 st.write("")
