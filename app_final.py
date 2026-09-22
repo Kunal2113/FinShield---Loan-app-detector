@@ -6,11 +6,11 @@ import pandas as pd
 import streamlit as st
 import textwrap
 import requests
-from bs4 import BeautifulSoup  # type: ignore
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer  # type: ignore
+from bs4 import BeautifulSoup  
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 
 try:
-    from google_play_scraper import app as play_app_scraper, reviews as play_reviews_scraper  # type: ignore
+    from google_play_scraper import app as play_app_scraper, reviews as play_reviews_scraper
     HAS_PLAY_SCRAPER = True
 except ImportError:
     HAS_PLAY_SCRAPER = False
@@ -966,6 +966,23 @@ st.markdown(f"""
             transform: translateY(0);
         }}
     }}
+    @keyframes typing {{
+        from {{ width: 0; }}
+        to {{ width: 100%; }}
+    }}
+    @keyframes blinkCaret {{
+        from, to {{ border-color: transparent; }}
+        50% {{ border-color: #F7C948; }}
+    }}
+    .typewriter-text {{
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3.5px solid #F7C948;
+        width: 0;
+        animation: typing 2.2s steps(27, end) forwards, blinkCaret 0.75s 4;
+        vertical-align: bottom;
+    }}
     @keyframes shimmerGradient {{
         0% {{
             background-position: 0% 50%;
@@ -981,7 +998,7 @@ st.markdown(f"""
         font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif !important;
         font-size: 2.8rem !important;
         font-weight: 800 !important;
-        line-height: 1.15 !important;
+        line-height: 1.25 !important;
         letter-spacing: -1.2px !important;
         margin-bottom: 16px !important;
         animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -990,20 +1007,22 @@ st.markdown(f"""
         color: #F8FAFC !important;
         text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }}
-    .hero-title-gradient {{
+    .hero-gold-text, .hero-title-gradient {{
         background: linear-gradient(120deg, #F7C948 0%, #FBBF24 25%, #FFFFFF 50%, #D97706 75%, #F7C948 100%);
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
         background-size: 200% auto;
+        animation: shimmerGradient 4s ease infinite;
+        display: inline-block;
     }}
-    .hero-subtext-light {{
+    .hero-subtitle, .hero-subtext-light {{
         font-size: 1.02rem;
         max-width: 620px;
         margin: 0 auto 28px;
         line-height: 1.6;
         opacity: 0.88;
         font-weight: 450;
-        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
     }}
 
 
@@ -1466,7 +1485,8 @@ st.markdown(f"""
 
     /* Mobile Screen Responsiveness */
     @media (max-width: 768px) {{
-        .hero-main-title {{ font-size: 2rem !important; }}
+        .hero-main-title {{ font-size: 1.85rem !important; }}
+        .typewriter-text {{ white-space: normal !important; width: auto !important; border-right: none !important; animation: fadeInUp 0.6s ease forwards !important; }}
         .top-nav-bar {{ padding: 10px 16px !important; }}
         .stat-box {{ padding: 8px 4px !important; border-radius: 10px !important; min-height: 65px !important; }}
         .stat-label {{ font-size: 0.62rem !important; margin-bottom: 2px !important; line-height: 1.1 !important; }}
@@ -1529,7 +1549,7 @@ with tab_scorer:
         f"""
         <div class="hero-container-light" style="padding: 20px 20px 20px;">
             <h1 class="hero-main-title">
-                Detect Predatory Loan Apps. <br><span class="hero-gold-text">Protect Your Personal Privacy.</span>
+                <span class="typewriter-text">Detect Predatory Loan Apps.</span><br><span class="hero-gold-text">Protect Your Personal Privacy.</span>
             </h1>
             <div style="text-align: center; display: flex; justify-content: center; width: 100%;">
                 <p class="hero-subtitle">
