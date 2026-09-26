@@ -1244,50 +1244,53 @@ def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: boo
     css.append("""
         div[class*="st-key-card_btn_"] button {
             width: 100% !important;
-            min-height: 105px !important;
-            height: 105px !important;
+            min-height: 115px !important;
+            height: 115px !important;
             border-radius: 18px !important;
-            padding: 12px 8px !important;
+            padding: 16px 10px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
             text-align: center !important;
             box-sizing: border-box !important;
-            white-space: pre-wrap !important;
-            word-break: break-word !important;
             transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
             box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
             cursor: pointer !important;
-            margin-bottom: 8px !important;
+            margin-bottom: 0px !important;
         }
         div[class*="st-key-card_btn_"] button:hover {
             transform: translateY(-3px) !important;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
             filter: brightness(1.06) !important;
         }
-        div[class*="st-key-card_btn_"] button p,
-        div[class*="st-key-card_btn_"] button span,
-        div[class*="st-key-card_btn_"] button div {
-            white-space: pre-wrap !important;
-            line-height: 1.35 !important;
+        div[class*="st-key-card_btn_"] button p:first-child {
+            font-size: 0.76rem !important;
+            opacity: 0.88 !important;
+            font-weight: 600 !important;
+            line-height: 1.2 !important;
+            margin: 0 0 6px 0 !important;
             text-align: center !important;
+        }
+        div[class*="st-key-card_btn_"] button p:nth-child(2) {
+            font-size: 1.4rem !important;
+            font-weight: 800 !important;
+            line-height: 1.2 !important;
             margin: 0 !important;
-            word-break: break-word !important;
+            text-align: center !important;
         }
         .st-key-card_btn_verdict button {
             width: 100% !important;
-            min-height: 135px !important;
+            min-height: 175px !important;
             height: auto !important;
             border-radius: 22px !important;
-            padding: 20px 18px !important;
+            padding: 24px 18px !important;
             margin-top: 12px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
             text-align: center !important;
-            white-space: pre-wrap !important;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
             cursor: pointer !important;
             transition: transform 0.2s ease, box-shadow 0.2s ease !important;
@@ -1297,10 +1300,23 @@ def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: boo
             box-shadow: 0 12px 35px rgba(0,0,0,0.38) !important;
             filter: brightness(1.06) !important;
         }
-        .st-key-card_btn_verdict button p,
-        .st-key-card_btn_verdict button span {
-            white-space: pre-wrap !important;
-            text-align: center !important;
+        .st-key-card_btn_verdict button p:first-child {
+            font-size: 1.35rem !important;
+            font-weight: 800 !important;
+            line-height: 1.3 !important;
+            margin: 0 0 6px 0 !important;
+        }
+        .st-key-card_btn_verdict button p:nth-child(2) {
+            font-size: 2.4rem !important;
+            font-weight: 900 !important;
+            line-height: 1.2 !important;
+            margin: 6px 0 !important;
+        }
+        .st-key-card_btn_verdict button p:nth-child(3) {
+            font-size: 0.84rem !important;
+            opacity: 0.92 !important;
+            line-height: 1.45 !important;
+            margin: 6px 0 0 0 !important;
         }
         div[data-testid="stDialog"] > div,
         div[role="dialog"] {
@@ -2231,7 +2247,7 @@ with tab_scorer:
                     with col_gauge:
                         st.markdown("#### 🛡️ Riskometer Verdict")
                         if st.button(
-                            f"ℹ️ Non-Lending Application\n\nRisk Verdict: N/A\n\n{app_disp_name} is categorized as {genre_name} and is not a digital loan platform.",
+                            f"Non-Lending Application\n\nRisk Verdict: N/A\n\n{app_disp_name} is categorized as {genre_name} and is not a digital loan platform.",
                             key="card_btn_verdict"
                         ):
                             show_metric_detail_dialog("verdict", features, score, package_name)
@@ -2263,13 +2279,32 @@ with tab_scorer:
 
                             inject_card_button_css(tile_colors, (v_bg, v_fg, v_border), st.session_state.dark_mode)
 
-                            gc1, gc2, gc3 = st.columns(3)
-                            grid_cols = [gc1, gc2, gc3, gc1, gc2, gc3, gc2]
-                            for i, (metric_id, lbl, val, lvl) in enumerate(stats):
-                                btn_key = f"card_btn_{metric_id}"
-                                with grid_cols[i]:
-                                    if st.button(f"{lbl}\n{val}", key=btn_key):
-                                        show_metric_detail_dialog(metric_id, features, score, package_name)
+                            gc_r1 = st.columns(3)
+                            with gc_r1[0]:
+                                if st.button(f"{stats[0][1]}\n\n{stats[0][2]}", key=f"card_btn_{stats[0][0]}"):
+                                    show_metric_detail_dialog(stats[0][0], features, score, package_name)
+                            with gc_r1[1]:
+                                if st.button(f"{stats[1][1]}\n\n{stats[1][2]}", key=f"card_btn_{stats[1][0]}"):
+                                    show_metric_detail_dialog(stats[1][0], features, score, package_name)
+                            with gc_r1[2]:
+                                if st.button(f"{stats[2][1]}\n\n{stats[2][2]}", key=f"card_btn_{stats[2][0]}"):
+                                    show_metric_detail_dialog(stats[2][0], features, score, package_name)
+
+                            gc_r2 = st.columns(3)
+                            with gc_r2[0]:
+                                if st.button(f"{stats[3][1]}\n\n{stats[3][2]}", key=f"card_btn_{stats[3][0]}"):
+                                    show_metric_detail_dialog(stats[3][0], features, score, package_name)
+                            with gc_r2[1]:
+                                if st.button(f"{stats[4][1]}\n\n{stats[4][2]}", key=f"card_btn_{stats[4][0]}"):
+                                    show_metric_detail_dialog(stats[4][0], features, score, package_name)
+                            with gc_r2[2]:
+                                if st.button(f"{stats[5][1]}\n\n{stats[5][2]}", key=f"card_btn_{stats[5][0]}"):
+                                    show_metric_detail_dialog(stats[5][0], features, score, package_name)
+
+                            gc_r3 = st.columns(3)
+                            with gc_r3[1]:
+                                if st.button(f"{stats[6][1]}\n\n{stats[6][2]}", key=f"card_btn_{stats[6][0]}"):
+                                    show_metric_detail_dialog(stats[6][0], features, score, package_name)
 
                             st.markdown(
                                 f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
@@ -2298,7 +2333,7 @@ with tab_scorer:
                             v_desc = "Appears aligned with RBI Digital Lending Directives and maintains transparent disclosures."
 
                         if st.button(
-                            f"🛡️ {verdict}\n\n{score*100:.0f}% risk\n\n{v_desc}\n\n🔍 Click for detailed risk breakdown",
+                            f"{verdict}\n\n{score*100:.0f}% risk\n\n{v_desc}",
                             key="card_btn_verdict"
                         ):
                             show_metric_detail_dialog("verdict", features, score, package_name)
@@ -2344,13 +2379,32 @@ with tab_scorer:
 
                             inject_card_button_css(tile_colors, (bg_v, fg_v, v_border), st.session_state.dark_mode)
 
-                            gc1, gc2, gc3 = st.columns(3)
-                            grid_cols = [gc1, gc2, gc3, gc1, gc2, gc3, gc2]
-                            for i, (metric_id, lbl, val, lvl) in enumerate(stats):
-                                btn_key = f"card_btn_{metric_id}"
-                                with grid_cols[i]:
-                                    if st.button(f"{lbl}\n{val}", key=btn_key):
-                                        show_metric_detail_dialog(metric_id, features, score, package_name)
+                            gc_r1 = st.columns(3)
+                            with gc_r1[0]:
+                                if st.button(f"{stats[0][1]}\n\n{stats[0][2]}", key=f"card_btn_{stats[0][0]}"):
+                                    show_metric_detail_dialog(stats[0][0], features, score, package_name)
+                            with gc_r1[1]:
+                                if st.button(f"{stats[1][1]}\n\n{stats[1][2]}", key=f"card_btn_{stats[1][0]}"):
+                                    show_metric_detail_dialog(stats[1][0], features, score, package_name)
+                            with gc_r1[2]:
+                                if st.button(f"{stats[2][1]}\n\n{stats[2][2]}", key=f"card_btn_{stats[2][0]}"):
+                                    show_metric_detail_dialog(stats[2][0], features, score, package_name)
+
+                            gc_r2 = st.columns(3)
+                            with gc_r2[0]:
+                                if st.button(f"{stats[3][1]}\n\n{stats[3][2]}", key=f"card_btn_{stats[3][0]}"):
+                                    show_metric_detail_dialog(stats[3][0], features, score, package_name)
+                            with gc_r2[1]:
+                                if st.button(f"{stats[4][1]}\n\n{stats[4][2]}", key=f"card_btn_{stats[4][0]}"):
+                                    show_metric_detail_dialog(stats[4][0], features, score, package_name)
+                            with gc_r2[2]:
+                                if st.button(f"{stats[5][1]}\n\n{stats[5][2]}", key=f"card_btn_{stats[5][0]}"):
+                                    show_metric_detail_dialog(stats[5][0], features, score, package_name)
+
+                            gc_r3 = st.columns(3)
+                            with gc_r3[1]:
+                                if st.button(f"{stats[6][1]}\n\n{stats[6][2]}", key=f"card_btn_{stats[6][0]}"):
+                                    show_metric_detail_dialog(stats[6][0], features, score, package_name)
 
                             st.markdown(
                                 f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
