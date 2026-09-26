@@ -86,6 +86,14 @@ NON_LENDING_GENRES = {
     "DATING", "LIBRARIES_AND_DEMO", "PERSONALIZATION", "PRODUCTIVITY"
 }
 
+PRIMARY_LENDING_KEYWORDS = [
+    "personal loan", "instant loan", "cash loan", "payday loan", "microloan",
+    "rupee loan", "kreditbee", "pocket loan", "loan app", "loan tenure",
+    "annual percentage rate", "apr", "nbfc partner", "rbi registered nbfc",
+    "repayment tenure", "borrow money", "quick loan", "instant credit line",
+    "digital lending", "lending platform", "peer to peer loan", "p2p loan"
+]
+
 def check_is_lending_app(app_name: str, app_id: str, description: str, genre_id: str = None) -> tuple[bool, str]:
     app_id_clean = str(app_id).lower().strip()
     name_clean = str(app_name).lower().strip()
@@ -100,18 +108,23 @@ def check_is_lending_app(app_name: str, app_id: str, description: str, genre_id:
     if any(b in name_clean or b in app_id_clean for b in KNOWN_BANKS):
         return True, "Digital Lending Platform"
 
-    has_lending_kw = any(kw in full_text for kw in LENDING_KEYWORDS)
-    
-    # 3. Genre checking if Play Store genreId available
+    # 3. Check for Primary Lending Keywords
+    has_primary_loan = any(kw in full_text for kw in PRIMARY_LENDING_KEYWORDS)
+    has_any_lending = any(kw in full_text for kw in LENDING_KEYWORDS)
+
+    # 4. Genre checking if Play Store genreId available
     if genre_id:
         gid = str(genre_id).upper()
-        if (gid in NON_LENDING_GENRES or gid.startswith("GAME")) and not has_lending_kw:
+        if (gid in NON_LENDING_GENRES or gid.startswith("GAME")) and not has_primary_loan:
+            genre_name = gid.replace("_", " ").title()
+            return False, f"{genre_name} App"
+        if gid not in ("FINANCE", "BUSINESS") and not has_primary_loan:
             genre_name = gid.replace("_", " ").title()
             return False, f"{genre_name} App"
 
-    # 4. If no lending keywords and not explicitly finance/business
-    if not has_lending_kw:
-        return False, "Non-Lending App / Utility"
+    # 5. Require primary loan keywords unless explicitly in finance category
+    if not has_primary_loan and not (has_any_lending and "loan" in full_text):
+        return False, "Non-Lending Application"
 
     return True, "Digital Lending App"
 
