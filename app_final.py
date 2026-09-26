@@ -1231,7 +1231,7 @@ def render_metric_modal_content(metric_key: str, features: dict, score: float, p
         st.write("• **Length < 10 words**: Represents brief generic feedback.")
 
 
-@st.dialog("📊 FinShield Risk Intelligence Metric Audit", width="large")
+@st.dialog("📊 FinShield Risk Intelligence Metric Audit", width="medium")
 def show_metric_detail_dialog(metric_key: str, features: dict, score: float, package_name: str):
     render_metric_modal_content(metric_key, features, score, package_name)
     st.write("")
@@ -1242,46 +1242,70 @@ def show_metric_detail_dialog(metric_key: str, features: dict, score: float, pac
 def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: bool):
     css = []
     css.append("""
-        div[data-testid="stColumn"] button[key^="card_btn_"] {
+        div[class*="st-key-card_btn_"] button {
             width: 100% !important;
-            border-radius: 18px !important;
-            padding: 12px 6px !important;
             min-height: 105px !important;
+            height: 105px !important;
+            border-radius: 18px !important;
+            padding: 12px 8px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
             text-align: center !important;
             box-sizing: border-box !important;
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
             transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
             box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
             cursor: pointer !important;
             margin-bottom: 8px !important;
         }
-        div[data-testid="stColumn"] button[key^="card_btn_"]:hover {
+        div[class*="st-key-card_btn_"] button:hover {
             transform: translateY(-3px) !important;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
             filter: brightness(1.06) !important;
         }
-        div[data-testid="stColumn"] button[key="card_btn_verdict"] {
+        div[class*="st-key-card_btn_"] button p,
+        div[class*="st-key-card_btn_"] button span,
+        div[class*="st-key-card_btn_"] button div {
+            white-space: pre-wrap !important;
+            line-height: 1.35 !important;
+            text-align: center !important;
+            margin: 0 !important;
+            word-break: break-word !important;
+        }
+        .st-key-card_btn_verdict button {
             width: 100% !important;
+            min-height: 135px !important;
+            height: auto !important;
             border-radius: 22px !important;
             padding: 20px 18px !important;
-            min-height: 135px !important;
             margin-top: 12px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
             align-items: center !important;
             text-align: center !important;
+            white-space: pre-wrap !important;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
             cursor: pointer !important;
             transition: transform 0.2s ease, box-shadow 0.2s ease !important;
         }
-        div[data-testid="stColumn"] button[key="card_btn_verdict"]:hover {
+        .st-key-card_btn_verdict button:hover {
             transform: translateY(-3px) !important;
             box-shadow: 0 12px 35px rgba(0,0,0,0.38) !important;
             filter: brightness(1.06) !important;
+        }
+        .st-key-card_btn_verdict button p,
+        .st-key-card_btn_verdict button span {
+            white-space: pre-wrap !important;
+            text-align: center !important;
+        }
+        div[data-testid="stDialog"] > div,
+        div[role="dialog"] {
+            max-width: 580px !important;
+            border-radius: 20px !important;
         }
     """)
 
