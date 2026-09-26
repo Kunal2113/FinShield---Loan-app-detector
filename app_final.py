@@ -1242,6 +1242,13 @@ def show_metric_detail_dialog(metric_key: str, features: dict, score: float, pac
 def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: bool):
     css = []
     css.append("""
+        div[class*="st-key-card_btn_"] button,
+        div[class*="st-key-card_btn_"] button *,
+        .st-key-card_btn_verdict button,
+        .st-key-card_btn_verdict button * {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
         div[class*="st-key-card_btn_"] button {
             width: 100% !important;
             min-height: 115px !important;
@@ -1264,20 +1271,39 @@ def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: boo
             box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
             filter: brightness(1.06) !important;
         }
+        div[class*="st-key-card_btn_"] button div[data-testid="stMarkdownContainer"],
+        div[class*="st-key-card_btn_"] button div,
+        .st-key-card_btn_verdict button div[data-testid="stMarkdownContainer"],
+        .st-key-card_btn_verdict button div {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        div[class*="st-key-card_btn_"] button p,
+        .st-key-card_btn_verdict button p {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            margin: 0 !important;
+            white-space: pre-wrap !important;
+        }
         div[class*="st-key-card_btn_"] button p:first-child {
             font-size: 0.76rem !important;
             opacity: 0.88 !important;
             font-weight: 600 !important;
             line-height: 1.2 !important;
-            margin: 0 0 6px 0 !important;
-            text-align: center !important;
+            margin-bottom: 6px !important;
         }
         div[class*="st-key-card_btn_"] button p:nth-child(2) {
             font-size: 1.4rem !important;
             font-weight: 800 !important;
             line-height: 1.2 !important;
-            margin: 0 !important;
-            text-align: center !important;
+            margin-top: 0px !important;
         }
         .st-key-card_btn_verdict button {
             width: 100% !important;
@@ -1304,7 +1330,7 @@ def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: boo
             font-size: 1.35rem !important;
             font-weight: 800 !important;
             line-height: 1.3 !important;
-            margin: 0 0 6px 0 !important;
+            margin-bottom: 6px !important;
         }
         .st-key-card_btn_verdict button p:nth-child(2) {
             font-size: 2.4rem !important;
@@ -1316,7 +1342,7 @@ def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: boo
             font-size: 0.84rem !important;
             opacity: 0.92 !important;
             line-height: 1.45 !important;
-            margin: 6px 0 0 0 !important;
+            margin-top: 6px !important;
         }
         div[data-testid="stDialog"] > div,
         div[role="dialog"] {
