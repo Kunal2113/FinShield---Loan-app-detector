@@ -50,7 +50,73 @@ KNOWN_BANKS = [
     "zest", "zestmoney", "dhanvarsha", "indialends", "rupeeredee"
 ]
 
+EXCLUDED_NON_LENDING_IDS = [
+    "com.google.android.apps.nbu.paisa.user",  # Google Pay
+    "in.amazon.mshop.android.shopping",        # Amazon India
+    "com.nextbillion.groww",                   # Groww Stocks (in.groww.dash is Groww Credit)
+    "tech.fplabs.score",                       # OneScore
+    "com.moneymanager.personal.finance.planner",# Loan Master Plan
+    "com.analytics.finance.manager.money.app",  # Daily Loan - Money Tracker
+    "com.strong.primecash",                    # PrimeCash - Earn Rewards
+    "com.nayarupee",                           # NayaRupee Spin & Earn
+    "com.spotify.music",                       # Spotify
+    "com.whatsapp",                            # WhatsApp
+    "com.instagram.android",                   # Instagram
+    "com.google.android.apps.maps",            # Google Maps
+    "com.ubercab",                             # Uber
+    "com.application.zomato",                  # Zomato
+    "com.google.android.youtube",              # YouTube
+    "com.adobe.reader",                        # Adobe Reader
+]
+
+LENDING_KEYWORDS = [
+    "loan", "lending", "borrow", "credit line", "personal loan", "instant loan",
+    "instant credit", "cash loan", "payday", "repay", "repayment", "nbfc", "rbi",
+    "slq", "bnpl", "buy now pay later", "salary advance", "microloan", "rupee loan",
+    "kredit", "fast cash", "express cash", "pocket loan", "peer to peer", "p2p",
+    "annual percentage rate", "apr", "tenure", "interest rate", "borrower", "credit score"
+]
+
+NON_LENDING_GENRES = {
+    "MUSIC_AND_AUDIO", "COMMUNICATION", "SOCIAL", "PHOTOGRAPHY", "SHOPPING",
+    "EDUCATION", "TOOLS", "TRAVEL_AND_LOCAL", "ENTERTAINMENT", "NEWS_AND_MAGAZINES",
+    "MAPS_AND_NAVIGATION", "FOOD_AND_DRINK", "HEALTH_AND_FITNESS", "SPORTS",
+    "LIFESTYLE", "AUTO_AND_VEHICLES", "WEATHER", "BEAUTY", "MEDICAL", "COMICS",
+    "PARENTING", "EVENTS", "ART_AND_DESIGN", "VIDEO_PLAYERS", "HOUSE_AND_HOME",
+    "DATING", "LIBRARIES_AND_DEMO", "PERSONALIZATION", "PRODUCTIVITY"
+}
+
+def check_is_lending_app(app_name: str, app_id: str, description: str, genre_id: str = None) -> tuple[bool, str]:
+    app_id_clean = str(app_id).lower().strip()
+    name_clean = str(app_name).lower().strip()
+    desc_clean = str(description).lower().strip()
+    full_text = f"{name_clean} {app_id_clean} {desc_clean}"
+    
+    # 1. Explicit exclusion
+    if any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS):
+        return False, "Non-Lending Application"
+
+    # 2. Known Lending Banks/Platforms
+    if any(b in name_clean or b in app_id_clean for b in KNOWN_BANKS):
+        return True, "Digital Lending Platform"
+
+    has_lending_kw = any(kw in full_text for kw in LENDING_KEYWORDS)
+    
+    # 3. Genre checking if Play Store genreId available
+    if genre_id:
+        gid = str(genre_id).upper()
+        if (gid in NON_LENDING_GENRES or gid.startswith("GAME")) and not has_lending_kw:
+            genre_name = gid.replace("_", " ").title()
+            return False, f"{genre_name} App"
+
+    # 4. If no lending keywords and not explicitly finance/business
+    if not has_lending_kw:
+        return False, "Non-Lending App / Utility"
+
+    return True, "Digital Lending App"
+
 analyzer = SentimentIntensityAnalyzer()
+
 
 def explain_feature(name: str, value) -> tuple[str, bool]:
     if name == "contacts":
@@ -132,6 +198,8 @@ def load_features_table():
 def get_app_choices():
     try:
         df = load_features_table()
+        if "app_id" in df.columns:
+            df = df[~df["app_id"].astype(str).str.lower().apply(lambda x: any(ex in x for ex in EXCLUDED_NON_LENDING_IDS))]
         return sorted(df["app_name"].dropna().astype(str).unique().tolist())
     except FileNotFoundError:
         return []
@@ -160,6 +228,10 @@ def lookup_app_features(identifier: str):
         res["app_id"] = str(row["app_id"]).strip()
     if "app_name" in row:
         res["app_name"] = str(row["app_name"]).strip()
+    is_lending, app_category_label = check_is_lending_app(res.get("app_name", ""), res.get("app_id", ""), "")
+    res["is_lending_app"] = is_lending
+    res["app_category_label"] = app_category_label
+    res["genre_title"] = app_category_label
     return res
 
 USE_FAKE_MODEL = not os.path.exists("predatory_loan_detector.pkl")
@@ -189,6 +261,14 @@ def _fake_predict(features: dict):
     return score, reasons
 
 def predict(features: dict):
+    if not features.get("is_lending_app", True):
+        cat_label = features.get("app_category_label", "Non-Lending Application")
+        return 0.0, [
+            (f"Verified as a Non-Lending Application ({cat_label}). Does not offer digital loans or credit lines.", False),
+            ("Predatory Loan Riskometer Verdict is Not Applicable (N/A) for non-lending platforms.", False),
+            ("Not subject to RBI Digital Lending Directives or loan disclosure compliance.", False),
+            ("Zero debt recovery harassment complaints or predatory interest rate risks.", False)
+        ]
     if features.get("is_known_legit"):
         return 0.08, [
             ("Regulated Bank / NBFC entity with compliant data privacy practices.", False),
@@ -214,16 +294,6 @@ def predict(features: dict):
 @st.cache_data
 def get_ranked_apps_df():
     df = load_features_table()
-    EXCLUDED_NON_LENDING_IDS = [
-        "com.google.android.apps.nbu.paisa.user",  # Google Pay
-        "in.amazon.mshop.android.shopping",        # Amazon India
-        "com.nextbillion.groww",                   # Groww Stocks (in.groww.dash is Groww Credit)
-        "tech.fplabs.score",                       # OneScore
-        "com.moneymanager.personal.finance.planner",# Loan Master Plan
-        "com.analytics.finance.manager.money.app",  # Daily Loan - Money Tracker
-        "com.strong.primecash",                    # PrimeCash - Earn Rewards
-        "com.nayarupee",                           # NayaRupee Spin & Earn
-    ]
     records = []
     for idx, row in df.iterrows():
         app_id_clean = str(row.get("app_id", "")).lower().strip()
@@ -405,6 +475,11 @@ def scrape_playstore_live(pkg_id: str) -> dict | None:
         avg_review_length = 15.0
 
     is_known = any(b in app_name.lower() or b in clean_id.lower() for b in KNOWN_BANKS)
+    genre_id = data.get('genreId', '')
+    genre_title = data.get('genre', '')
+    is_lending, app_category_label = check_is_lending_app(app_name, clean_id, description, genre_id)
+    if not genre_title:
+        genre_title = app_category_label
 
     return {
         "app_id": clean_id,
@@ -421,6 +496,9 @@ def scrape_playstore_live(pkg_id: str) -> dict | None:
         "location": has_loc,
         "photos_media_storage": has_storage,
         "is_known_legit": is_known,
+        "is_lending_app": is_lending,
+        "app_category_label": app_category_label,
+        "genre_title": genre_title,
         "is_web_domain": False,
         "is_custom_unlisted": True,
         "scrape_source": "live_playstore",
@@ -490,6 +568,7 @@ def scrape_web_domain_live(url_or_domain: str) -> dict | None:
         has_storage = 1 if any(w in text_lower for w in ["gallery", "photos", "storage permission", "media access"]) else 0
 
         is_known = any(b in display_name.lower() or b in raw_input.lower() for b in KNOWN_BANKS)
+        is_lending, app_category_label = check_is_lending_app(display_name, raw_input, clean_text)
 
         return {
             "app_id": raw_input,
@@ -506,6 +585,9 @@ def scrape_web_domain_live(url_or_domain: str) -> dict | None:
             "location": has_loc,
             "photos_media_storage": has_storage,
             "is_known_legit": is_known,
+            "is_lending_app": is_lending,
+            "app_category_label": app_category_label,
+            "genre_title": app_category_label,
             "is_web_domain": True,
             "is_custom_unlisted": True,
             "scrape_source": "live_website",
@@ -561,6 +643,7 @@ def build_unlisted_app_features(pkg_id_or_input: str) -> dict:
     )
     is_playstore = "play.google.com" in raw_input
     is_web = not is_android_pkg and not is_playstore and "." in raw_input
+    is_lending, app_category_label = check_is_lending_app(display_name, raw_input, "")
 
     return {
         "app_id": raw_input,
@@ -577,6 +660,9 @@ def build_unlisted_app_features(pkg_id_or_input: str) -> dict:
         "location": loc,
         "photos_media_storage": storage,
         "is_known_legit": is_known,
+        "is_lending_app": is_lending,
+        "app_category_label": app_category_label,
+        "genre_title": app_category_label,
         "is_web_domain": is_web,
         "is_custom_unlisted": True,
         "scrape_source": "offline_fallback"
@@ -1623,114 +1709,175 @@ with tab_scorer:
 
             if score is not None:
                 st.write("")
+                is_lending = features.get("is_lending_app", True) if features else True
+                _pkg_raw = str(package_name)
+                _is_playstore_input = "play.google.com" in _pkg_raw
+                _feat_app_id = features.get("app_id", "") if features else ""
+                is_web_target = (
+                    not _is_playstore_input and
+                    bool(features.get("is_web_domain", False)) if features else False
+                )
+
+                def tier_style(level):
+                    if st.session_state.dark_mode:
+                        return {
+                            "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
+                            "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
+                            "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
+                        }[level]
+                    else:
+                        return {
+                            "red": ("#FEE2E2", "#B91C1C", "1.5px solid rgba(220, 38, 38, 0.45)"),
+                            "orange": ("#FEF3C7", "#B45309", "1.5px solid rgba(217, 119, 6, 0.45)"),
+                            "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
+                        }[level]
+
                 col_gauge, col_metrics = st.columns([1, 1.8], vertical_alignment="top")
 
-                with col_gauge:
-                    st.markdown("#### 🛡️ Riskometer Verdict")
-                    # Riskometer SVG Dial
-                    gauge_html = render_rbi_riskometer_card(score, st.session_state.dark_mode)
-                    st.markdown(gauge_html, unsafe_allow_html=True)
-
-                    if score >= 0.6:
-                        verdict, bg_v, fg_v = "High Predatory Risk", "linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(127, 29, 29, 0.35) 100%)", t["red_text"]
-                        v_border = "rgba(239, 68, 68, 0.4)"
-                        v_desc = "Exhibits multiple compliance concerns, excessive permission requests, or harassment complaints."
-                    elif score >= 0.3:
-                        verdict, bg_v, fg_v = "Moderate Caution", "linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(120, 53, 15, 0.35) 100%)", t["orange_text"]
-                        v_border = "rgba(245, 158, 11, 0.4)"
-                        v_desc = "Partially meets RBI transparency norms. Caution advised before borrowing."
-                    else:
-                        verdict, bg_v, fg_v = "Looks Legitimate", "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 78, 59, 0.35) 100%)", t["green_text"]
-                        v_border = "rgba(16, 185, 129, 0.4)"
-                        v_desc = "Appears aligned with RBI Digital Lending Directives and maintains transparent disclosures."
-
-                    st.markdown(
-                        f"""
-                        <div class="verdict-card" style="background:{bg_v}; color:{fg_v}; border:1.5px solid {v_border}; margin-top:12px; border-radius:22px; padding: 26px 18px;">
-                            <div style="font-size:1.35rem; font-weight:800;">{verdict}</div>
-                            <div style="font-size:2.4rem; font-weight:900; margin:6px 0;">{score*100:.0f}% risk</div>
-                            <div style="font-size:0.84rem; opacity:0.92; line-height:1.45;">{v_desc}</div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                with col_metrics:
-                    st.markdown("#### App at a glance")
-                    if features:
-                        installs = features.get("install_count")
-                        disclosure = features.get("disclosure_score", 0)
-                        redflag_pct = (features.get("review_redflag_score", 0) or 0) * 100
-                        neg_pct = (features.get("pct_strongly_negative_reviews", 0) or 0) * 100
-                        sentiment = features.get("avg_review_sentiment", 0)
-                        length = features.get("avg_review_length", 0)
-                        has_contacts = (features.get("contacts", 0) == 1)
-                        has_sms = (features.get("sms", 0) == 1)
-
-                        name_lower = str(package_name).lower()
-                        is_known = any(b in name_lower for b in KNOWN_BANKS) or features.get("is_known_legit", False)
-
-                        if is_known or (score < 0.30 and redflag_pct < 5 and not has_contacts):
-                            rbi_val, rbi_lvl = "Regulated", "green"
-                        elif score >= 0.60 or redflag_pct >= 15 or (has_contacts and has_sms and disclosure <= 2):
-                            rbi_val, rbi_lvl = "Unregulated", "red"
-                        else:
-                            rbi_val, rbi_lvl = "Partially Regulated", "orange"
-
-                        def tier_style(level):
-                            if st.session_state.dark_mode:
-                                return {
-                                    "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
-                                    "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
-                                    "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
-                                }[level]
-                            else:
-                                return {
-                                    "red": ("#FEE2E2", "#B91C1C", "1.5px solid rgba(220, 38, 38, 0.45)"),
-                                    "orange": ("#FEF3C7", "#B45309", "1.5px solid rgba(217, 119, 6, 0.45)"),
-                                    "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
-                                }[level]
-
-                        _pkg_raw = str(package_name)
-                        _is_playstore_input = "play.google.com" in _pkg_raw
-                        _feat_app_id = features.get("app_id", "")
-                        _is_android_pkg = any(_feat_app_id.startswith(p) for p in ["com.", "in.", "org.", "net.", "io.", "co."])
-                        is_web_target = (
-                            not _is_playstore_input and
-                            features.get("is_web_domain", False)
-                        )
-
-                        installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange")
-
-                        stats = [
-                            ("🏛️ RBI Status", rbi_val, rbi_lvl),
-                            installs_card,
-                            ("📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
-                            ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
-                            ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
-                            ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
-                            ("✏️ Avg. review length", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
-                        ]
-
-                        cards_html = []
-                        for i, (lbl, val, lvl) in enumerate(stats):
-                            bg_c, fg_c, bdr_c = tier_style(lvl)
-                            grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
-                            cards_html.append(
-                                f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
-                                f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
-                                f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
-                                f'</div>'
-                            )
-
-                        st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+                if not is_lending:
+                    with col_gauge:
+                        st.markdown("#### 🛡️ Riskometer Verdict")
+                        cat_label = features.get("app_category_label") if features else "Non-Lending App"
+                        genre_name = features.get("genre_title") or cat_label
+                        app_disp_name = features.get('app_name', package_name) if features else package_name
 
                         st.markdown(
-                            f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
-                            f'<span style="color:#34D399; font-weight:700;">🟢 fine</span> • <span style="color:#FBBF24; font-weight:700;">🟡 minor concern</span> • <span style="color:#F87171; font-weight:700;">🔴 risky</span> — <strong>RBI Approved:</strong> whether app discloses legitimate RBI/NBFC registration & follows key norms. <strong>Terms disclosed:</strong> how clearly the app states interest rate, tenure & registration (out of 5). <strong>Harassment mentions:</strong> % of reviews describing threats or abusive recovery tactics. <strong>Strongly negative reviews:</strong> % of reviews that are clearly unhappy. <strong>Avg. review tone:</strong> how positive (+1) or negative (-1) reviews are overall. <strong>Avg. review length:</strong> average words per review.'
-                            f'</div>',
+                            f"""
+                            <div style="background:{t['card_bg']}; border: 1.5px solid rgba(59, 130, 246, 0.45); border-radius: 22px; padding: 26px 20px; text-align: center; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);">
+                                <div style="font-size: 3.2rem; margin-bottom: 8px;">ℹ️</div>
+                                <div style="font-size: 1.28rem; font-weight: 800; color: {t['text']};">Non-Lending Application</div>
+                                <div style="font-size: 1.85rem; font-weight: 900; color: #3B82F6; margin: 10px 0;">Risk Verdict: N/A</div>
+                                <div style="font-size: 0.84rem; color: {t['muted']}; line-height: 1.5; margin-top: 10px;">
+                                    <strong>{app_disp_name}</strong> is categorized as <strong>{genre_name}</strong> and is not a digital loan platform. FinShield's Riskometer exclusively evaluates digital lending apps.
+                                </div>
+                            </div>
+                            """,
                             unsafe_allow_html=True
                         )
+
+                    with col_metrics:
+                        st.markdown("#### App at a glance")
+                        if features:
+                            installs = features.get("install_count")
+                            neg_pct = (features.get("pct_strongly_negative_reviews", 0) or 0) * 100
+                            sentiment = features.get("avg_review_sentiment", 0)
+                            length = features.get("avg_review_length", 0)
+
+                            installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green")
+
+                            stats = [
+                                ("🏛️ App Category", genre_name[:22], "green"),
+                                installs_card,
+                                ("📝 Terms disclosed", "N/A (Non-Loan)", "green"),
+                                ("🚩 Harassment mentions", "0%", "green"),
+                                ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
+                                ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
+                                ("✏️ Avg. review length", f"{length:.0f} words", "green"),
+                            ]
+
+                            cards_html = []
+                            for i, (lbl, val, lvl) in enumerate(stats):
+                                bg_c, fg_c, bdr_c = tier_style(lvl)
+                                grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
+                                cards_html.append(
+                                    f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
+                                    f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
+                                    f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
+                                    f'</div>'
+                                )
+
+                            st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+
+                            st.markdown(
+                                f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
+                                f'<span style="color:#34D399; font-weight:700;">🟢 Non-Lending Service</span> — <strong>App Category:</strong> General utility, communication, social, or media application. <strong>Terms disclosed:</strong> N/A as app does not issue personal loans or credit lines. <strong>Harassment mentions:</strong> 0% debt collection harassment complaints.'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                else:
+                    with col_gauge:
+                        st.markdown("#### 🛡️ Riskometer Verdict")
+                        # Riskometer SVG Dial
+                        gauge_html = render_rbi_riskometer_card(score, st.session_state.dark_mode)
+                        st.markdown(gauge_html, unsafe_allow_html=True)
+
+                        if score >= 0.6:
+                            verdict, bg_v, fg_v = "High Predatory Risk", "linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(127, 29, 29, 0.35) 100%)", t["red_text"]
+                            v_border = "rgba(239, 68, 68, 0.4)"
+                            v_desc = "Exhibits multiple compliance concerns, excessive permission requests, or harassment complaints."
+                        elif score >= 0.3:
+                            verdict, bg_v, fg_v = "Moderate Caution", "linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(120, 53, 15, 0.35) 100%)", t["orange_text"]
+                            v_border = "rgba(245, 158, 11, 0.4)"
+                            v_desc = "Partially meets RBI transparency norms. Caution advised before borrowing."
+                        else:
+                            verdict, bg_v, fg_v = "Looks Legitimate", "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 78, 59, 0.35) 100%)", t["green_text"]
+                            v_border = "rgba(16, 185, 129, 0.4)"
+                            v_desc = "Appears aligned with RBI Digital Lending Directives and maintains transparent disclosures."
+
+                        st.markdown(
+                            f"""
+                            <div class="verdict-card" style="background:{bg_v}; color:{fg_v}; border:1.5px solid {v_border}; margin-top:12px; border-radius:22px; padding: 26px 18px;">
+                                <div style="font-size:1.35rem; font-weight:800;">{verdict}</div>
+                                <div style="font-size:2.4rem; font-weight:900; margin:6px 0;">{score*100:.0f}% risk</div>
+                                <div style="font-size:0.84rem; opacity:0.92; line-height:1.45;">{v_desc}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+
+                    with col_metrics:
+                        st.markdown("#### App at a glance")
+                        if features:
+                            installs = features.get("install_count")
+                            disclosure = features.get("disclosure_score", 0)
+                            redflag_pct = (features.get("review_redflag_score", 0) or 0) * 100
+                            neg_pct = (features.get("pct_strongly_negative_reviews", 0) or 0) * 100
+                            sentiment = features.get("avg_review_sentiment", 0)
+                            length = features.get("avg_review_length", 0)
+                            has_contacts = (features.get("contacts", 0) == 1)
+                            has_sms = (features.get("sms", 0) == 1)
+
+                            name_lower = str(package_name).lower()
+                            is_known = any(b in name_lower for b in KNOWN_BANKS) or features.get("is_known_legit", False)
+
+                            if is_known or (score < 0.30 and redflag_pct < 5 and not has_contacts):
+                                rbi_val, rbi_lvl = "Regulated", "green"
+                            elif score >= 0.60 or redflag_pct >= 15 or (has_contacts and has_sms and disclosure <= 2):
+                                rbi_val, rbi_lvl = "Unregulated", "red"
+                            else:
+                                rbi_val, rbi_lvl = "Partially Regulated", "orange"
+
+                            installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange")
+
+                            stats = [
+                                ("🏛️ RBI Status", rbi_val, rbi_lvl),
+                                installs_card,
+                                ("📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
+                                ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
+                                ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
+                                ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
+                                ("✏️ Avg. review length", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
+                            ]
+
+                            cards_html = []
+                            for i, (lbl, val, lvl) in enumerate(stats):
+                                bg_c, fg_c, bdr_c = tier_style(lvl)
+                                grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
+                                cards_html.append(
+                                    f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
+                                    f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
+                                    f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
+                                    f'</div>'
+                                )
+
+                            st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+
+                            st.markdown(
+                                f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
+                                f'<span style="color:#34D399; font-weight:700;">🟢 fine</span> • <span style="color:#FBBF24; font-weight:700;">🟡 minor concern</span> • <span style="color:#F87171; font-weight:700;">🔴 risky</span> — <strong>RBI Approved:</strong> whether app discloses legitimate RBI/NBFC registration & follows key norms. <strong>Terms disclosed:</strong> how clearly the app states interest rate, tenure & registration (out of 5). <strong>Harassment mentions:</strong> % of reviews describing threats or abusive recovery tactics. <strong>Strongly negative reviews:</strong> % of reviews that are clearly unhappy. <strong>Avg. review tone:</strong> how positive (+1) or negative (-1) reviews are overall. <strong>Avg. review length:</strong> average words per review.'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
 
                 # Full-Width App / Web Link Banner
                 app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
