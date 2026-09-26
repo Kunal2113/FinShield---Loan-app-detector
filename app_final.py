@@ -852,6 +852,467 @@ def get_app_detailed_profile(name_clean: str, app_id: str, is_known: bool):
         "who_should_avoid": who_should_avoid
     }
 
+def extract_term_snippet(text: str, pattern: str) -> str:
+    if not text:
+        return ""
+    sentences = re.split(r'[.\n]', str(text))
+    for s in sentences:
+        if re.search(pattern, s, re.I):
+            clean_s = s.strip()
+            if len(clean_s) > 10:
+                return clean_s[:180] + ("..." if len(clean_s) > 180 else "")
+    return ""
+
+def extract_term_snippets(description: str, privacy_policy: str):
+    desc = str(description or "")
+    desc_lower = desc.lower()
+    
+    # 1. Interest Rate & APR / Processing Fees
+    has_rate = bool(re.search(r'interest rate|% pa|apr|per annum|processing fee', desc_lower))
+    rate_snippet = extract_term_snippet(desc, r'interest rate|% pa|apr|per annum|processing fee')
+    if not rate_snippet and has_rate:
+        rate_snippet = "Interest rate / APR disclosures detected in app listing."
+    elif not rate_snippet:
+        rate_snippet = "No explicit interest rate or APR percentage figures disclosed in app listing."
+
+    # 2. Loan Tenure & Repayment Period
+    has_tenure = bool(re.search(r'tenure|repayment period|months|loan period', desc_lower))
+    tenure_snippet = extract_term_snippet(desc, r'tenure|repayment period|months|loan period')
+    if not tenure_snippet and has_tenure:
+        tenure_snippet = "Loan tenure and repayment period disclosures detected in app listing."
+    elif not tenure_snippet:
+        tenure_snippet = "No minimum or maximum loan repayment tenure specified."
+
+    # 3. RBI / NBFC Registration Details
+    has_reg = bool(re.search(r'rbi[- ]registered|nbfc|registration number|cin ', desc_lower))
+    reg_snippet = extract_term_snippet(desc, r'rbi[- ]registered|nbfc|registration number|cin ')
+    if not reg_snippet and has_reg:
+        reg_snippet = "RBI-registered NBFC partner / registration details detected."
+    elif not reg_snippet:
+        reg_snippet = "No RBI-registered NBFC partner name or registration number disclosed."
+
+    # 4. Grievance Officer & Customer Support
+    has_contact = bool(re.search(r'customer care|grievance|support@|contact us|helpline', desc_lower))
+    contact_snippet = extract_term_snippet(desc, r'customer care|grievance|support@|contact us|helpline')
+    if not contact_snippet and has_contact:
+        contact_snippet = "Customer support email / grievance contact officer disclosed."
+    elif not contact_snippet:
+        contact_snippet = "No official grievance contact email or customer care helpline found."
+
+    # 5. Privacy Policy URL
+    pp = str(privacy_policy or "")
+    has_pp = pp not in ('nan', '', 'None') and 'http' in pp
+    pp_text = pp if has_pp else "No active HTTP privacy policy URL provided."
+
+    return [
+        {
+            "title": "1. Interest Rate & APR / Processing Fees",
+            "disclosed": has_rate,
+            "text": rate_snippet
+        },
+        {
+            "title": "2. Loan Tenure & Repayment Period",
+            "disclosed": has_tenure,
+            "text": tenure_snippet
+        },
+        {
+            "title": "3. RBI / NBFC Registration Details",
+            "disclosed": has_reg,
+            "text": reg_snippet
+        },
+        {
+            "title": "4. Grievance Officer & Customer Support",
+            "disclosed": has_contact,
+            "text": contact_snippet
+        },
+        {
+            "title": "5. Privacy Policy URL",
+            "disclosed": has_pp,
+            "text": pp_text
+        }
+    ]
+
+
+def render_metric_modal_content(metric_key: str, features: dict, score: float, package_name: str):
+    feat = features or {}
+    app_name = feat.get("app_name") or package_name
+    installs = feat.get("install_count", 0)
+    disclosure = feat.get("disclosure_score", 0)
+    redflag_score = feat.get("review_redflag_score", 0.0)
+    redflag_pct = redflag_score * 100
+    neg_score = feat.get("pct_strongly_negative_reviews", 0.0)
+    neg_pct = neg_score * 100
+    sentiment = feat.get("avg_review_sentiment", 0.0)
+    length = feat.get("avg_review_length", 0.0)
+    has_contacts = (feat.get("contacts", 0) == 1)
+    has_sms = (feat.get("sms", 0) == 1)
+    has_storage = (feat.get("photos_media_storage", 0) == 1)
+    is_known = feat.get("is_known_legit", False)
+    is_lending = feat.get("is_lending_app", True)
+
+    if is_known or (score < 0.30 and redflag_pct < 5 and not has_contacts):
+        rbi_status = "Regulated"
+        rbi_badge_color = "#10B981"
+    elif score >= 0.60 or redflag_pct >= 15 or (has_contacts and has_sms and disclosure <= 2):
+        rbi_status = "Unregulated"
+        rbi_badge_color = "#EF4444"
+    else:
+        rbi_status = "Partially Regulated"
+        rbi_badge_color = "#F59E0B"
+
+    # 1. VERDICT MODAL
+    if metric_key == "verdict":
+        if not is_lending:
+            st.markdown(f"### ℹ️ Non-Lending Application Audit")
+            st.info(f"**{app_name}** (`{package_name}`) is verified as a **Non-Lending Application**. Predatory loan risk scoring is Not Applicable (N/A).", icon="ℹ️")
+        else:
+            st.markdown(f"### 🛡️ Riskometer Verdict Breakdown")
+            st.caption(f"Detailed machine learning risk factor breakdown for **{app_name}** (`{package_name}`)")
+            
+            if score >= 0.60:
+                v_title, v_color = "High Predatory Risk", "#EF4444"
+            elif score >= 0.30:
+                v_title, v_color = "Moderate Caution", "#F59E0B"
+            else:
+                v_title, v_color = "Looks Legitimate", "#10B981"
+
+            st.markdown(
+                f"""
+                <div style="background:rgba(15, 23, 42, 0.7); border:2px solid {v_color}; border-radius:18px; padding:18px; text-align:center; margin-bottom:18px;">
+                    <div style="font-size:1.15rem; font-weight:800; color:{v_color};">{v_title}</div>
+                    <div style="font-size:2.6rem; font-weight:900; color:#FFFFFF; margin:4px 0;">{score*100:.0f}% Risk Score</div>
+                    <div style="font-size:0.85rem; color:#94A3B8;">Calculated by FinShield Risk Engine using 11 key compliance and review metrics.</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.markdown("#### ⚖️ Risk Factor Contributions")
+            factors = [
+                ("🏛️ RBI Regulatory Compliance", rbi_status, "High (+35% Risk)" if rbi_status == "Unregulated" else "Low (-20%)" if rbi_status == "Regulated" else "Moderate (+15%)", "Checks for disclosed RBI-registered NBFC partner and Key Fact Statement."),
+                ("📝 Terms Disclosure Score", f"{disclosure} / 5 Terms Disclosed", "High (+20% Risk)" if disclosure <= 2 else "Compliant (-15%)" if disclosure >= 4 else "Moderate (+5%)", "Measures transparency of interest rate, APR, tenure, and NBFC registration."),
+                ("🚩 Harassment Mentions in Reviews", f"{redflag_pct:.1f}% Mentions", "Severe (+30% Risk)" if redflag_pct >= 10 else "Low (0%)", "Monitors complaints regarding threats, contact list abuse, and recovery harassment."),
+                ("😠 Strongly Negative Reviews", f"{neg_pct:.1f}% Negative", "Elevated (+15% Risk)" if neg_pct >= 15 else "Normal", "Percentage of live reviews with VADER compound sentiment <= -0.50."),
+                ("📱 Prohibited Contacts Access", "Requested 🔴" if has_contacts else "Not Requested 🟢", "High (+15% Risk)" if has_contacts else "Compliant", "RBI strictly forbids digital loan apps from requesting access to phone contacts."),
+                ("💬 Prohibited SMS Access", "Requested 🔴" if has_sms else "Not Requested 🟢", "High (+10% Risk)" if has_sms else "Compliant", "Reading SMS messages allows unverified apps to intercept OTPs and bank alerts."),
+                ("🖼️ Photos / Media Storage", "Requested 🔴" if has_storage else "Not Requested 🟢", "High (+15% Risk)" if has_storage else "Compliant", "Storage permissions have been exploited to access private photos for blackmail."),
+                ("🙂 Overall Review Tone", f"{sentiment:+.2f} Compound Tone", "Boosted / Fake Warning" if sentiment > 0.6 else "Normal", "VADER compound polarity score across live user reviews."),
+                ("✏️ Review Detail Level", f"{length:.0f} words / review", "Detailed Complaints" if length >= 15 else "Generic Ratings", "Average word count per user review."),
+            ]
+
+            for title, val, impact, desc in factors:
+                b_col = "#EF4444" if "High" in impact or "Severe" in impact or "Requested" in val else "#10B981" if "Compliant" in impact or "Not Requested" in val or "Low" in impact else "#F59E0B"
+                st.markdown(
+                    f"""
+                    <div style="background:rgba(30,41,59,0.6); border-left:4px solid {b_col}; border-radius:8px; padding:12px 14px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:#F8FAFC; font-size:0.9rem;">{title}</strong>
+                            <span style="background:{b_col}22; color:{b_col}; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:12px;">{val}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#94A3B8; margin-top:4px;"><strong>Impact:</strong> {impact} — {desc}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+    # 2. RBI STATUS MODAL
+    elif metric_key == "rbi":
+        st.markdown("### 🏛️ RBI Regulatory Compliance Audit")
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid {rbi_badge_color}; border-radius:14px; padding:16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                    <div style="font-size:0.8rem; color:#94A3B8;">Current RBI Status</div>
+                    <div style="font-size:1.6rem; font-weight:900; color:{rbi_badge_color};">{rbi_status}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.78rem; color:#94A3B8;">Target App</div>
+                    <div style="font-size:0.95rem; font-weight:700; color:#F8FAFC;">{app_name}</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 📜 Regulatory Source & Partner Details")
+        dev_name = feat.get("scraped_developer") or "Unlisted Developer"
+        st.write(f"• **Disclosed Developer / Entity**: `{dev_name}`")
+        if is_known:
+            st.write("• **Lending Partner Source**: Verified RBI-Registered Bank / NBFC Partner")
+            st.write("• **Regulatory Directives**: Fully compliant with RBI Digital Lending Directives 2026.")
+        else:
+            st.write("• **Lending Partner Source**: Live Play Store Listing & Terms Scraping")
+            if rbi_status == "Unregulated":
+                st.write("• **Regulatory Flag**: No valid RBI-registered NBFC partner or registration number disclosed.")
+
+        st.markdown("#### 💡 What Regulated vs Unregulated Means")
+        st.info(
+            "🏛️ **Regulated Lenders**: Partnered with RBI-registered Banks/NBFCs. They adhere to legal interest rate caps, mandatory 3-day cooling-off periods, and strict fair-recovery practices.\n\n"
+            "🚨 **Unregulated Lenders**: Lack verified NBFC registration disclosures. Often operate short 7-day loan cycles with exorbitant APR (>100%) and illegal contact list harvesting.",
+            icon="ℹ️"
+        )
+
+    # 3. INSTALLS MODAL
+    elif metric_key == "installs":
+        st.markdown("### 📦 App Install Base & Distribution Reach")
+        installs_formatted = f"{installs:,}" if installs else "Web Domain"
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid #10B981; border-radius:14px; padding:16px; margin-bottom:16px;">
+                <div style="font-size:0.8rem; color:#94A3B8;">Total Install Base</div>
+                <div style="font-size:2rem; font-weight:900; color:#10B981;">{installs_formatted}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 📡 Source Data & Scraped Metrics")
+        src = feat.get("scrape_source", "live_playstore")
+        st.write(f"• **Data Source**: `{src}`")
+        st.write(f"• **Raw Scraped Metric**: `{installs}`")
+
+        st.markdown("#### 📊 Risk Analysis Contribution")
+        st.write("• **High Install Base (10M+)**: Indicates an established platform. However, large volume apps with poor disclosures affect millions of borrowers.")
+        st.write("• **Low Install Base (<10K)**: Lower track record, elevated risk for newly launched off-store APKs or untrusted web domains.")
+
+    # 4. TERMS DISCLOSED MODAL (DETAILED 5/5 CARDS)
+    elif metric_key == "terms":
+        st.markdown("### 📝 Mandatory Loan Terms Disclosure Audit")
+        disc_val = feat.get("disclosure_score", 0)
+        desc_raw = feat.get("scraped_description") or feat.get("description") or ""
+        pp_raw = feat.get("scraped_privacy_policy") or ""
+
+        terms_list = extract_term_snippets(desc_raw, pp_raw)
+
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid {'#10B981' if disc_val >= 4 else '#F59E0B' if disc_val == 3 else '#EF4444'}; border-radius:14px; padding:16px; margin-bottom:18px; text-align:center;">
+                <div style="font-size:1.6rem; font-weight:900; color:#FFFFFF;">{disc_val} out of 5 required terms detected.</div>
+                <div style="font-size:0.82rem; color:#94A3B8; margin-top:4px;">Evaluated directly against live scraped Play Store app description and privacy policy text.</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 📋 Detailed 5-Point Mandatory Terms Breakdown")
+        for term in terms_list:
+            t_title = term["title"]
+            t_status = "Disclosed 🟢" if term["disclosed"] else "Not Disclosed 🔴"
+            t_color = "#10B981" if term["disclosed"] else "#EF4444"
+            t_bg = "rgba(14, 51, 33, 0.6)" if term["disclosed"] else "rgba(63, 22, 24, 0.6)"
+
+            st.markdown(
+                f"""
+                <div style="background:{t_bg}; border:1px solid {t_color}55; border-radius:12px; padding:14px 16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color:#FFFFFF; font-size:0.92rem;">{t_title}</strong>
+                        <span style="color:{t_color}; font-weight:800; font-size:0.82rem;">{t_status}</span>
+                    </div>
+                    <div style="font-size:0.82rem; color:#CBD5E1; margin-top:6px; font-family:monospace; background:rgba(0,0,0,0.3); padding:8px 10px; border-radius:6px;">
+                        <strong>Detected Text:</strong> {term['text']}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.caption("📜 RBI Digital Lending Directives 2026 mandate that all 5 terms must be explicitly stated in the Key Fact Statement (KFS) before loan sanctioning.")
+
+    # 5. HARASSMENT MENTIONS MODAL
+    elif metric_key == "harassment":
+        st.markdown("### 🚩 Review Harassment & Recovery Abuse Analysis")
+        rvs_cnt = feat.get("scraped_reviews_count", 50)
+        redflag_cnt = int(round((redflag_pct / 100.0) * rvs_cnt))
+
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid {'#EF4444' if redflag_pct >= 10 else '#10B981'}; border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:0.8rem; color:#94A3B8;">Harassment Mention Percentage</div>
+                    <div style="font-size:2rem; font-weight:900; color:{'#EF4444' if redflag_pct >= 10 else '#10B981'};">{redflag_pct:.1f}%</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.8rem; color:#94A3B8;">Harassment Flagged Reviews</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">{redflag_cnt} / {rvs_cnt} live reviews</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 🔍 Calculation Formula & Keywords Scanned")
+        st.write("• **Formula**: `(Reviews matching harassment patterns / Total analyzed live reviews) × 100`")
+        st.write("• **Keywords Scanned**: `harass`, `threat`, `blackmail`, `recovery agent`, `shared my contact`, `leak my photo`, `called my family`, `called my boss`, `abuse`, `extort`, `suicide`, `scam`.")
+
+        st.markdown("#### 📢 Risk Significance")
+        if redflag_pct >= 10:
+            st.error(f"🚨 High Harassment Warning: {redflag_pct:.0f}% of analyzed user reviews describe abusive recovery tactics, threatening phone calls, or contact list harassment.", icon="🚨")
+        else:
+            st.success("✓ Zero or negligible harassment keywords detected in live user reviews.", icon="🟢")
+
+    # 6. STRONGLY NEGATIVE REVIEWS MODAL
+    elif metric_key == "negative":
+        st.markdown("### 😠 Strongly Negative Review Sentiment Audit")
+        rvs_cnt = feat.get("scraped_reviews_count", 50)
+        neg_cnt = int(round((neg_pct / 100.0) * rvs_cnt))
+
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid {'#EF4444' if neg_pct >= 20 else '#F59E0B' if neg_pct >= 10 else '#10B981'}; border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:0.8rem; color:#94A3B8;">Strongly Negative Reviews</div>
+                    <div style="font-size:2rem; font-weight:900; color:{'#EF4444' if neg_pct >= 20 else '#F59E0B' if neg_pct >= 10 else '#10B981'};">{neg_pct:.1f}%</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.8rem; color:#94A3B8;">Negative Review Count</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">{neg_cnt} / {rvs_cnt} live reviews</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 🧠 NLP Sentiment Classification Model")
+        st.write("• **Analyzer**: VADER (Valence Aware Dictionary and sEntiment Reasoner)")
+        st.write("• **Threshold**: Reviews with a compound sentiment score `<= -0.50` are categorized as strongly negative.")
+        st.write("• **Impact**: High negative sentiment ratio indicates hidden charges, unexpected deduction fees, or app operational issues.")
+
+    # 7. AVG REVIEW TONE MODAL
+    elif metric_key == "sentiment":
+        st.markdown("### 🙂 Average User Review Tone & Sentiment Score")
+        rvs_cnt = feat.get("scraped_reviews_count", 50)
+
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid #3B82F6; border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:0.8rem; color:#94A3B8;">Average Review Tone (Compound)</div>
+                    <div style="font-size:2rem; font-weight:900; color:#3B82F6;">{sentiment:+.2f}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.8rem; color:#94A3B8;">Total Reviews Analyzed</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">{rvs_cnt} live reviews</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 📐 Metric Scale & Interpretation")
+        st.write("• **Score Range**: `-1.00` (Extreme Negativity) to `+1.00` (Extreme Positivity).")
+        st.write("• **> +0.50**: Unusually high positive sentiment — sometimes indicates automated or boosted reviews.")
+        st.write("• **-0.20 to +0.50**: Normal, organic user feedback distribution.")
+        st.write("• **< -0.20**: Overwhelmingly negative review tone.")
+
+    # 8. AVG REVIEW LENGTH MODAL
+    elif metric_key == "length":
+        st.markdown("### ✏️ Average User Review Length & Detail Level")
+        rvs_cnt = feat.get("scraped_reviews_count", 50)
+
+        st.markdown(
+            f"""
+            <div style="background:rgba(15, 23, 42, 0.7); border:1.5px solid #10B981; border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:0.8rem; color:#94A3B8;">Average Review Length</div>
+                    <div style="font-size:2rem; font-weight:900; color:#10B981;">{length:.0f} words</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.8rem; color:#94A3B8;">Total Reviews Analyzed</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">{rvs_cnt} live reviews</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("#### 📝 Calculation & Risk Significance")
+        st.write("• **Formula**: `sum(word count per review) / total analyzed live reviews`")
+        st.write("• **Length >= 15 words**: Indicates detailed user reviews describing specific operational issues, fee deductions, or repayment terms.")
+        st.write("• **Length < 10 words**: Represents brief generic feedback.")
+
+
+@st.dialog("📊 FinShield Risk Intelligence Metric Audit", width="large")
+def show_metric_detail_dialog(metric_key: str, features: dict, score: float, package_name: str):
+    render_metric_modal_content(metric_key, features, score, package_name)
+    st.write("")
+    if st.button("Close Panel ×", key="btn_close_metric_dialog", use_container_width=True):
+        st.rerun()
+
+
+def inject_card_button_css(tile_colors: dict, verdict_color: tuple, is_dark: bool):
+    css = []
+    css.append("""
+        div[data-testid="stColumn"] button[key^="card_btn_"] {
+            width: 100% !important;
+            border-radius: 18px !important;
+            padding: 12px 6px !important;
+            min-height: 105px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+            cursor: pointer !important;
+            margin-bottom: 8px !important;
+        }
+        div[data-testid="stColumn"] button[key^="card_btn_"]:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+            filter: brightness(1.06) !important;
+        }
+        div[data-testid="stColumn"] button[key="card_btn_verdict"] {
+            width: 100% !important;
+            border-radius: 22px !important;
+            padding: 20px 18px !important;
+            min-height: 135px !important;
+            margin-top: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            text-align: center !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+            cursor: pointer !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        div[data-testid="stColumn"] button[key="card_btn_verdict"]:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.38) !important;
+            filter: brightness(1.06) !important;
+        }
+    """)
+
+    for key, (bg, fg, border) in tile_colors.items():
+        css.append(f"""
+            .st-key-{key} button {{
+                background: {bg} !important;
+                color: {fg} !important;
+                border: {border} !important;
+            }}
+            .st-key-{key} button p, .st-key-{key} button span {{
+                color: {fg} !important;
+                font-weight: 800 !important;
+            }}
+        """)
+
+    v_bg, v_fg, v_bdr = verdict_color
+    css.append(f"""
+        .st-key-card_btn_verdict button {{
+            background: {v_bg} !important;
+            color: {v_fg} !important;
+            border: 1.5px solid {v_bdr} !important;
+        }}
+        .st-key-card_btn_verdict button p, .st-key-card_btn_verdict button span {{
+            color: {v_fg} !important;
+            font-weight: 800 !important;
+        }}
+    """)
+
+    st.markdown(f"<style>{''.join(css)}</style>", unsafe_allow_html=True)
+
 def render_rbi_riskometer_card(score: float, dark_mode: bool) -> str:
     s = min(max(score, 0.0), 1.0)
     angle = s * 180.0
@@ -1735,25 +2196,21 @@ with tab_scorer:
                 col_gauge, col_metrics = st.columns([1, 1.8], vertical_alignment="top")
 
                 if not is_lending:
+                    cat_label = features.get("app_category_label") if features else "Non-Lending App"
+                    genre_name = features.get("genre_title") or cat_label
+                    app_disp_name = features.get('app_name', package_name) if features else package_name
+                    
+                    v_bg = t['card_bg']
+                    v_fg = t['text']
+                    v_border = "rgba(59, 130, 246, 0.45)"
+
                     with col_gauge:
                         st.markdown("#### 🛡️ Riskometer Verdict")
-                        cat_label = features.get("app_category_label") if features else "Non-Lending App"
-                        genre_name = features.get("genre_title") or cat_label
-                        app_disp_name = features.get('app_name', package_name) if features else package_name
-
-                        st.markdown(
-                            f"""
-                            <div style="background:{t['card_bg']}; border: 1.5px solid rgba(59, 130, 246, 0.45); border-radius: 22px; padding: 26px 20px; text-align: center; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);">
-                                <div style="font-size: 3.2rem; margin-bottom: 8px;">ℹ️</div>
-                                <div style="font-size: 1.28rem; font-weight: 800; color: {t['text']};">Non-Lending Application</div>
-                                <div style="font-size: 1.85rem; font-weight: 900; color: #3B82F6; margin: 10px 0;">Risk Verdict: N/A</div>
-                                <div style="font-size: 0.84rem; color: {t['muted']}; line-height: 1.5; margin-top: 10px;">
-                                    <strong>{app_disp_name}</strong> is categorized as <strong>{genre_name}</strong> and is not a digital loan platform. FinShield's Riskometer exclusively evaluates digital lending apps.
-                                </div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        if st.button(
+                            f"ℹ️ Non-Lending Application\n\nRisk Verdict: N/A\n\n{app_disp_name} is categorized as {genre_name} and is not a digital loan platform.",
+                            key="card_btn_verdict"
+                        ):
+                            show_metric_detail_dialog("verdict", features, score, package_name)
 
                     with col_metrics:
                         st.markdown("#### App at a glance")
@@ -1766,27 +2223,29 @@ with tab_scorer:
                             installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green")
 
                             stats = [
-                                ("🏛️ App Category", genre_name[:22], "green"),
-                                installs_card,
-                                ("📝 Terms disclosed", "N/A (Non-Loan)", "green"),
-                                ("🚩 Harassment mentions", "0%", "green"),
-                                ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
-                                ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
-                                ("✏️ Avg. review length", f"{length:.0f} words", "green"),
+                                ("category", "🏛️ App Category", genre_name[:22], "green"),
+                                ("installs", installs_card[0], installs_card[1], installs_card[2]),
+                                ("terms", "📝 Terms disclosed", "N/A (Non-Loan)", "green"),
+                                ("harassment", "🚩 Harassment mentions", "0%", "green"),
+                                ("negative", "😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
+                                ("sentiment", "🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
+                                ("length", "✏️ Avg. review length", f"{length:.0f} words", "green"),
                             ]
 
-                            cards_html = []
-                            for i, (lbl, val, lvl) in enumerate(stats):
-                                bg_c, fg_c, bdr_c = tier_style(lvl)
-                                grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
-                                cards_html.append(
-                                    f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
-                                    f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
-                                    f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
-                                    f'</div>'
-                                )
+                            tile_colors = {}
+                            for metric_id, lbl, val, lvl in stats:
+                                btn_key = f"card_btn_{metric_id}"
+                                tile_colors[btn_key] = tier_style(lvl)
 
-                            st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+                            inject_card_button_css(tile_colors, (v_bg, v_fg, v_border), st.session_state.dark_mode)
+
+                            gc1, gc2, gc3 = st.columns(3)
+                            grid_cols = [gc1, gc2, gc3, gc1, gc2, gc3, gc2]
+                            for i, (metric_id, lbl, val, lvl) in enumerate(stats):
+                                btn_key = f"card_btn_{metric_id}"
+                                with grid_cols[i]:
+                                    if st.button(f"{lbl}\n{val}", key=btn_key):
+                                        show_metric_detail_dialog(metric_id, features, score, package_name)
 
                             st.markdown(
                                 f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
@@ -1814,16 +2273,11 @@ with tab_scorer:
                             v_border = "rgba(16, 185, 129, 0.4)"
                             v_desc = "Appears aligned with RBI Digital Lending Directives and maintains transparent disclosures."
 
-                        st.markdown(
-                            f"""
-                            <div class="verdict-card" style="background:{bg_v}; color:{fg_v}; border:1.5px solid {v_border}; margin-top:12px; border-radius:22px; padding: 26px 18px;">
-                                <div style="font-size:1.35rem; font-weight:800;">{verdict}</div>
-                                <div style="font-size:2.4rem; font-weight:900; margin:6px 0;">{score*100:.0f}% risk</div>
-                                <div style="font-size:0.84rem; opacity:0.92; line-height:1.45;">{v_desc}</div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        if st.button(
+                            f"🛡️ {verdict}\n\n{score*100:.0f}% risk\n\n{v_desc}\n\n🔍 Click for detailed risk breakdown",
+                            key="card_btn_verdict"
+                        ):
+                            show_metric_detail_dialog("verdict", features, score, package_name)
 
                     with col_metrics:
                         st.markdown("#### App at a glance")
@@ -1850,27 +2304,29 @@ with tab_scorer:
                             installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green" if (installs or 0) >= 100000 else "orange")
 
                             stats = [
-                                ("🏛️ RBI Status", rbi_val, rbi_lvl),
-                                installs_card,
-                                ("📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
-                                ("🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
-                                ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
-                                ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
-                                ("✏️ Avg. review length", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
+                                ("rbi", "🏛️ RBI Status", rbi_val, rbi_lvl),
+                                ("installs", installs_card[0], installs_card[1], installs_card[2]),
+                                ("terms", "📝 Terms disclosed", f"{disclosure} / 5", "green" if disclosure >= 4 else "orange" if disclosure == 3 else "red"),
+                                ("harassment", "🚩 Harassment mentions", f"{redflag_pct:.0f}%", "red" if redflag_pct >= 15 else "orange" if redflag_pct >= 5 else "green"),
+                                ("negative", "😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
+                                ("sentiment", "🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
+                                ("length", "✏️ Avg. review length", f"{length:.0f} words", "red" if length >= 20 else "orange" if length >= 10 else "green"),
                             ]
 
-                            cards_html = []
-                            for i, (lbl, val, lvl) in enumerate(stats):
-                                bg_c, fg_c, bdr_c = tier_style(lvl)
-                                grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
-                                cards_html.append(
-                                    f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
-                                    f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
-                                    f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
-                                    f'</div>'
-                                )
+                            tile_colors = {}
+                            for metric_id, lbl, val, lvl in stats:
+                                btn_key = f"card_btn_{metric_id}"
+                                tile_colors[btn_key] = tier_style(lvl)
 
-                            st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
+                            inject_card_button_css(tile_colors, (bg_v, fg_v, v_border), st.session_state.dark_mode)
+
+                            gc1, gc2, gc3 = st.columns(3)
+                            grid_cols = [gc1, gc2, gc3, gc1, gc2, gc3, gc2]
+                            for i, (metric_id, lbl, val, lvl) in enumerate(stats):
+                                btn_key = f"card_btn_{metric_id}"
+                                with grid_cols[i]:
+                                    if st.button(f"{lbl}\n{val}", key=btn_key):
+                                        show_metric_detail_dialog(metric_id, features, score, package_name)
 
                             st.markdown(
                                 f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
