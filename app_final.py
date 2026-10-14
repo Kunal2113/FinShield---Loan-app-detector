@@ -261,10 +261,15 @@ def lookup_app_features(identifier: str):
         res["app_id"] = str(row["app_id"]).strip()
     if "app_name" in row:
         res["app_name"] = str(row["app_name"]).strip()
-    is_lending, app_category_label = check_is_lending_app(res.get("app_name", ""), res.get("app_id", ""), "")
-    res["is_lending_app"] = is_lending
-    res["app_category_label"] = app_category_label
-    res["genre_title"] = app_category_label
+    app_id_val = str(res.get("app_id", "")).lower()
+    if any(ex in app_id_val for ex in EXCLUDED_NON_LENDING_IDS):
+        res["is_lending_app"] = False
+        res["app_category_label"] = "Non-Lending Application"
+        res["genre_title"] = "Non-Lending Application"
+    else:
+        res["is_lending_app"] = True
+        res["app_category_label"] = "Digital Lending Platform"
+        res["genre_title"] = "Digital Lending Platform"
     return res
 
 USE_FAKE_MODEL = not os.path.exists("predatory_loan_detector.pkl")
@@ -1896,7 +1901,7 @@ with tab_scorer:
 
                     target_url = f"https://play.google.com/store/apps/details?id={app_id_clean}" if not str(app_id_clean).startswith("http") else app_id_clean
 
-                    st.markdown(f"""
+                    non_lending_card_html = textwrap.dedent(f"""
                     <div style="background:{t['card_bg']}; border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 24px; padding: 32px 24px; text-align: center; margin: 20px 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);">
                         <div style="font-size: 3.8rem; margin-bottom: 8px;">{app_icon}</div>
                         <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size: 1.5rem; font-weight: 800; color: {t['text']};">
@@ -1917,9 +1922,10 @@ with tab_scorer:
                             </a>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    """).strip()
+                    st.markdown(non_lending_card_html, unsafe_allow_html=True)
 
-                    st.markdown(f"""
+                    suggestion_box_html = textwrap.dedent(f"""
                     <div style="background:{'#131B2E' if st.session_state.dark_mode else '#F0F9FF'}; border:1px dashed {'#3B82F6' if st.session_state.dark_mode else '#93C5FD'}; border-radius:18px; padding:18px 22px; margin-top:10px;">
                         <div style="font-weight:700; font-size:0.92rem; color:{'#93C5FD' if st.session_state.dark_mode else '#1E40AF'}; display:flex; align-items:center; gap:8px;">
                             <span>💡</span> Looking to audit a digital loan app?
@@ -1928,7 +1934,8 @@ with tab_scorer:
                             Paste any digital personal loan app link or package ID (e.g. <code>com.kreditbee.android</code>, <code>com.kissht</code>, <code>com.moneyview.loans</code>, or an unverified instant cash APK link) to run a comprehensive RBI compliance and permission security audit.
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    """).strip()
+                    st.markdown(suggestion_box_html, unsafe_allow_html=True)
 
                 else:
                     def tier_style(level):
