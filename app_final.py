@@ -67,6 +67,9 @@ EXCLUDED_NON_LENDING_IDS = [
     "com.application.zomato",                  # Zomato
     "com.google.android.youtube",              # YouTube
     "com.adobe.reader",                        # Adobe Reader
+    "com.app.walletinsta",                     # Insta Wallet
+    "walletinsta",                             # Insta Wallet
+    "instawallet",                             # Insta Wallet
 ]
 
 LENDING_KEYWORDS = [
@@ -100,9 +103,14 @@ def check_is_lending_app(app_name: str, app_id: str, description: str, genre_id:
     desc_clean = str(description).lower().strip()
     full_text = f"{name_clean} {app_id_clean} {desc_clean}"
     
-    # 1. Explicit exclusion
-    if any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS):
-        return False, "Non-Lending Application"
+    # 1. Explicit exclusion (wallets, trackers, non-lending utilities)
+    if (
+        any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS)
+        or "instawallet" in name_clean.replace(" ", "")
+        or name_clean == "insta wallet"
+        or "walletinsta" in app_id_clean
+    ):
+        return False, "Non-Lending Application (Digital Wallet)"
 
     # 2. Known Games or Gaming Franchises (Unconditional Exclusion)
     KNOWN_GAME_PATTERNS = [
@@ -231,8 +239,6 @@ def load_features_table():
 def get_app_choices():
     try:
         df = load_features_table()
-        if "app_id" in df.columns:
-            df = df[~df["app_id"].astype(str).str.lower().apply(lambda x: any(ex in x for ex in EXCLUDED_NON_LENDING_IDS))]
         return sorted(df["app_name"].dropna().astype(str).unique().tolist())
     except FileNotFoundError:
         return []
@@ -262,10 +268,16 @@ def lookup_app_features(identifier: str):
     if "app_name" in row:
         res["app_name"] = str(row["app_name"]).strip()
     app_id_val = str(res.get("app_id", "")).lower()
-    if any(ex in app_id_val for ex in EXCLUDED_NON_LENDING_IDS):
+    app_name_val = str(res.get("app_name", "")).lower()
+    if (
+        any(ex in app_id_val for ex in EXCLUDED_NON_LENDING_IDS)
+        or "walletinsta" in app_id_val
+        or "instawallet" in app_name_val.replace(" ", "")
+        or app_name_val == "insta wallet"
+    ):
         res["is_lending_app"] = False
         res["app_category_label"] = "Non-Lending Application"
-        res["genre_title"] = "Non-Lending Application"
+        res["genre_title"] = "Digital Wallet / Expense Manager"
     else:
         res["is_lending_app"] = True
         res["app_category_label"] = "Digital Lending Platform"
@@ -335,7 +347,13 @@ def get_ranked_apps_df():
     records = []
     for idx, row in df.iterrows():
         app_id_clean = str(row.get("app_id", "")).lower().strip()
-        if any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS):
+        name_clean = str(row.get("app_name", "")).lower().strip()
+        if (
+            any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS)
+            or "walletinsta" in app_id_clean
+            or "instawallet" in name_clean.replace(" ", "")
+            or name_clean == "insta wallet"
+        ):
             continue
         feat = row.to_dict()
         name_lower = str(feat.get('app_name', '')).lower()
