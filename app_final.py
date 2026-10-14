@@ -1625,22 +1625,116 @@ st.markdown('</div>', unsafe_allow_html=True)
 # TAB 1: APP RISK SCORER & GAUGE
 # ==========================================
 with tab_scorer:
-    # SECOND: Hero Headline Text & Centered Subtitle
-    st.markdown(
-        f"""
-        <div class="hero-container-light" style="padding: 20px 20px 20px;">
-            <h1 class="hero-main-title">
-                Detect Predatory Loan Apps. <br><span class="hero-gold-text">Protect Your Personal Privacy.</span>
-            </h1>
-            <div style="text-align: center; display: flex; justify-content: center; width: 100%;">
-                <p class="hero-subtitle">
-                    Audit Play Store lending apps for illegal contacts/gallery permissions, undisclosed terms, and harassment reviews before you borrow.
-                </p>
-            </div>
+    # Animated ₹ Shield Hero
+    dark_hero = st.session_state.dark_mode
+    muted_hero = "#94A3B8" if dark_hero else "#64748B"
+    st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&display=swap');
+    @keyframes shieldPulse {{
+        0%,100% {{ transform:scale(1);    filter:drop-shadow(0 0 18px rgba(247,201,72,0.55)); }}
+        50%      {{ transform:scale(1.07); filter:drop-shadow(0 0 40px rgba(247,201,72,0.95)); }}
+    }}
+    @keyframes scanRing {{
+        0%   {{ transform:scale(0.82); opacity:0.8; }}
+        100% {{ transform:scale(1.6);  opacity:0; }}
+    }}
+    @keyframes heroFadeUp {{
+        from {{ opacity:0; transform:translateY(18px); }}
+        to   {{ opacity:1; transform:translateY(0); }}
+    }}
+    .shield-hero-wrap {{
+        display:flex; flex-direction:column; align-items:center;
+        padding:28px 16px 10px; animation:heroFadeUp 0.5s ease forwards;
+    }}
+    .shield-hero-icon {{
+        position:relative; width:130px; height:130px;
+        display:flex; align-items:center; justify-content:center;
+    }}
+    .shield-hero-ring {{
+        position:absolute; inset:0; border-radius:50%;
+        border:2px solid rgba(247,201,72,0.45);
+        animation:scanRing 2.4s ease-out infinite;
+    }}
+    .shield-hero-ring:nth-child(2){{animation-delay:0.8s;}}
+    .shield-hero-ring:nth-child(3){{animation-delay:1.6s;}}
+    .shield-hero-svg {{ animation:shieldPulse 3s ease-in-out infinite; z-index:2; position:relative; }}
+    .shield-hero-title {{
+        font-family:'Space Grotesk','Inter',sans-serif;
+        font-size:2.1rem; font-weight:800; letter-spacing:-0.8px;
+        color:{'#F8FAFC' if dark_hero else '#0F172A'};
+        text-align:center; margin-top:18px; line-height:1.2;
+    }}
+    .shield-hero-gold {{ color:#F7C948; }}
+    .shield-hero-sub {{
+        font-size:0.92rem; color:{muted_hero}; text-align:center;
+        max-width:520px; margin:8px auto 0; line-height:1.55;
+    }}
+    /* M-Kavach style permission rows */
+    .perm-row {{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:14px 18px; border-radius:14px; margin-bottom:9px;
+        background:{'#111622' if dark_hero else '#FFFFFF'};
+        border:1px solid {'rgba(255,255,255,0.08)' if dark_hero else '#E2E8F0'};
+        transition:transform 0.15s ease;
+    }}
+    .perm-row:hover{{transform:translateX(4px);}}
+    .perm-row-left{{
+        display:flex; align-items:center; gap:12px;
+        font-size:0.9rem; font-weight:700;
+        color:{'#F8FAFC' if dark_hero else '#0F172A'};
+    }}
+    .perm-badge-danger{{
+        background:rgba(239,68,68,0.15); color:#F87171;
+        border:1px solid rgba(239,68,68,0.35);
+        padding:3px 14px; border-radius:20px;
+        font-size:0.78rem; font-weight:800; white-space:nowrap;
+    }}
+    .perm-badge-ok{{
+        background:rgba(16,185,129,0.14); color:#34D399;
+        border:1px solid rgba(16,185,129,0.3);
+        padding:3px 14px; border-radius:20px;
+        font-size:0.78rem; font-weight:800; white-space:nowrap;
+    }}
+    .perm-badge-warn{{
+        background:rgba(245,158,11,0.15); color:#FBBF24;
+        border:1px solid rgba(245,158,11,0.3);
+        padding:3px 14px; border-radius:20px;
+        font-size:0.78rem; font-weight:800; white-space:nowrap;
+    }}
+    </style>
+    <div class="shield-hero-wrap">
+        <div class="shield-hero-icon">
+            <div class="shield-hero-ring"></div>
+            <div class="shield-hero-ring"></div>
+            <div class="shield-hero-ring"></div>
+            <svg class="shield-hero-svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+                <defs>
+                    <radialGradient id="hg" cx="50%" cy="38%" r="62%">
+                        <stop offset="0%" stop-color="#F7C948"/>
+                        <stop offset="58%" stop-color="#D97706"/>
+                        <stop offset="100%" stop-color="#92400E"/>
+                    </radialGradient>
+                    <filter id="hglow"><feGaussianBlur stdDeviation="3.5" result="b"/>
+                        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <path d="M50 7 L87 21 L87 50 C87 72 69 88 50 94 C31 88 13 72 13 50 L13 21 Z"
+                      fill="url(#hg)" filter="url(#hglow)" stroke="#FDE68A" stroke-width="1.2"/>
+                <text x="50" y="63" font-size="34" text-anchor="middle"
+                      font-family="Georgia,serif" fill="#1A0A00" font-weight="900">&#8377;</text>
+            </svg>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        <div class="shield-hero-title">
+            Detect Predatory Loan Apps.<br>
+            <span class="shield-hero-gold">Protect Your Privacy.</span>
+        </div>
+        <div class="shield-hero-sub">
+            Audit any Play Store lending app for illegal permissions, undisclosed fees, and harassment reviews — before you borrow.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
     # LASTLY: App Audit & Prediction Tool Section (Enclosed in Glass Container Box)
     with st.container(border=True):
@@ -1925,6 +2019,97 @@ with tab_scorer:
                                 st.write(f"{icon} {reason_text}")
                             elif isinstance(item, str):
                                 st.write(f"🟢 {item}")
+
+                # =====================================================
+                # PERMISSION AUDIT PANEL (M-Kavach Security Advisor)
+                # =====================================================
+                if features and is_lending:
+                    _dark = st.session_state.dark_mode
+                    _text = "#F8FAFC" if _dark else "#0F172A"
+                    _muted = "#94A3B8" if _dark else "#64748B"
+                    _app_display = features.get("app_name", str(package_name))
+
+                    has_contacts = bool(features.get("contacts", 0))
+                    has_sms      = bool(features.get("sms", 0))
+                    has_mic      = bool(features.get("microphone", 0))
+                    has_loc      = bool(features.get("location", 0))
+                    has_photos   = bool(features.get("photos_media_storage", 0))
+                    disc_score   = int(features.get("disclosure_score", 0))
+                    redflag_pct  = (features.get("review_redflag_score", 0) or 0) * 100
+                    is_known_legit = features.get("is_known_legit", False)
+
+                    st.markdown(f"""
+                    <div style="margin-top:28px;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2.2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size:1.05rem;
+                                        font-weight:800; color:{_text}; letter-spacing:-0.3px;">
+                                Permission Audit — {_app_display}
+                            </div>
+                            <div style="font-size:0.76rem; font-weight:600; color:{_muted}; margin-left:auto;">
+                                M-Kavach style
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    PERM_ROWS = [
+                        ("📞", "Contacts List Access",
+                         "Enabled — App requests your contact list" if has_contacts else "Not Requested",
+                         "ILLEGAL for loan apps under RBI 2023 guidelines" if has_contacts else "Good — App does not harvest your contacts",
+                         "danger" if has_contacts else "ok"),
+                        ("💬", "Read SMS / OTP Messages",
+                         "Enabled — App reads your SMS" if has_sms else "Not Requested",
+                         "Can intercept OTPs and private messages — serious red flag" if has_sms else "Good — App does not read your SMS",
+                         "danger" if has_sms else "ok"),
+                        ("📷", "Photo Gallery & Media",
+                         "Enabled — App accesses your photos" if has_photos else "Not Requested",
+                         "ILLEGAL under RBI 2023 — has been used to threaten borrowers" if has_photos else "Good — App cannot access your gallery",
+                         "danger" if has_photos else "ok"),
+                        ("🎙️", "Microphone Recording",
+                         "Enabled — App can record audio" if has_mic else "Not Requested",
+                         "Not required for any loan product — suspicious" if has_mic else "Good — Microphone access not requested",
+                         "warn" if has_mic else "ok"),
+                        ("📍", "Precise GPS Location",
+                         "Enabled — App tracks your location" if has_loc else "Not Requested",
+                         "Can be used for coercive debt collection visits" if has_loc else "Good — Location not tracked",
+                         "warn" if has_loc else "ok"),
+                        ("📝", "Terms & Fee Disclosure",
+                         f"{disc_score}/5 requirements disclosed",
+                         "Interest rate, tenure, NBFC registration, contact, privacy policy" if disc_score >= 4
+                         else f"Only {disc_score} of 5 basic loan terms disclosed — borrower beware",
+                         "ok" if disc_score >= 4 else "warn" if disc_score == 3 else "danger"),
+                        ("🚨", "Harassment in Reviews",
+                         f"{redflag_pct:.0f}% of reviews mention harassment",
+                         "No significant harassment complaints in reviews" if redflag_pct < 5
+                         else f"{redflag_pct:.0f}% of reviews report threats, recovery agents, or blackmail",
+                         "ok" if redflag_pct < 5 else "warn" if redflag_pct < 15 else "danger"),
+                        ("🏛️", "RBI / NBFC Registration",
+                         "Verified Regulated Entity" if is_known_legit else "Not a verified regulated entity",
+                         "Confirmed RBI-regulated bank or NBFC partner" if is_known_legit
+                         else "Cannot confirm RBI registration — verify on sachet.rbi.org.in",
+                         "ok" if is_known_legit else "warn"),
+                    ]
+
+                    rows_html = ""
+                    for icon, label, status_val, status_desc, level in PERM_ROWS:
+                        badge_cls = "perm-badge-danger" if level == "danger" else "perm-badge-warn" if level == "warn" else "perm-badge-ok"
+                        badge_txt = ("⚠️ Enabled" if level == "danger" else
+                                     "⚠️ Caution" if level == "warn" else "✓ Safe")
+                        rows_html += f"""
+                        <div class="perm-row">
+                            <div class="perm-row-left">
+                                <span style="font-size:1.35rem;">{icon}</span>
+                                <div>
+                                    <div style="font-size:0.9rem; font-weight:700; color:{_text};">{label}</div>
+                                    <div style="font-size:0.74rem; color:{_muted}; margin-top:2px;">{status_desc}</div>
+                                </div>
+                            </div>
+                            <span class="{badge_cls}">{badge_txt}</span>
+                        </div>"""
+
+                    st.markdown(rows_html + "</div>", unsafe_allow_html=True)
 
 # ==========================================
 # TAB 2: SAFETY PROFILER
