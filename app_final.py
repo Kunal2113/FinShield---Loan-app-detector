@@ -1890,6 +1890,7 @@ with tab_scorer:
                     app_id_clean = features.get("app_id", package_name)
                     is_game = "game" in genre_name.lower() or "game" in cat_label.lower()
                     app_icon = "🎮" if is_game else "📱"
+                    dev_name = features.get("scraped_developer", "") if features else ""
                     dev_muted = t["muted"]
                     dev_line = f"<div style='font-size:0.86rem; color:{dev_muted}; margin-top:4px;'>Developer: <strong>{dev_name}</strong></div>" if dev_name else ""
 
