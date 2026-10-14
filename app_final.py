@@ -104,25 +104,45 @@ def check_is_lending_app(app_name: str, app_id: str, description: str, genre_id:
     if any(ex in app_id_clean for ex in EXCLUDED_NON_LENDING_IDS):
         return False, "Non-Lending Application"
 
-    # 2. Known Lending Banks/Platforms
+    # 2. Known Games or Gaming Franchises (Unconditional Exclusion)
+    KNOWN_GAME_PATTERNS = [
+        "callofduty", "activision", "pubg", "bgmi", "freefire", "tencent", "supercell",
+        "ea.com", "gameloft", "ubisoft", "roblox", "minecraft", "clashofclans",
+        "candycrush", "subwaysurfer", "ludo", "shooter", "battleroyale", "asphalt",
+        "fortnite", "genshin", "pokemon", "angrybirds", "templerun", "game", "games"
+    ]
+    is_explicit_game = any(gp in app_id_clean or gp in name_clean for gp in KNOWN_GAME_PATTERNS)
+
+    # 3. Check Genre from Play Store (Games & Non-Finance are NEVER loan apps)
+    if genre_id:
+        gid = str(genre_id).upper()
+        if gid.startswith("GAME") or gid in ("GAME", "FAMILY_GAME"):
+            genre_name = gid.replace("GAME_", "").replace("_", " ").title()
+            return False, f"Game ({genre_name})"
+        if gid in NON_LENDING_GENRES:
+            genre_name = gid.replace("_", " ").title()
+            return False, f"{genre_name} App"
+        if gid not in ("FINANCE", "BUSINESS"):
+            genre_name = gid.replace("_", " ").title()
+            return False, f"{genre_name} App"
+
+    if is_explicit_game and not any(b in name_clean for b in KNOWN_BANKS):
+        return False, "Mobile Game"
+
+    # 4. Known Lending Banks/Platforms
     if any(b in name_clean or b in app_id_clean for b in KNOWN_BANKS):
         return True, "Digital Lending Platform"
 
-    # 3. Check for Primary Lending Keywords
-    has_primary_loan = any(kw in full_text for kw in PRIMARY_LENDING_KEYWORDS)
-    has_any_lending = any(kw in full_text for kw in LENDING_KEYWORDS)
+    # 5. Check for Primary Lending Keywords with word boundary for short tokens
+    def has_kw(kw: str, text: str) -> bool:
+        if len(kw) <= 4:
+            return bool(re.search(rf"\b{re.escape(kw)}\b", text))
+        return kw in text
 
-    # 4. Genre checking if Play Store genreId available
-    if genre_id:
-        gid = str(genre_id).upper()
-        if (gid in NON_LENDING_GENRES or gid.startswith("GAME")) and not has_primary_loan:
-            genre_name = gid.replace("_", " ").title()
-            return False, f"{genre_name} App"
-        if gid not in ("FINANCE", "BUSINESS") and not has_primary_loan:
-            genre_name = gid.replace("_", " ").title()
-            return False, f"{genre_name} App"
+    has_primary_loan = any(has_kw(kw, full_text) for kw in PRIMARY_LENDING_KEYWORDS)
+    has_any_lending = any(has_kw(kw, full_text) for kw in LENDING_KEYWORDS)
 
-    # 5. Require primary loan keywords unless explicitly in finance category
+    # 6. Require primary loan keywords unless explicitly in finance category
     if not has_primary_loan and not (has_any_lending and "loan" in full_text):
         return False, "Non-Lending Application"
 
@@ -453,6 +473,39 @@ def scrape_playstore_live(pkg_id: str) -> dict | None:
     else:
         installs = parse_installs(str(data.get('installs', 0))) or 10000
 
+    genre_id = data.get('genreId', '')
+    genre_title = data.get('genre', '')
+    is_lending, app_category_label = check_is_lending_app(app_name, clean_id, description, genre_id)
+    if not genre_title:
+        genre_title = app_category_label
+
+    if not is_lending:
+        return {
+            "app_id": clean_id,
+            "app_name": app_name,
+            "install_count": installs,
+            "disclosure_score": 0,
+            "review_redflag_score": 0.0,
+            "pct_strongly_negative_reviews": 0.0,
+            "avg_review_sentiment": 0.0,
+            "avg_review_length": 0.0,
+            "contacts": 0,
+            "sms": 0,
+            "microphone": 0,
+            "location": 0,
+            "photos_media_storage": 0,
+            "is_known_legit": False,
+            "is_lending_app": False,
+            "app_category_label": app_category_label,
+            "genre_title": genre_title,
+            "is_web_domain": False,
+            "is_custom_unlisted": True,
+            "scrape_source": "live_playstore",
+            "scraped_developer": data.get("developer", ""),
+            "scraped_privacy_policy": privacy_policy,
+            "scraped_reviews_count": 0
+        }
+
     disc_score = disclosure_score(description, privacy_policy)
     
     perms_raw = str(data.get('permissions', [])).lower() + " " + description.lower()
@@ -488,11 +541,6 @@ def scrape_playstore_live(pkg_id: str) -> dict | None:
         avg_review_length = 15.0
 
     is_known = any(b in app_name.lower() or b in clean_id.lower() for b in KNOWN_BANKS)
-    genre_id = data.get('genreId', '')
-    genre_title = data.get('genre', '')
-    is_lending, app_category_label = check_is_lending_app(app_name, clean_id, description, genre_id)
-    if not genre_title:
-        genre_title = app_category_label
 
     return {
         "app_id": clean_id,
@@ -1791,9 +1839,19 @@ with tab_scorer:
         with st.spinner("Analyzing app features & review sentiment..."):
             score, reasons, used_fallback, features = score_app(package_name)
 
+            is_lending = features.get("is_lending_app", True) if features else True
+
             if used_fallback and features:
                 src = features.get("scrape_source")
-                if src == "live_playstore":
+                if not is_lending:
+                    app_title = features.get("app_name", package_name)
+                    cat_txt = features.get("genre_title") or features.get("app_category_label") or "Non-Lending Application"
+                    is_game = "game" in cat_txt.lower()
+                    st.info(
+                        f"**Non-Lending App Detected:** `{app_title}` is classified as **{cat_txt}**. Predatory loan audit not applicable.",
+                        icon="🎮" if is_game else "ℹ️"
+                    )
+                elif src == "live_playstore":
                     dev = features.get("scraped_developer")
                     dev_str = f" by **{dev}**" if dev else ""
                     rvs_cnt = features.get("scraped_reviews_count", 0)
@@ -1816,7 +1874,6 @@ with tab_scorer:
 
             if score is not None:
                 st.write("")
-                is_lending = features.get("is_lending_app", True) if features else True
                 _pkg_raw = str(package_name)
                 _is_playstore_input = "play.google.com" in _pkg_raw
                 _feat_app_id = features.get("app_id", "") if features else ""
@@ -1825,83 +1882,70 @@ with tab_scorer:
                     bool(features.get("is_web_domain", False)) if features else False
                 )
 
-                def tier_style(level):
-                    if st.session_state.dark_mode:
-                        return {
-                            "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
-                            "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
-                            "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
-                        }[level]
-                    else:
-                        return {
-                            "red": ("#FEE2E2", "#B91C1C", "1.5px solid rgba(220, 38, 38, 0.45)"),
-                            "orange": ("#FEF3C7", "#B45309", "1.5px solid rgba(217, 119, 6, 0.45)"),
-                            "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
-                        }[level]
-
-                col_gauge, col_metrics = st.columns([1, 1.8], vertical_alignment="top")
-
                 if not is_lending:
-                    with col_gauge:
-                        st.markdown("#### 🛡️ Riskometer Verdict")
-                        cat_label = features.get("app_category_label") if features else "Non-Lending App"
-                        genre_name = features.get("genre_title") or cat_label
-                        app_disp_name = features.get('app_name', package_name) if features else package_name
+                    # Clean Non-Lending Application Screen (NO predatory loan audit)
+                    app_disp_name = features.get('app_name', package_name) if features else package_name
+                    cat_label = features.get("app_category_label") if features else "Non-Lending Application"
+                    genre_name = features.get("genre_title") or cat_label
+                    app_id_clean = features.get("app_id", package_name)
+                    is_game = "game" in genre_name.lower() or "game" in cat_label.lower()
+                    app_icon = "🎮" if is_game else "📱"
+                    dev_muted = t["muted"]
+                    dev_line = f"<div style='font-size:0.86rem; color:{dev_muted}; margin-top:4px;'>Developer: <strong>{dev_name}</strong></div>" if dev_name else ""
 
-                        st.markdown(
-                            f"""
-                            <div style="background:{t['card_bg']}; border: 1.5px solid rgba(59, 130, 246, 0.45); border-radius: 22px; padding: 26px 20px; text-align: center; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);">
-                                <div style="font-size: 3.2rem; margin-bottom: 8px;">ℹ️</div>
-                                <div style="font-size: 1.28rem; font-weight: 800; color: {t['text']};">Non-Lending Application</div>
-                                <div style="font-size: 1.85rem; font-weight: 900; color: #3B82F6; margin: 10px 0;">Risk Verdict: N/A</div>
-                                <div style="font-size: 0.84rem; color: {t['muted']}; line-height: 1.5; margin-top: 10px;">
-                                    <strong>{app_disp_name}</strong> is categorized as <strong>{genre_name}</strong> and is not a digital loan platform. FinShield's Riskometer exclusively evaluates digital lending apps.
-                                </div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                    target_url = f"https://play.google.com/store/apps/details?id={app_id_clean}" if not str(app_id_clean).startswith("http") else app_id_clean
 
-                    with col_metrics:
-                        st.markdown("#### App at a glance")
-                        if features:
-                            installs = features.get("install_count")
-                            neg_pct = (features.get("pct_strongly_negative_reviews", 0) or 0) * 100
-                            sentiment = features.get("avg_review_sentiment", 0)
-                            length = features.get("avg_review_length", 0)
+                    st.markdown(f"""
+                    <div style="background:{t['card_bg']}; border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 24px; padding: 32px 24px; text-align: center; margin: 20px 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);">
+                        <div style="font-size: 3.8rem; margin-bottom: 8px;">{app_icon}</div>
+                        <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size: 1.5rem; font-weight: 800; color: {t['text']};">
+                            Non-Lending Application: {app_disp_name}
+                        </div>
+                        {dev_line}
+                        <div style="display:inline-block; margin-top:10px; padding:5px 18px; border-radius:20px; background:rgba(59,130,246,0.15); color:#60A5FA; font-weight:700; font-size:0.85rem; border:1px solid rgba(59,130,246,0.3);">
+                            Category: {genre_name}
+                        </div>
+                        <div style="max-width: 620px; margin: 18px auto 0; font-size: 0.92rem; color: {t['muted']}; line-height: 1.6;">
+                            <strong>FinShield is designed exclusively to audit Digital Lending & Loan Apps</strong> for predatory interest rates, hidden fee violations, illegal contact list harvesting, and recovery agent harassment under RBI directives.
+                            <br><br>
+                            Because <strong>{app_disp_name}</strong> is a <strong>{genre_name}</strong> and does not offer financial loans or credit lines, a predatory loan risk audit is <strong>not applicable</strong>.
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:14px; margin-top:22px;">
+                            <a href="{target_url}" target="_blank" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:{t['text']}; padding:9px 22px; border-radius:24px; text-decoration:none; font-size:0.85rem; font-weight:700;">
+                                View on Play Store ↗
+                            </a>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                            installs_card = ("🌐 Platform", "Web Domain", "green") if is_web_target else ("📦 Installs", f"{installs:,}" if installs else "—", "green")
+                    st.markdown(f"""
+                    <div style="background:{'#131B2E' if st.session_state.dark_mode else '#F0F9FF'}; border:1px dashed {'#3B82F6' if st.session_state.dark_mode else '#93C5FD'}; border-radius:18px; padding:18px 22px; margin-top:10px;">
+                        <div style="font-weight:700; font-size:0.92rem; color:{'#93C5FD' if st.session_state.dark_mode else '#1E40AF'}; display:flex; align-items:center; gap:8px;">
+                            <span>💡</span> Looking to audit a digital loan app?
+                        </div>
+                        <div style="font-size:0.84rem; color:{t['muted']}; margin-top:6px; line-height:1.5;">
+                            Paste any digital personal loan app link or package ID (e.g. <code>com.kreditbee.android</code>, <code>com.kissht</code>, <code>com.moneyview.loans</code>, or an unverified instant cash APK link) to run a comprehensive RBI compliance and permission security audit.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                            stats = [
-                                ("🏛️ App Category", genre_name[:22], "green"),
-                                installs_card,
-                                ("📝 Terms disclosed", "N/A (Non-Loan)", "green"),
-                                ("🚩 Harassment mentions", "0%", "green"),
-                                ("😠 Strongly negative reviews", f"{neg_pct:.0f}%", "red" if neg_pct >= 20 else "orange" if neg_pct >= 10 else "green"),
-                                ("🙂 Avg. review tone", f"{sentiment:+.2f}", "orange" if (sentiment > 0.6 or sentiment < -0.3) else "green"),
-                                ("✏️ Avg. review length", f"{length:.0f} words", "green"),
-                            ]
-
-                            cards_html = []
-                            for i, (lbl, val, lvl) in enumerate(stats):
-                                bg_c, fg_c, bdr_c = tier_style(lvl)
-                                grid_col_style = "grid-column: 2 / 3;" if i == 6 else ""
-                                cards_html.append(
-                                    f'<div class="glance-card" style="background:{bg_c}; color:{fg_c}; border:{bdr_c}; {grid_col_style}">'
-                                    f'<div style="font-size:0.72rem; opacity:0.85; margin-bottom:8px; font-weight:600; line-height:1.2;">{lbl}</div>'
-                                    f'<div style="font-size:1.15rem; font-weight:800; line-height:1.2;">{val}</div>'
-                                    f'</div>'
-                                )
-
-                            st.markdown(f'<div class="glance-grid-3col">{"".join(cards_html)}</div>', unsafe_allow_html=True)
-
-                            st.markdown(
-                                f'<div style="font-size:0.78rem; color:{t["muted"]}; line-height:1.55; margin-top:14px; text-align:left;">'
-                                f'<span style="color:#34D399; font-weight:700;">🟢 Non-Lending Service</span> — <strong>App Category:</strong> General utility, communication, social, or media application. <strong>Terms disclosed:</strong> N/A as app does not issue personal loans or credit lines. <strong>Harassment mentions:</strong> 0% debt collection harassment complaints.'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
                 else:
+                    def tier_style(level):
+                        if st.session_state.dark_mode:
+                            return {
+                                "red": ("#3F1618", "#F56565", "1px solid rgba(245, 101, 101, 0.2)"),
+                                "orange": ("#3C2F0E", "#ECC94B", "1px solid rgba(236, 201, 75, 0.2)"),
+                                "green": ("#0E3321", "#48BB78", "1px solid rgba(72, 187, 120, 0.2)"),
+                            }[level]
+                        else:
+                            return {
+                                "red": ("#FEE2E2", "#B91C1C", "1.5px solid rgba(220, 38, 38, 0.45)"),
+                                "orange": ("#FEF3C7", "#B45309", "1.5px solid rgba(217, 119, 6, 0.45)"),
+                                "green": ("#D1FAE5", "#047857", "1.5px solid rgba(5, 150, 105, 0.45)"),
+                            }[level]
+
+                    col_gauge, col_metrics = st.columns([1, 1.8], vertical_alignment="top")
+
                     with col_gauge:
                         st.markdown("#### 🛡️ Riskometer Verdict")
                         # Riskometer SVG Dial
@@ -1986,141 +2030,141 @@ with tab_scorer:
                                 unsafe_allow_html=True
                             )
 
-                # Full-Width App / Web Link Banner
-                app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
-                if is_web_target:
-                    banner_title = "Verified Official Web Domain"
-                    target_url = app_id_str if app_id_str.startswith("http") else f"https://{app_id_str}"
-                    button_label = "Visit Website ↗"
-                else:
-                    banner_title = "Play Store Verified App Package"
-                    target_url = f"https://play.google.com/store/apps/details?id={app_id_str}"
-                    button_label = "View on Play Store ↗"
+                    # Full-Width App / Web Link Banner
+                    app_id_str = str(features.get("app_id", package_name)).strip() if features else str(package_name).strip()
+                    if is_web_target:
+                        banner_title = "Verified Official Web Domain"
+                        target_url = app_id_str if app_id_str.startswith("http") else f"https://{app_id_str}"
+                        button_label = "Visit Website ↗"
+                    else:
+                        banner_title = "Play Store Verified App Package"
+                        target_url = f"https://play.google.com/store/apps/details?id={app_id_str}"
+                        button_label = "View on Play Store ↗"
 
-                st.markdown(
-                    f"""
-                    <div style="background:{t['card_bg']}; border:1.5px solid rgba(247, 201, 72, 0.25); border-radius:20px; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:20px; width:100%; box-shadow:0 8px 25px rgba(0, 0, 0, 0.3);">
-                        <div>
-                            <div style="font-weight:800; font-size:0.92rem; color:{t['text']};">{banner_title}</div>
-                            <div style="font-size:0.82rem; color:{t['muted']}; font-family:monospace; margin-top:2px;">{app_id_str}</div>
-                        </div>
-                        <a href="{target_url}" target="_blank" style="background:linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%); color:#000; padding:10px 22px; border-radius:30px; font-weight:800; font-size:0.85rem; text-decoration:none; box-shadow:0 4px 18px rgba(247, 201, 72, 0.35); transition:transform 0.2s;">{button_label}</a>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                with st.expander("🔍 Key Risk Drivers & Explanation Breakdown"):
-                    if reasons:
-                        for item in reasons:
-                            if isinstance(item, (tuple, list)) and len(item) == 2:
-                                reason_text, is_bad = item
-                                icon = "🔴" if is_bad else "🟢"
-                                st.write(f"{icon} {reason_text}")
-                            elif isinstance(item, str):
-                                st.write(f"🟢 {item}")
-
-                # =====================================================
-                # PERMISSION AUDIT PANEL
-                # =====================================================
-                if features and is_lending:
-                    _dark = st.session_state.dark_mode
-                    _text = "#F8FAFC" if _dark else "#0F172A"
-                    _muted = "#94A3B8" if _dark else "#64748B"
-                    _app_display = features.get("app_name", str(package_name))
-
-                    has_contacts = bool(features.get("contacts", 0))
-                    has_sms      = bool(features.get("sms", 0))
-                    has_mic      = bool(features.get("microphone", 0))
-                    has_loc      = bool(features.get("location", 0))
-                    has_photos   = bool(features.get("photos_media_storage", 0))
-                    disc_score   = int(features.get("disclosure_score", 0))
-                    redflag_pct  = (features.get("review_redflag_score", 0) or 0) * 100
-                    is_known_legit = features.get("is_known_legit", False)
-
-                    st.markdown(f"""
-                    <div style="margin-top:28px;">
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2.2">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                            <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size:1.05rem;
-                                        font-weight:800; color:{_text}; letter-spacing:-0.3px;">
-                                Permission & Compliance Audit — {_app_display}
+                    st.markdown(
+                        f"""
+                        <div style="background:{t['card_bg']}; border:1.5px solid rgba(247, 201, 72, 0.25); border-radius:20px; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:20px; width:100%; box-shadow:0 8px 25px rgba(0, 0, 0, 0.3);">
+                            <div>
+                                <div style="font-weight:800; font-size:0.92rem; color:{t['text']};">{banner_title}</div>
+                                <div style="font-size:0.82rem; color:{t['muted']}; font-family:monospace; margin-top:2px;">{app_id_str}</div>
                             </div>
+                            <a href="{target_url}" target="_blank" style="background:linear-gradient(135deg, #F7C948 0%, #E5C07B 50%, #D97706 100%); color:#000; padding:10px 22px; border-radius:30px; font-weight:800; font-size:0.85rem; text-decoration:none; box-shadow:0 4px 18px rgba(247, 201, 72, 0.35); transition:transform 0.2s;">{button_label}</a>
                         </div>
-                    """, unsafe_allow_html=True)
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                    # Build per-item contextual status and badges
-                    contacts_badge = ("⚠️ Requested", "danger") if has_contacts else ("✓ Not Requested", "ok")
-                    contacts_desc = "ILLEGAL under RBI 2023 — App demands access to your phone contacts" if has_contacts else "Safe — App does not access or harvest your contacts list"
+                    with st.expander("🔍 Key Risk Drivers & Explanation Breakdown"):
+                        if reasons:
+                            for item in reasons:
+                                if isinstance(item, (tuple, list)) and len(item) == 2:
+                                    reason_text, is_bad = item
+                                    icon = "🔴" if is_bad else "🟢"
+                                    st.write(f"{icon} {reason_text}")
+                                elif isinstance(item, str):
+                                    st.write(f"🟢 {item}")
 
-                    sms_badge = ("⚠️ Requested", "danger") if has_sms else ("✓ Not Requested", "ok")
-                    sms_desc = "High Risk — App requests permission to read private SMS and OTPs" if has_sms else "Safe — App does not request SMS or message read permissions"
+                    # =====================================================
+                    # PERMISSION AUDIT PANEL
+                    # =====================================================
+                    if features:
+                        _dark = st.session_state.dark_mode
+                        _text = "#F8FAFC" if _dark else "#0F172A"
+                        _muted = "#94A3B8" if _dark else "#64748B"
+                        _app_display = features.get("app_name", str(package_name))
 
-                    photos_badge = ("⚠️ Requested", "danger") if has_photos else ("✓ Not Requested", "ok")
-                    photos_desc = "ILLEGAL under RBI 2023 — App requests access to gallery and device storage" if has_photos else "Safe — App cannot access your photos, gallery, or local media"
+                        has_contacts = bool(features.get("contacts", 0))
+                        has_sms      = bool(features.get("sms", 0))
+                        has_mic      = bool(features.get("microphone", 0))
+                        has_loc      = bool(features.get("location", 0))
+                        has_photos   = bool(features.get("photos_media_storage", 0))
+                        disc_score   = int(features.get("disclosure_score", 0))
+                        redflag_pct  = (features.get("review_redflag_score", 0) or 0) * 100
+                        is_known_legit = features.get("is_known_legit", False)
 
-                    mic_badge = ("⚠️ Requested", "warn") if has_mic else ("✓ Not Requested", "ok")
-                    mic_desc = "Suspicious — Unnecessary audio recording permission for loan products" if has_mic else "Safe — Microphone access not requested"
-
-                    loc_badge = ("⚠️ Requested", "warn") if has_loc else ("✓ Not Requested", "ok")
-                    loc_desc = "Caution — Continuous background location can be used for recovery tracking" if has_loc else "Safe — Precise GPS location not requested"
-
-                    if disc_score >= 4:
-                        disc_badge = (f"✓ Clear ({disc_score}/5)", "ok")
-                        disc_desc = "Transparent disclosure of APR, tenure, NBFC registration & contact details"
-                    elif disc_score == 3:
-                        disc_badge = (f"⚠️ Partial ({disc_score}/5)", "warn")
-                        disc_desc = "Only 3 of 5 basic loan terms disclosed — borrower should verify before applying"
-                    else:
-                        disc_badge = (f"⚠️ Incomplete ({disc_score}/5)", "danger")
-                        disc_desc = f"Only {disc_score} of 5 essential loan terms disclosed — high hidden fees risk"
-
-                    if redflag_pct >= 15:
-                        harass_badge = (f"🚨 Severe ({redflag_pct:.0f}%)", "danger")
-                        harass_desc = f"{redflag_pct:.0f}% of reviews report aggressive recovery, blackmail, or abusive calls"
-                    elif redflag_pct >= 5:
-                        harass_badge = (f"⚠️ Caution ({redflag_pct:.0f}%)", "warn")
-                        harass_desc = f"{redflag_pct:.0f}% of reviews mention pushy or aggressive recovery behavior"
-                    else:
-                        harass_badge = ("✓ Clean Reviews", "ok")
-                        harass_desc = "No significant harassment complaints detected in user reviews"
-
-                    if is_known_legit:
-                        rbi_badge = ("✓ RBI Registered", "ok")
-                        rbi_desc = "Verified regulated entity or registered NBFC/Bank lending partner"
-                    else:
-                        rbi_badge = ("⚠️ Unverified", "warn")
-                        rbi_desc = "Unverified lending partner — recommend cross-checking on sachet.rbi.org.in"
-
-                    PERM_ROWS = [
-                        ("📞", "Contacts List Access", contacts_desc, contacts_badge[0], contacts_badge[1]),
-                        ("💬", "Read SMS / OTP Messages", sms_desc, sms_badge[0], sms_badge[1]),
-                        ("📷", "Photo Gallery & Media", photos_desc, photos_badge[0], photos_badge[1]),
-                        ("🎙️", "Microphone Recording", mic_desc, mic_badge[0], mic_badge[1]),
-                        ("📍", "Precise GPS Location", loc_desc, loc_badge[0], loc_badge[1]),
-                        ("📝", "Terms & Fee Disclosure", disc_desc, disc_badge[0], disc_badge[1]),
-                        ("🚨", "Harassment in Reviews", harass_desc, harass_badge[0], harass_badge[1]),
-                        ("🏛️", "RBI / NBFC Registration", rbi_desc, rbi_badge[0], rbi_badge[1]),
-                    ]
-
-                    rows_html = ""
-                    for icon, label, status_desc, badge_txt, level in PERM_ROWS:
-                        badge_cls = "perm-badge-danger" if level == "danger" else "perm-badge-warn" if level == "warn" else "perm-badge-ok"
-                        rows_html += f"""
-                        <div class="perm-row">
-                            <div class="perm-row-left">
-                                <span style="font-size:1.35rem;">{icon}</span>
-                                <div>
-                                    <div style="font-size:0.9rem; font-weight:700; color:{_text};">{label}</div>
-                                    <div style="font-size:0.74rem; color:{_muted}; margin-top:2px;">{status_desc}</div>
+                        st.markdown(f"""
+                        <div style="margin-top:28px;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7C948" stroke-width="2.2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                </svg>
+                                <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size:1.05rem;
+                                            font-weight:800; color:{_text}; letter-spacing:-0.3px;">
+                                    Permission & Compliance Audit — {_app_display}
                                 </div>
                             </div>
-                            <span class="{badge_cls}">{badge_txt}</span>
-                        </div>"""
+                        """, unsafe_allow_html=True)
 
-                    st.markdown(rows_html + "</div>", unsafe_allow_html=True)
+                        # Build per-item contextual status and badges
+                        contacts_badge = ("⚠️ Requested", "danger") if has_contacts else ("✓ Not Requested", "ok")
+                        contacts_desc = "ILLEGAL under RBI 2023 — App demands access to your phone contacts" if has_contacts else "Safe — App does not access or harvest your contacts list"
+
+                        sms_badge = ("⚠️ Requested", "danger") if has_sms else ("✓ Not Requested", "ok")
+                        sms_desc = "High Risk — App requests permission to read private SMS and OTPs" if has_sms else "Safe — App does not request SMS or message read permissions"
+
+                        photos_badge = ("⚠️ Requested", "danger") if has_photos else ("✓ Not Requested", "ok")
+                        photos_desc = "ILLEGAL under RBI 2023 — App requests access to gallery and device storage" if has_photos else "Safe — App cannot access your photos, gallery, or local media"
+
+                        mic_badge = ("⚠️ Requested", "warn") if has_mic else ("✓ Not Requested", "ok")
+                        mic_desc = "Suspicious — Unnecessary audio recording permission for loan products" if has_mic else "Safe — Microphone access not requested"
+
+                        loc_badge = ("⚠️ Requested", "warn") if has_loc else ("✓ Not Requested", "ok")
+                        loc_desc = "Caution — Continuous background location can be used for recovery tracking" if has_loc else "Safe — Precise GPS location not requested"
+
+                        if disc_score >= 4:
+                            disc_badge = (f"✓ Clear ({disc_score}/5)", "ok")
+                            disc_desc = "Transparent disclosure of APR, tenure, NBFC registration & contact details"
+                        elif disc_score == 3:
+                            disc_badge = (f"⚠️ Partial ({disc_score}/5)", "warn")
+                            disc_desc = "Only 3 of 5 basic loan terms disclosed — borrower should verify before applying"
+                        else:
+                            disc_badge = (f"⚠️ Incomplete ({disc_score}/5)", "danger")
+                            disc_desc = f"Only {disc_score} of 5 essential loan terms disclosed — high hidden fees risk"
+
+                        if redflag_pct >= 15:
+                            harass_badge = (f"🚨 Severe ({redflag_pct:.0f}%)", "danger")
+                            harass_desc = f"{redflag_pct:.0f}% of reviews report aggressive recovery, blackmail, or abusive calls"
+                        elif redflag_pct >= 5:
+                            harass_badge = (f"⚠️ Caution ({redflag_pct:.0f}%)", "warn")
+                            harass_desc = f"{redflag_pct:.0f}% of reviews mention pushy or aggressive recovery behavior"
+                        else:
+                            harass_badge = ("✓ Clean Reviews", "ok")
+                            harass_desc = "No significant harassment complaints detected in user reviews"
+
+                        if is_known_legit:
+                            rbi_badge = ("✓ RBI Registered", "ok")
+                            rbi_desc = "Verified regulated entity or registered NBFC/Bank lending partner"
+                        else:
+                            rbi_badge = ("⚠️ Unverified", "warn")
+                            rbi_desc = "Unverified lending partner — recommend cross-checking on sachet.rbi.org.in"
+
+                        PERM_ROWS = [
+                            ("📞", "Contacts List Access", contacts_desc, contacts_badge[0], contacts_badge[1]),
+                            ("💬", "Read SMS / OTP Messages", sms_desc, sms_badge[0], sms_badge[1]),
+                            ("📷", "Photo Gallery & Media", photos_desc, photos_badge[0], photos_badge[1]),
+                            ("🎙️", "Microphone Recording", mic_desc, mic_badge[0], mic_badge[1]),
+                            ("📍", "Precise GPS Location", loc_desc, loc_badge[0], loc_badge[1]),
+                            ("📝", "Terms & Fee Disclosure", disc_desc, disc_badge[0], disc_badge[1]),
+                            ("🚨", "Harassment in Reviews", harass_desc, harass_badge[0], harass_badge[1]),
+                            ("🏛️", "RBI / NBFC Registration", rbi_desc, rbi_badge[0], rbi_badge[1]),
+                        ]
+
+                        rows_html = ""
+                        for icon, label, status_desc, badge_txt, level in PERM_ROWS:
+                            badge_cls = "perm-badge-danger" if level == "danger" else "perm-badge-warn" if level == "warn" else "perm-badge-ok"
+                            rows_html += f"""
+                            <div class="perm-row">
+                                <div class="perm-row-left">
+                                    <span style="font-size:1.35rem;">{icon}</span>
+                                    <div>
+                                        <div style="font-size:0.9rem; font-weight:700; color:{_text};">{label}</div>
+                                        <div style="font-size:0.74rem; color:{_muted}; margin-top:2px;">{status_desc}</div>
+                                    </div>
+                                </div>
+                                <span class="{badge_cls}">{badge_txt}</span>
+                            </div>"""
+
+                        st.markdown(rows_html + "</div>", unsafe_allow_html=True)
 
 # ==========================================
 # TAB 2: SAFETY PROFILER
