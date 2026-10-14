@@ -1670,7 +1670,7 @@ with tab_scorer:
         font-size:0.92rem; color:{muted_hero}; text-align:center;
         max-width:520px; margin:8px auto 0; line-height:1.55;
     }}
-    /* M-Kavach style permission rows */
+    /* Permission audit rows */
     .perm-row {{
         display:flex; align-items:center; justify-content:space-between;
         padding:14px 18px; border-radius:14px; margin-bottom:9px;
@@ -2021,7 +2021,7 @@ with tab_scorer:
                                 st.write(f"🟢 {item}")
 
                 # =====================================================
-                # PERMISSION AUDIT PANEL (M-Kavach Security Advisor)
+                # PERMISSION AUDIT PANEL
                 # =====================================================
                 if features and is_lending:
                     _dark = st.session_state.dark_mode
@@ -2046,57 +2046,68 @@ with tab_scorer:
                             </svg>
                             <div style="font-family:'Space Grotesk','Inter',sans-serif; font-size:1.05rem;
                                         font-weight:800; color:{_text}; letter-spacing:-0.3px;">
-                                Permission Audit — {_app_display}
-                            </div>
-                            <div style="font-size:0.76rem; font-weight:600; color:{_muted}; margin-left:auto;">
-                                M-Kavach style
+                                Permission & Compliance Audit — {_app_display}
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
 
+                    # Build per-item contextual status and badges
+                    contacts_badge = ("⚠️ Requested", "danger") if has_contacts else ("✓ Not Requested", "ok")
+                    contacts_desc = "ILLEGAL under RBI 2023 — App demands access to your phone contacts" if has_contacts else "Safe — App does not access or harvest your contacts list"
+
+                    sms_badge = ("⚠️ Requested", "danger") if has_sms else ("✓ Not Requested", "ok")
+                    sms_desc = "High Risk — App requests permission to read private SMS and OTPs" if has_sms else "Safe — App does not request SMS or message read permissions"
+
+                    photos_badge = ("⚠️ Requested", "danger") if has_photos else ("✓ Not Requested", "ok")
+                    photos_desc = "ILLEGAL under RBI 2023 — App requests access to gallery and device storage" if has_photos else "Safe — App cannot access your photos, gallery, or local media"
+
+                    mic_badge = ("⚠️ Requested", "warn") if has_mic else ("✓ Not Requested", "ok")
+                    mic_desc = "Suspicious — Unnecessary audio recording permission for loan products" if has_mic else "Safe — Microphone access not requested"
+
+                    loc_badge = ("⚠️ Requested", "warn") if has_loc else ("✓ Not Requested", "ok")
+                    loc_desc = "Caution — Continuous background location can be used for recovery tracking" if has_loc else "Safe — Precise GPS location not requested"
+
+                    if disc_score >= 4:
+                        disc_badge = (f"✓ Clear ({disc_score}/5)", "ok")
+                        disc_desc = "Transparent disclosure of APR, tenure, NBFC registration & contact details"
+                    elif disc_score == 3:
+                        disc_badge = (f"⚠️ Partial ({disc_score}/5)", "warn")
+                        disc_desc = "Only 3 of 5 basic loan terms disclosed — borrower should verify before applying"
+                    else:
+                        disc_badge = (f"⚠️ Incomplete ({disc_score}/5)", "danger")
+                        disc_desc = f"Only {disc_score} of 5 essential loan terms disclosed — high hidden fees risk"
+
+                    if redflag_pct >= 15:
+                        harass_badge = (f"🚨 Severe ({redflag_pct:.0f}%)", "danger")
+                        harass_desc = f"{redflag_pct:.0f}% of reviews report aggressive recovery, blackmail, or abusive calls"
+                    elif redflag_pct >= 5:
+                        harass_badge = (f"⚠️ Caution ({redflag_pct:.0f}%)", "warn")
+                        harass_desc = f"{redflag_pct:.0f}% of reviews mention pushy or aggressive recovery behavior"
+                    else:
+                        harass_badge = ("✓ Clean Reviews", "ok")
+                        harass_desc = "No significant harassment complaints detected in user reviews"
+
+                    if is_known_legit:
+                        rbi_badge = ("✓ RBI Registered", "ok")
+                        rbi_desc = "Verified regulated entity or registered NBFC/Bank lending partner"
+                    else:
+                        rbi_badge = ("⚠️ Unverified", "warn")
+                        rbi_desc = "Unverified lending partner — recommend cross-checking on sachet.rbi.org.in"
+
                     PERM_ROWS = [
-                        ("📞", "Contacts List Access",
-                         "Enabled — App requests your contact list" if has_contacts else "Not Requested",
-                         "ILLEGAL for loan apps under RBI 2023 guidelines" if has_contacts else "Good — App does not harvest your contacts",
-                         "danger" if has_contacts else "ok"),
-                        ("💬", "Read SMS / OTP Messages",
-                         "Enabled — App reads your SMS" if has_sms else "Not Requested",
-                         "Can intercept OTPs and private messages — serious red flag" if has_sms else "Good — App does not read your SMS",
-                         "danger" if has_sms else "ok"),
-                        ("📷", "Photo Gallery & Media",
-                         "Enabled — App accesses your photos" if has_photos else "Not Requested",
-                         "ILLEGAL under RBI 2023 — has been used to threaten borrowers" if has_photos else "Good — App cannot access your gallery",
-                         "danger" if has_photos else "ok"),
-                        ("🎙️", "Microphone Recording",
-                         "Enabled — App can record audio" if has_mic else "Not Requested",
-                         "Not required for any loan product — suspicious" if has_mic else "Good — Microphone access not requested",
-                         "warn" if has_mic else "ok"),
-                        ("📍", "Precise GPS Location",
-                         "Enabled — App tracks your location" if has_loc else "Not Requested",
-                         "Can be used for coercive debt collection visits" if has_loc else "Good — Location not tracked",
-                         "warn" if has_loc else "ok"),
-                        ("📝", "Terms & Fee Disclosure",
-                         f"{disc_score}/5 requirements disclosed",
-                         "Interest rate, tenure, NBFC registration, contact, privacy policy" if disc_score >= 4
-                         else f"Only {disc_score} of 5 basic loan terms disclosed — borrower beware",
-                         "ok" if disc_score >= 4 else "warn" if disc_score == 3 else "danger"),
-                        ("🚨", "Harassment in Reviews",
-                         f"{redflag_pct:.0f}% of reviews mention harassment",
-                         "No significant harassment complaints in reviews" if redflag_pct < 5
-                         else f"{redflag_pct:.0f}% of reviews report threats, recovery agents, or blackmail",
-                         "ok" if redflag_pct < 5 else "warn" if redflag_pct < 15 else "danger"),
-                        ("🏛️", "RBI / NBFC Registration",
-                         "Verified Regulated Entity" if is_known_legit else "Not a verified regulated entity",
-                         "Confirmed RBI-regulated bank or NBFC partner" if is_known_legit
-                         else "Cannot confirm RBI registration — verify on sachet.rbi.org.in",
-                         "ok" if is_known_legit else "warn"),
+                        ("📞", "Contacts List Access", contacts_desc, contacts_badge[0], contacts_badge[1]),
+                        ("💬", "Read SMS / OTP Messages", sms_desc, sms_badge[0], sms_badge[1]),
+                        ("📷", "Photo Gallery & Media", photos_desc, photos_badge[0], photos_badge[1]),
+                        ("🎙️", "Microphone Recording", mic_desc, mic_badge[0], mic_badge[1]),
+                        ("📍", "Precise GPS Location", loc_desc, loc_badge[0], loc_badge[1]),
+                        ("📝", "Terms & Fee Disclosure", disc_desc, disc_badge[0], disc_badge[1]),
+                        ("🚨", "Harassment in Reviews", harass_desc, harass_badge[0], harass_badge[1]),
+                        ("🏛️", "RBI / NBFC Registration", rbi_desc, rbi_badge[0], rbi_badge[1]),
                     ]
 
                     rows_html = ""
-                    for icon, label, status_val, status_desc, level in PERM_ROWS:
+                    for icon, label, status_desc, badge_txt, level in PERM_ROWS:
                         badge_cls = "perm-badge-danger" if level == "danger" else "perm-badge-warn" if level == "warn" else "perm-badge-ok"
-                        badge_txt = ("⚠️ Enabled" if level == "danger" else
-                                     "⚠️ Caution" if level == "warn" else "✓ Safe")
                         rows_html += f"""
                         <div class="perm-row">
                             <div class="perm-row-left">
